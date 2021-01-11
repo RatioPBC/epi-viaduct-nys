@@ -1,0 +1,1181 @@
+{
+  "meta": {
+    "limit": 1000,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total_count": 65
+  },
+  "objects": [
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Allegany",
+        "county_name": "allegany",
+        "county_sort": "allegany",
+        "domain": "ny-allegany-cdcms",
+        "fips": "3",
+        "gaz": "2",
+        "is_state_domain": "",
+        "location_id": "8cbb9c4710034fe8974ab3ff0faec4ea",
+        "participating": "yes",
+        "traveler_location_id": "065939d47a3d4370b71b80b36d3d63cd"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24cded33",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Broome",
+        "county_name": "broome",
+        "county_sort": "broome",
+        "domain": "ny-broome-cdcms",
+        "fips": "7",
+        "gaz": "3",
+        "is_state_domain": "",
+        "location_id": "1a21c1a2babb4b81b079484499b36435",
+        "participating": "yes",
+        "traveler_location_id": "24b246b2faef4ba4a15b5543854f1dac"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c5ee4c5",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Cattaraugus",
+        "county_name": "cattaraugus",
+        "county_sort": "cattaraugus",
+        "domain": "ny-cattaraugus-cdcms",
+        "fips": "9",
+        "gaz": "4",
+        "is_state_domain": "",
+        "location_id": "7119df6ca98c4527912a5973759ef0fc",
+        "participating": "yes",
+        "traveler_location_id": "fc7bbc2ca3c3473fa923b83deb67e61b"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24ce1df6",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Cayuga",
+        "county_name": "cayuga",
+        "county_sort": "cayuga",
+        "domain": "ny-cayuga-cdcms",
+        "fips": "11",
+        "gaz": "5",
+        "is_state_domain": "",
+        "location_id": "f361b0deabca44fbabd4b865210f1880",
+        "participating": "yes",
+        "traveler_location_id": "6adb25d02086405dbe1587605489b7c7"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effbdc88",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Chautauqua",
+        "county_name": "chautauqua",
+        "county_sort": "chautauqua",
+        "domain": "ny-chautauqua-cdcms",
+        "fips": "13",
+        "gaz": "6",
+        "is_state_domain": "",
+        "location_id": "522d6135e8ac41d3b1079595fe98411f",
+        "participating": "yes",
+        "traveler_location_id": "ced333cde4344be7945fd2cc99d89396"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effbf1c3",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Chemung",
+        "county_name": "chemung",
+        "county_sort": "chemung",
+        "domain": "ny-chemung-cdcms",
+        "fips": "15",
+        "gaz": "7",
+        "is_state_domain": "",
+        "location_id": "99679ab2b584486fb84c23bfc52a2101",
+        "participating": "yes",
+        "traveler_location_id": "456c622a4b8d406cbdee713136460171"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24ce6221",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Chenango",
+        "county_name": "chenango",
+        "county_sort": "chenango",
+        "domain": "ny-chenango-cdcms",
+        "fips": "17",
+        "gaz": "8",
+        "is_state_domain": "",
+        "location_id": "5ee6bbab3070402c8cf4f63f36f983d9",
+        "participating": "yes",
+        "traveler_location_id": "2c840af68c07449f950108bba62c0b95"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c5f4723",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Clinton",
+        "county_name": "clinton",
+        "county_sort": "clinton",
+        "domain": "ny-clinton-cdcms",
+        "fips": "19",
+        "gaz": "9",
+        "is_state_domain": "",
+        "location_id": "b0b38783ca484b5da8704e4f0b10a090",
+        "participating": "yes",
+        "traveler_location_id": "889f424ea58c415e94eb5c13d8040ee3"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effc6086",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Cortland",
+        "county_name": "cortland",
+        "county_sort": "cortland",
+        "domain": "ny-cortland-cdcms",
+        "fips": "23",
+        "gaz": "11",
+        "is_state_domain": "",
+        "location_id": "dd842e55f883407695d129ec24c9575d",
+        "participating": "yes",
+        "traveler_location_id": "f4d545c3139f4299ba513141e39c467c"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c5f82d5",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Delaware",
+        "county_name": "delaware",
+        "county_sort": "delaware",
+        "domain": "ny-delaware-cdcms",
+        "fips": "25",
+        "gaz": "12",
+        "is_state_domain": "",
+        "location_id": "de71b55c107b444988bbbbcd35782c08",
+        "participating": "yes",
+        "traveler_location_id": "0c323504c2c74f0eae937b9943f3d9fe"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24cf4b3a",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Erie",
+        "county_name": "erie",
+        "county_sort": "erie",
+        "domain": "ny-erie-cdcms",
+        "fips": "29",
+        "gaz": "14",
+        "is_state_domain": "",
+        "location_id": "ea7f1be92ab34e0f85dd95910e29582e",
+        "participating": "yes",
+        "traveler_location_id": "d7c9d29a0bb44ef0986f15082fb865d1"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effcbe76",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Essex",
+        "county_name": "essex",
+        "county_sort": "essex",
+        "domain": "ny-essex-cdcms",
+        "fips": "31",
+        "gaz": "15",
+        "is_state_domain": "",
+        "location_id": "c8041e7c2d8f4cebbbf4b9e5c36d8e83",
+        "participating": "yes",
+        "traveler_location_id": "0e329b0318034c7ea3637e7c7fd614f5"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effcdb7d",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Franklin",
+        "county_name": "franklin",
+        "county_sort": "franklin",
+        "domain": "ny-franklin-cdcms",
+        "fips": "33",
+        "gaz": "16",
+        "is_state_domain": "",
+        "location_id": "1565af9870a54647bebc0f4aea13d1b4",
+        "participating": "yes",
+        "traveler_location_id": "9c270d78101a405e9cfc25fe0fe10cfd"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c6032d9",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Fulton",
+        "county_name": "fulton",
+        "county_sort": "fulton",
+        "domain": "ny-fulton-cdcms",
+        "fips": "35",
+        "gaz": "17",
+        "is_state_domain": "",
+        "location_id": "c8d38a8bfdb24e8d838faa69f740721d",
+        "participating": "yes",
+        "traveler_location_id": "8334526ccdaa49b591fe63881a415502"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c604e16",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Genesee",
+        "county_name": "genesee",
+        "county_sort": "genesee",
+        "domain": "ny-genesee-cdcms",
+        "fips": "37",
+        "gaz": "18",
+        "is_state_domain": "",
+        "location_id": "7f1d2044bd2547e0bed8bcc790c4918b",
+        "participating": "yes",
+        "traveler_location_id": "a19ccc05ea06404785640e55f726be68"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d03651",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Hamilton",
+        "county_name": "hamilton",
+        "county_sort": "hamilton",
+        "domain": "ny-hamilton-cdcms",
+        "fips": "41",
+        "gaz": "20",
+        "is_state_domain": "",
+        "location_id": "1b6863c9ddc54c499f7cf42dc4a5ae86",
+        "participating": "yes",
+        "traveler_location_id": "7a086c0538204ed59053736ff579a38b"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d06158",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Herkimer",
+        "county_name": "herkimer",
+        "county_sort": "herkimer",
+        "domain": "ny-herkimer-cdcms",
+        "fips": "43",
+        "gaz": "21",
+        "is_state_domain": "",
+        "location_id": "8d451d99a7424e9eaff0e114145e0d6d",
+        "participating": "yes",
+        "traveler_location_id": "f4f663c343a840d08c60fe639d198e7f"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d0aff0",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Jefferson",
+        "county_name": "jefferson",
+        "county_sort": "jefferson",
+        "domain": "ny-jefferson-cdcms",
+        "fips": "45",
+        "gaz": "22",
+        "is_state_domain": "",
+        "location_id": "c992422c5f77436cb0105b01173b994c",
+        "participating": "yes",
+        "traveler_location_id": "898bb9e66e564c1a9f621657248735a5"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d0f9e0",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Lewis",
+        "county_name": "lewis",
+        "county_sort": "lewis",
+        "domain": "ny-lewis-cdcms",
+        "fips": "49",
+        "gaz": "24",
+        "is_state_domain": "",
+        "location_id": "1a0e90ece6e7466b9f7499adf7274390",
+        "participating": "yes",
+        "traveler_location_id": "bfba895dce144dc2bf5e725708d0b1e5"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effe65a2",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Livingston",
+        "county_name": "livingston",
+        "county_sort": "livingston",
+        "domain": "ny-livingston-cdcms",
+        "fips": "51",
+        "gaz": "25",
+        "is_state_domain": "",
+        "location_id": "3cb8e8cc6a64424795c1ab202b8d6b62",
+        "participating": "yes",
+        "traveler_location_id": "1c908d0b6a3844449146ad133edc27d9"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effea84a",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Madison",
+        "county_name": "madison",
+        "county_sort": "madison",
+        "domain": "ny-madison-cdcms",
+        "fips": "53",
+        "gaz": "26",
+        "is_state_domain": "",
+        "location_id": "6938b727f92542f1aef76c41f520c1c7",
+        "participating": "yes",
+        "traveler_location_id": "8c2b4cdaffd5433faeb4ea351641a3df"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effec6ee",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Monroe",
+        "county_name": "monroe",
+        "county_sort": "monroe",
+        "domain": "ny-monroe-cdcms",
+        "fips": "55",
+        "gaz": "27",
+        "is_state_domain": "",
+        "location_id": "b50d5b780f4746909352250ed855a5ef",
+        "participating": "yes",
+        "traveler_location_id": "8f50ea8c79994473a7dee70d78d90714"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effedf1e",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Montgomery",
+        "county_name": "montgomery",
+        "county_sort": "montgomery",
+        "domain": "ny-montgomery-cdcms",
+        "fips": "57",
+        "gaz": "28",
+        "is_state_domain": "",
+        "location_id": "ac00dddecc18489e9d56ef7cc1b1feb9",
+        "participating": "yes",
+        "traveler_location_id": "e4906cf27fe64e75b4059e838857769a"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d29145",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Nassau",
+        "county_name": "nassau",
+        "county_sort": "nassau",
+        "domain": "ny-nassau-cdcms",
+        "fips": "59",
+        "gaz": "29",
+        "is_state_domain": "",
+        "location_id": "f7feedb5a54b4936b61021a6c756a728",
+        "participating": "yes",
+        "traveler_location_id": "c74c4900e6c246ca84056e3c703f0f1d"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d2d2f5",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Niagara",
+        "county_name": "niagara",
+        "county_sort": "niagara",
+        "domain": "ny-niagara-cdcms",
+        "fips": "63",
+        "gaz": "31",
+        "is_state_domain": "",
+        "location_id": "6ae4ae7277404662b5c51db7cb02a826",
+        "participating": "yes",
+        "traveler_location_id": "75d90e290763407a83015ae77567a29e"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518efff5c2a",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Oneida",
+        "county_name": "oneida",
+        "county_sort": "oneida",
+        "domain": "ny-oneida-cdcms",
+        "fips": "65",
+        "gaz": "32",
+        "is_state_domain": "",
+        "location_id": "fc638a8eed404ed8b052266afa7bb562",
+        "participating": "yes",
+        "traveler_location_id": "1513d2d8bad8404981ff00c13c9db588"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c61c7d9",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Onondaga",
+        "county_name": "onondaga",
+        "county_sort": "onondaga",
+        "domain": "ny-onondaga-cdcms",
+        "fips": "67",
+        "gaz": "33",
+        "is_state_domain": "",
+        "location_id": "314db44a6cd54da481703de7778cd5f7",
+        "participating": "yes",
+        "traveler_location_id": "2060d3a989ed46dc9cf8f3146b2b000e"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c61e232",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Ontario",
+        "county_name": "ontario",
+        "county_sort": "ontario",
+        "domain": "ny-ontario-cdcms",
+        "fips": "69",
+        "gaz": "34",
+        "is_state_domain": "",
+        "location_id": "fe7c2601885d438ba555ed1ef854da6e",
+        "participating": "yes",
+        "traveler_location_id": "b38c0a22278d4ad18fff957ba747606a"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c61f3fa",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Orleans",
+        "county_name": "orleans",
+        "county_sort": "orleans",
+        "domain": "ny-orleans-cdcms",
+        "fips": "73",
+        "gaz": "36",
+        "is_state_domain": "",
+        "location_id": "eb5939a3df484d73954e176277912f3d",
+        "participating": "yes",
+        "traveler_location_id": "ed6c35542fe14572a3d4f00088d0532c"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518efffda55",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Oswego",
+        "county_name": "oswego",
+        "county_sort": "oswego",
+        "domain": "ny-oswego-cdcms",
+        "fips": "75",
+        "gaz": "37",
+        "is_state_domain": "",
+        "location_id": "326bec62473749da93c726067bacf76d",
+        "participating": "yes",
+        "traveler_location_id": "e675127cc2084d2b9bfd44adabcedebf"
+      },
+      "fixture_type": "county_list",
+      "id": "906a8214b39cb1bbea247518effff21b",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Otsego",
+        "county_name": "otsego",
+        "county_sort": "otsego",
+        "domain": "ny-otsego-cdcms",
+        "fips": "77",
+        "gaz": "38",
+        "is_state_domain": "",
+        "location_id": "9a6a618aad39420ea2594a5ba9c98718",
+        "participating": "yes",
+        "traveler_location_id": "b68f402a31104a9da3bbac7358150dc9"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d4814f",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Schoharie",
+        "county_name": "schoharie",
+        "county_sort": "schoharie",
+        "domain": "ny-schoharie-cdcms",
+        "fips": "95",
+        "gaz": "47",
+        "is_state_domain": "",
+        "location_id": "58128eac9d444f9f920f8d4225ca2acb",
+        "participating": "yes",
+        "traveler_location_id": "c92bc9d01ede4abdb68e209ec5e19780"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d4b94a",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Schuyler",
+        "county_name": "schuyler",
+        "county_sort": "schuyler",
+        "domain": "ny-schuyler-cdcms",
+        "fips": "97",
+        "gaz": "48",
+        "is_state_domain": "",
+        "location_id": "4c9e85172f49417caae3f58267b6f34c",
+        "participating": "yes",
+        "traveler_location_id": "5dfa6e76b01345708c08b50d0e459243"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f007397",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Seneca",
+        "county_name": "seneca",
+        "county_sort": "seneca",
+        "domain": "ny-seneca-cdcms",
+        "fips": "99",
+        "gaz": "49",
+        "is_state_domain": "",
+        "location_id": "2154e3da09d04e93ad0cca138f4657ec",
+        "participating": "yes",
+        "traveler_location_id": "85bf979e72834d94be40fd37952a4e7f"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d50b22",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "St Lawrence",
+        "county_name": "st lawrence",
+        "county_sort": "st lawrence",
+        "domain": "ny-stlawrence-cdcms",
+        "fips": "89",
+        "gaz": "44",
+        "is_state_domain": "",
+        "location_id": "ef8445f3528f46538e6261bd571703fb",
+        "participating": "yes",
+        "traveler_location_id": "45b5b8db627443a8a8319e0f36119653"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d5280c",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Steuben",
+        "county_name": "steuben",
+        "county_sort": "steuben",
+        "domain": "ny-steuben-cdcms",
+        "fips": "101",
+        "gaz": "50",
+        "is_state_domain": "",
+        "location_id": "8675f638ebff4e27b906d5dad93209dd",
+        "participating": "yes",
+        "traveler_location_id": "57d0ebc206f040348ae790fc1597f9e8"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c62a7d8",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Suffolk",
+        "county_name": "suffolk",
+        "county_sort": "suffolk",
+        "domain": "ny-suffolk-cdcms",
+        "fips": "103",
+        "gaz": "51",
+        "is_state_domain": "",
+        "location_id": "a36f9f4b0db74193a28e3922597b0289",
+        "participating": "yes",
+        "traveler_location_id": "a3afbb9fbc2e467c86743421667bc707"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f010736",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Tioga",
+        "county_name": "tioga",
+        "county_sort": "tioga",
+        "domain": "ny-tioga-cdcms",
+        "fips": "107",
+        "gaz": "53",
+        "is_state_domain": "",
+        "location_id": "848200cc1ef5450d9563c0701b17cb36",
+        "participating": "yes",
+        "traveler_location_id": "ce5ce550dcdc4f978733d521506965db"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f014f31",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Tompkins",
+        "county_name": "tompkins",
+        "county_sort": "tompkins",
+        "domain": "ny-tompkins-cdcms",
+        "fips": "109",
+        "gaz": "54",
+        "is_state_domain": "",
+        "location_id": "cc0d10e9fe7a416ea50b912f9095e84a",
+        "participating": "yes",
+        "traveler_location_id": "513dbc47c63544cea2c760318199dac0"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c62e62f",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Wayne",
+        "county_name": "wayne",
+        "county_sort": "wayne",
+        "domain": "ny-wayne-cdcms",
+        "fips": "117",
+        "gaz": "58",
+        "is_state_domain": "",
+        "location_id": "a2a74693ad3742c69db209fa7657217b",
+        "participating": "yes",
+        "traveler_location_id": "0aff29dfbfc443a49679ec3de03f4375"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f0181cf",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Westchester",
+        "county_name": "westchester",
+        "county_sort": "westchester",
+        "domain": "ny-westchester-cdcms",
+        "fips": "119",
+        "gaz": "59",
+        "is_state_domain": "",
+        "location_id": "a74d109da30d4e439f713e977029701e",
+        "participating": "yes",
+        "traveler_location_id": "caae0c6bc6164ed7bfe2378a6da6a678"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f01a259",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Wyoming",
+        "county_name": "wyoming",
+        "county_sort": "wyoming",
+        "domain": "ny-wyoming-cdcms",
+        "fips": "121",
+        "gaz": "60",
+        "is_state_domain": "",
+        "location_id": "ebc07d8f9b6247e2a276441f4ee24a1f",
+        "participating": "yes",
+        "traveler_location_id": "30cd75e3df274ffd9a7ff6ba32ca2624"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f01c11b",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Yates",
+        "county_name": "yates",
+        "county_sort": "yates",
+        "domain": "ny-yates-cdcms",
+        "fips": "123",
+        "gaz": "61",
+        "is_state_domain": "",
+        "location_id": "15f2726fb30145a0b274c27e4bbc61ed",
+        "participating": "yes",
+        "traveler_location_id": "c7037e12ed5247e2b0803652e141d272"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c633f6b",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "NY Statewide",
+        "county_name": "ny_statewide",
+        "county_sort": "zz_ny_statewide",
+        "domain": "ny-statewide-cdcms",
+        "fips": "900",
+        "gaz": "",
+        "is_state_domain": "yes",
+        "location_id": "cf9775b751794693b56843f0432d3bec",
+        "participating": "yes",
+        "traveler_location_id": "68ac6e684d9942c48d55a8151c19d314"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d60934",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Albany",
+        "county_name": "albany",
+        "county_sort": "albany",
+        "domain": "ny-albany-cdcms",
+        "fips": "1",
+        "gaz": "1",
+        "is_state_domain": "",
+        "location_id": "92a38db40fcf4ceaa292c9786a8cdd09",
+        "participating": "yes",
+        "traveler_location_id": "951d5e39689e48aba01c945529f4c8ab"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f020cca",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Columbia",
+        "county_name": "columbia",
+        "county_sort": "columbia",
+        "domain": "ny-columbia-cdcms",
+        "fips": "21",
+        "gaz": "10",
+        "is_state_domain": "",
+        "location_id": "e4a8a57d98db487aadb28c7037539a3d",
+        "participating": "yes",
+        "traveler_location_id": "ae6a115901fa43cb94adfbe695b22004"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f023313",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Greene",
+        "county_name": "greene",
+        "county_sort": "greene",
+        "domain": "ny-greene-cdcms",
+        "fips": "39",
+        "gaz": "19",
+        "is_state_domain": "",
+        "location_id": "a3bfd0826d514dc3a68c46e2ddcea96d",
+        "participating": "yes",
+        "traveler_location_id": "44e7dceea2d3439cbc61faa0b140298c"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d66231",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Saratoga",
+        "county_name": "saratoga",
+        "county_sort": "saratoga",
+        "domain": "ny-saratoga-cdcms",
+        "fips": "91",
+        "gaz": "45",
+        "is_state_domain": "",
+        "location_id": "858236df6ed249768231a047a9f30fc8",
+        "participating": "yes",
+        "traveler_location_id": "e38a6687b44e4c36af3311527c57bd0a"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d68e9b",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Schenectady",
+        "county_name": "schenectady",
+        "county_sort": "schenectady",
+        "domain": "ny-schenectady-cdcms",
+        "fips": "93",
+        "gaz": "46",
+        "is_state_domain": "",
+        "location_id": "1ff9f8b96392425bb58cbf2374094522",
+        "participating": "yes",
+        "traveler_location_id": "de1273a9adac4d4585758ee3060c7d5c"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d69c40",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Warren",
+        "county_name": "warren",
+        "county_sort": "warren",
+        "domain": "ny-warren-cdcms",
+        "fips": "113",
+        "gaz": "56",
+        "is_state_domain": "",
+        "location_id": "65ee146afee2418385b81338b593daa1",
+        "participating": "yes",
+        "traveler_location_id": "e3f97b340b7344c9887bcc359d50b954"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c63b9a2",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Washington",
+        "county_name": "washington",
+        "county_sort": "washington",
+        "domain": "ny-washington-cdcms",
+        "fips": "115",
+        "gaz": "57",
+        "is_state_domain": "",
+        "location_id": "50bca8da772240cf82c3cc19e17a0b21",
+        "participating": "yes",
+        "traveler_location_id": "b33b6600f78143d2bbbe99f28f21f4e1"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f02b84e",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Dutchess",
+        "county_name": "dutchess",
+        "county_sort": "dutchess",
+        "domain": "ny-dutchess-cdcms",
+        "fips": "27",
+        "gaz": "13",
+        "is_state_domain": "",
+        "location_id": "ce1691e92ba845209069898512e380b9",
+        "participating": "yes",
+        "traveler_location_id": "e61775a3a13542589db13eb81deb6d35"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d6db95",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Orange",
+        "county_name": "orange",
+        "county_sort": "orange",
+        "domain": "ny-orange-cdcms",
+        "fips": "71",
+        "gaz": "35",
+        "is_state_domain": "",
+        "location_id": "5e81184e59f04830a8d46ed42460136d",
+        "participating": "yes",
+        "traveler_location_id": "7900982383c442cfb13a4f5ff7a848bd"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d70f24",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Putnam",
+        "county_name": "putnam",
+        "county_sort": "putnam",
+        "domain": "ny-putnam-cdcms",
+        "fips": "79",
+        "gaz": "39",
+        "is_state_domain": "",
+        "location_id": "3fa9123d23d143af902b7845bd2dcf81",
+        "participating": "yes",
+        "traveler_location_id": "b0ac4b2152224c018f14ec8819d79898"
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c63dc46",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Rockland",
+        "county_name": "rockland",
+        "county_sort": "rockland",
+        "domain": "ny-rockland-cdcms",
+        "fips": "87",
+        "gaz": "43",
+        "is_state_domain": "",
+        "location_id": "968dd0d89d064d9b9b7f48e2f0b77df5",
+        "participating": "yes",
+        "traveler_location_id": "0b1751ccb1b8448d966e93544318463e"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f034329",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Sullivan",
+        "county_name": "sullivan",
+        "county_sort": "sullivan",
+        "domain": "ny-sullivan-cdcms",
+        "fips": "105",
+        "gaz": "52",
+        "is_state_domain": "",
+        "location_id": "d4ddd59e39a44e67aef0ac6be64eb955",
+        "participating": "yes",
+        "traveler_location_id": "f12b6b566062464386ded228774f64a2"
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f035fe1",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Ulster",
+        "county_name": "ulster",
+        "county_sort": "ulster",
+        "domain": "ny-ulster-cdcms",
+        "fips": "111",
+        "gaz": "55",
+        "is_state_domain": "",
+        "location_id": "fef65909ac6d41e297828c1ec69dfc25",
+        "participating": "yes",
+        "traveler_location_id": "e346a522909e44bea0ea2738d2576c7f"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d79c5a",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Rensselaer",
+        "county_name": "rensselaer",
+        "county_sort": "rensselaer",
+        "domain": "ny-rensselaer-cdcms",
+        "fips": "83",
+        "gaz": "41",
+        "is_state_domain": "",
+        "location_id": "8755865c86dd41bdb8500bc30d409a3a",
+        "participating": "yes",
+        "traveler_location_id": "efa418d270d8401ea4ed0049c0b307d7"
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24d7c950",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Bronx",
+        "county_name": "bronx",
+        "county_sort": "bronx",
+        "domain": "",
+        "fips": "5",
+        "gaz": "94",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f03c623",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Kings",
+        "county_name": "kings",
+        "county_sort": "kings",
+        "domain": "",
+        "fips": "47",
+        "gaz": "95",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f0404f5",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "New York",
+        "county_name": "new york",
+        "county_sort": "new york",
+        "domain": "",
+        "fips": "61",
+        "gaz": "93",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24cdd94b",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Queens",
+        "county_name": "queens",
+        "county_sort": "queens",
+        "domain": "",
+        "fips": "81",
+        "gaz": "96",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f043e85",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Richmond",
+        "county_name": "richmond",
+        "county_sort": "richmond",
+        "domain": "",
+        "fips": "85",
+        "gaz": "97",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9c9d76815febe756cf7118343f045da1",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Out of State/Country",
+        "county_name": "out of state_country",
+        "county_sort": "zz_1",
+        "domain": "",
+        "fips": "125",
+        "gaz": "80",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "9369df636c198d2abf81136b24cda37e",
+      "resource_uri": ""
+    },
+    {
+      "fields": {
+        "analysis_date": "",
+        "county_display": "Unknown",
+        "county_name": "unknown",
+        "county_sort": "zz_2",
+        "domain": "",
+        "fips": "127",
+        "gaz": "99",
+        "is_state_domain": "",
+        "location_id": "",
+        "participating": "no",
+        "traveler_location_id": ""
+      },
+      "fixture_type": "county_list",
+      "id": "c4def57bf984c8aef5137b0b2c5ec7fc",
+      "resource_uri": ""
+    }
+  ]
+}

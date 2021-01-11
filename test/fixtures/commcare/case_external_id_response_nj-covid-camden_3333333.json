@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "limit": 20,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total_count": 1
+  },
+  "objects":     [
+    {
+      "case_id": "3be21b2b-470b-47eb-bd67-2cae8b529925",
+      "closed": false,
+      "closed_by": null,
+      "date_closed": null,
+      "date_modified": "2020-10-14T17:19:29.847000Z",
+      "domain": "ny-tioga-cdcms",
+      "id": "3be21b2b-470b-47eb-bd67-2cae8b529925",
+      "indexed_on": "2020-10-14T17:22:54.399485",
+      "indices": {},
+      "opened_by": "a3e96a2972a261194886f0465d359aa0",
+      "properties": {
+        "address_city": "Waverly",
+        "case_name": "AAA QQQ",
+        "date_opened": "2020-10-14T17:13:15.000000Z",
+        "dob_known": "yes",
+        "eclrs_create_date": "2020-10-14",
+        "external_id": "3333333",
+        "first_name": "QQQ",
+        "gaz": "53",
+        "last_name": "AAA",
+        "ooj": "no",
+        "owner_id": "848200cc1ef5450d9563c0701b17cb36",
+        "stub": "yes",
+        "symptomatic": "no"
+      }
+    },
+    {
+      "case_id": "a93c2f8d43fe4ecd90345c8a7e0d2f4a",
+      "closed": false,
+      "closed_by": null,
+      "date_closed": null,
+      "date_modified": "2020-10-22T11:37:06.230000Z",
+      "domain": "ny-tioga-cdcms",
+      "id": "a93c2f8d43fe4ecd90345c8a7e0d2f4a",
+      "indexed_on": "2020-10-22T11:37:20.683327",
+      "indices": {},
+      "opened_by": "50144053f4fa40a78df12372911eb01d",
+      "properties": {
+        "first_name": "AAA",
+        "symptom_count": "0",
+        "owner_id": "848200cc1ef5450d9563c0701b17cb36",
+        "gaz": "54",
+        "eclrs_create_date": "2020-10-21",
+        "ooj": "yes",
+        "last_name": "QQQ",
+        "transfer_source_case_id": "de28b564-f216-4a34-a1e3-73e9d9a4fb2f",
+        "external_id": "3333333",
+        "case_name": "AAA QQQ"
+      }
+    }
+  ]
+}

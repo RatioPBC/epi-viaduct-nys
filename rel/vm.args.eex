@@ -1,0 +1,18 @@
+## Customize flags given to the VM: http://erlang.org/doc/man/erl.html
+## -mode/-name/-sname/-setcookie are configured via env vars, do not set them here
+
+## Number of dirty schedulers doing IO work (file, sockets, etc)
+##+SDio 5
+
+## Increase number of concurrent ports/sockets
+##+Q 65536
+
+## Enable time warp, so when devices start with an invalid time (often due to a dead battery)
+## and then fix themselves via NTP, erlang can catch up to the updated time.
++C multi_time_warp
+
+## Tweak GC to run more often
+##-env ERL_FULLSWEEP_AFTER 10
+
+# Enable SMP automatically based on availability
+-smp auto

@@ -1,0 +1,2 @@
+GET https://www.commcarehq.org/a/ny-staging-cdcms/api/v0.5/case/?owner_id=d87c0134be3c401bb14e6c4420b7a178
+Authorization: ApiKey {{dev_commcare_user_api_credentials}}

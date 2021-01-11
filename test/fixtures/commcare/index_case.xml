@@ -1,0 +1,46 @@
+<data name="Register a New Case" uiVersion="1" version="3" xmlns="http://geometer.io/nys-etl" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+  <n0:case case_id="22a7400b-ab3f-4b17-8131-d7f312988433" date_modified="2020-06-01T01:02:03Z" user_id="" xmlns:n0="http://commcarehq.org/case/transaction/v2">
+    <n0:create>
+      <n0:case_name>case_name: JESSE TESTUSER</n0:case_name>
+      <n0:case_type>patient</n0:case_type>
+      <n0:address>227 12th Street</n0:address>
+      <n0:address_county>Chesterton</n0:address_county>
+      <n0:address_complete>yes</n0:address_complete>
+      <n0:case_import_date>2020-06-24</n0:case_import_date>
+      <n0:contact_phone_number>9712216001</n0:contact_phone_number>
+      <n0:external_id>6c1ab4c4-f412-400f-b876-825dd05ff2fa</n0:external_id>
+      <n0:full_name>full_name: JESSE TESTUSER</n0:full_name>
+      <n0:name>name: JESSE TESTUSER</n0:name>
+      <n0:first_name>first_name: JESSE</n0:first_name>
+      <n0:last_name>last_name: TESTUSER</n0:last_name>
+      <n0:has_phone_number>yes</n0:has_phone_number>
+      <n0:patient_type>confirmed</n0:patient_type>
+      <n0:owner_id>d87c0134be3c401bb14e6c4420b7a178</n0:owner_id>
+    </n0:create>
+  </n0:case>
+  <n0:case case_id="a440b33c-99f4-42de-9d1c-a8447124f753" xmlns:n0="http://commcarehq.org/case/transaction/v2">
+    <n0:create>
+      <n0:case_name>case_name: LAB RESULT</n0:case_name>
+      <n0:case_type>lab_result</n0:case_type>
+      <n0:name>name: JESSE TESTUSER</n0:name>
+      <n0:accession_number>67</n0:accession_number>
+      <!-- lab_result.external_id is what you use when GET'ing from the API -->
+      <n0:external_id>c826c545-78c8-482e-a7f1-4beeafeb9c83</n0:external_id>
+    </n0:create>
+    <n0:index>
+      <n0:parent case_type="patient">22a7400b-ab3f-4b17-8131-d7f312988433</n0:parent>
+    </n0:index>
+  </n0:case>
+  <n1:meta xmlns:n1="http://openrosa.org/jr/xforms">
+    <n1:deviceID>Formplayer</n1:deviceID>
+    <n1:timeStart>2020-06-01T01:02:03Z</n1:timeStart>
+    <n1:timeEnd>2020-06-01T01:02:03Z</n1:timeEnd>
+    <n1:username>test-username</n1:username>
+    <!-- userID needs to be set for this record to show up in the right place/not end up in some unknown bucket -->
+    <!-- Last Submitter in Reports/Case List/Details page https://www.commcarehq.org/a/ny-staging-cdcms/reports/case_data/[some-id?]/ -->
+    <n1:userID>f8df11f165c24606afc47c5ce74b7da1</n1:userID>
+    <n1:instanceID></n1:instanceID>
+    <n1:appVersion></n1:appVersion>
+    <n1:drift></n1:drift>
+  </n1:meta>
+</data>

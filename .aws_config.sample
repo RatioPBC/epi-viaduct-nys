@@ -1,0 +1,4 @@
+# In order to find CloudWatch groups
+#   bin/aws/set-mfa-cred ${DEPLOYMENT_AWS_PROFILE} ${DEPLOYMENT_AWS_PROFILE}-mfa
+#   saw --profile ${DEPLOYMENT_AWS_PROFILE}-mfa groups
+export PROD_CLOUDWATCH_GROUP=""

@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "limit": 100,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total_count": 1
+  },
+  "objects": [
+    {
+      "case_id": "commcare_case_id_4",
+      "closed": false,
+      "date_closed": null,
+      "date_modified": "2020-06-19T16:58:12.291921Z",
+      "domain": "nj-covid-integrations",
+      "id": "34237DD7-DAC1-4BC3-909A-3294617494A1",
+      "indexed_on": "2020-06-19T16:58:18.217080",
+      "indices": {
+        "parent": {
+          "case_id": "AC669CCE-8937-43D0-B685-0B5C3310C629",
+          "case_type": "patient",
+          "relationship": "child"
+        }
+      },
+      "opened_by": "test-user-id",
+      "properties": {
+        "accession_number": "47",
+        "case_name": "",
+        "case_type": "lab_result",
+        "date_opened": "2020-06-08T23:56:41.610734Z",
+        "external_id": "cdrss_id_4",
+        "owner_id": "test-user-id"
+      },
+      "resource_uri": "",
+      "server_date_modified": "2020-06-19T16:58:12.244141Z",
+      "server_date_opened": "2020-06-08T23:56:41.555627Z",
+      "user_id": "test-user-id",
+      "xform_ids": [
+        "ade02f65-5f36-486c-8709-d991db9c0419",
+        "b60c9469-ed03-448e-932d-4aaea5de9c92",
+        "a395bab7-e6eb-4076-aab0-62412f884c2c",
+        "c40cb3e6-5845-4088-8f06-6acd3196d49d",
+        "059aa3a0-4d77-48f6-8a75-dec20accedf6",
+        "cd519b72-f718-477f-9445-6a657918ce8c",
+        "595a8583-c61e-4dd9-bb21-5ad37ae23063"
+      ]
+    }
+  ]
+}

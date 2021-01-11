@@ -1,0 +1,15 @@
+{
+  "case_id": "a13b8059-249c-47b3-9665-b211159d433f",
+  "accession_number": "ABC123",
+  "analysis_date": "2020-06-25",
+  "external_id": "Vdct-123",
+  "laboratory": "Laboratory",
+  "lab_result": "positive",
+  "name": "Vdct-123 lab_result",
+  "parent_external_id": "UNIQUEKEY",
+  "parent_type": "patient",
+  "owner_id": "522d6135e8ac41d3b1079595fe98411f",
+  "specimen_collection_date": "2020-06-25",
+  "specimen_source": "Specimen from nasopharyngeal structure (specimen)",
+  "test_type": "PCR"
+}

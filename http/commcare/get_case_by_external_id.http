@@ -1,0 +1,2 @@
+GET https://www.commcarehq.org/a/ny-rensselaer-cdcms/api/v0.5/case/?external_id=669192
+Authorization: ApiKey {{dev_commcare_user_api_credentials}}

@@ -1,0 +1,7 @@
+{
+  "case_id": "duplicate-cycle-2",
+  "properties": {
+    "external_id": null,
+    "duplicate_of_case_id": "duplicate-cycle-1"
+  }
+}

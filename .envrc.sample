@@ -1,0 +1,17 @@
+export CANONICAL_HOST="localhost"
+export COMMCARE_API_KEY_CREDENTIALS="" # user@example.com:api-key
+export COMMCARE_BASE_URL="https://www.commcarehq.org"
+export COMMCARE_POSTING_ENABLED="false" # should be false everywhere until we are really ready to launch
+export COMMCARE_ROOT_DOMAIN="" # Domain where you find the counties JSON. "statewide" in production, "staging" otherwise
+export COMMCARE_USER_ID="the-uuid-of-your-account"
+export COMMCARE_USERNAME="anything-goes"
+export DASHBOARD_PASSWORD=password123
+export DASHBOARD_USERNAME=dashdash
+export DATABASE_URL=ecto://postgres:@localhost/nys_etl_dev
+export ENVIRONMENT="dev" # used by sentry
+export HEX_OBAN_UI_KEY=""
+export KERL_CONFIGURE_OPTIONS="--without-javac --with-ssl=/usr/local/opt/openssl@1.1 --disable-dynamic-ssl-lib"
+export LIVE_VIEW_SIGNING_SALT=""
+export PORT="4000"
+export SECRET_KEY_BASE=""
+export SENTRY_DSN="" # if you are running a local copy of sentry, get your DSN here: http://<sentry container ip address>:9000/settings/sentry/projects/internal/keys/

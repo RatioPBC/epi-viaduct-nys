@@ -1,0 +1,92 @@
+{
+  "case_id": "FD252218-8E6B-4FE7-B606-9F7BA9F735F8",
+  "child_cases": {
+    "5F97C57E-5230-4685-9246-989B1CF8E5FB": {
+      "case_id": "5F97C57E-5230-4685-9246-989B1CF8E5FB",
+      "child_cases": {},
+      "closed": false,
+      "date_closed": null,
+      "date_modified": "2020-06-09T00:56:45.753000Z",
+      "domain": "nj-covid-integrations",
+      "id": "5F97C57E-5230-4685-9246-989B1CF8E5FB",
+      "indexed_on": "2020-06-20T02:21:32.621795",
+      "indices": {
+        "parent": {
+          "case_id": "FD252218-8E6B-4FE7-B606-9F7BA9F735F8",
+          "case_type": "patient",
+          "relationship": "child"
+        }
+      },
+      "opened_by": "981e67ff7acd41faab58094033996fdc",
+      "properties": {
+        "case_import_date": "2020-06-08T00:55:54.468000Z",
+        "case_name": "John Schmidt",
+        "case_type": "contact",
+        "caseid": "",
+        "contact_id": "",
+        "county_commcare_domain": "",
+        "county_display": "",
+        "date_opened": "2020-06-09T00:56:45.753000Z",
+        "external_id": "",
+        "full_name": "John Schmidt",
+        "owner_id": "981e67ff7acd41faab58094033996fdc",
+        "parent_id": ""
+      },
+      "resource_uri": "",
+      "server_date_modified": "2020-06-07T15:55:46.508772Z",
+      "server_date_opened": "2020-06-07T15:55:46.508772Z",
+      "user_id": "981e67ff7acd41faab58094033996fdc",
+      "xform_ids": ["62d4d550-0bac-439a-a433-6296d808ffff"]
+    }
+  },
+  "closed": false,
+  "date_closed": null,
+  "date_modified": "2020-06-07T15:55:46.633701Z",
+  "domain": "nj-covid-integrations",
+  "id": "FD252218-8E6B-4FE7-B606-9F7BA9F735F8",
+  "indexed_on": "2020-06-16T18:01:01.117850",
+  "indices": {},
+  "opened_by": "981e67ff7acd41faab58094033996fdc",
+  "properties": {
+    "case_import_date": "2020-06-04",
+    "case_name": " ",
+    "case_type": "patient",
+    "cdrss_case_id": "",
+    "cdrss_patient_id": "",
+    "created_manually": "yes",
+    "current_status": "open",
+    "date_opened": "2020-06-05T00:56:45.753000Z",
+    "external_id": null,
+    "first_name": "wadw",
+    "full_name": "Fred Freddy",
+    "has_phone_number": "no",
+    "last_name": "Flintstone",
+    "mpi_id": "",
+    "next_form": "ci_form",
+    "owner_id": "2021db2fb7b14669939d51ace0c2844f",
+    "patient_type": "confirmed"
+  },
+  "resource_uri": "",
+  "server_date_modified": "2020-06-16T18:00:54.650147Z",
+  "server_date_opened": "2020-06-07T15:49:35.955133Z",
+  "user_id": "981e67ff7acd41faab58094033996fdc",
+  "xform_ids": [
+    "89b49019-2a5b-40aa-887d-edcabdb301a6",
+    "7bef9acc-a117-41c5-8760-ca88d3674094",
+    "62d4d550-0bac-439a-a433-6296d808ffff",
+    "f18a3f56-3dd7-48ec-a05f-b18fa34ffb8e",
+    "1480ae6b-9611-4971-81a9-7dc3ca1206a0",
+    "e0f8bf3c-d0dc-42cc-9012-9e9928aecfc3",
+    "01e6f174-b1cf-4a19-8fd9-e39e0d1df73a",
+    "61e9e647-8417-448c-b6d8-84ffa0638553",
+    "3eb7a92c-9961-4122-93fc-a2804d7f4a5b",
+    "2f53e92c-2065-4aeb-97a6-2b3a0cde9abc",
+    "eb9b5d3b-23be-48aa-a4b6-652020b73290",
+    "47a13073-ca63-4a09-9e21-fb4c9044a52d",
+    "c5a66ed5-a7da-46f6-b861-576109e55d04",
+    "4a381e3a-5a49-405b-b64d-81eadee5f2bb",
+    "6ede4de4-47b4-438d-86d0-68701d38a9e0",
+    "fd0e93a3-490b-42bb-881b-7448462edf75",
+    "da2adabb-a9c0-4169-984e-c5e19b4b0b14"
+  ]
+}

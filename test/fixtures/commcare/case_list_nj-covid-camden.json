@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "limit": 20,
+    "next": "?owner_id=2021db2fb7b14669939d51ace0c2844f&limit=20&offset=20",
+    "offset": 0,
+    "previous": null,
+    "total_count": 841
+  },
+  "objects": [
+    {
+      "case_id": "e4393b17-a905-48c6-af3d-687fd728edfd",
+      "closed": false,
+      "date_closed": null,
+      "date_modified": "2020-05-31T16:40:12.035000Z",
+      "domain": "nj-covid-integrations",
+      "id": "e4393b17-a905-48c6-af3d-687fd728edfd",
+      "indexed_on": "2020-05-31T16:40:13.135450",
+      "indices": {},
+      "opened_by": "e5c1f537db8c49f69900202452aab28b",
+      "properties": {
+        "case_name": "Contact Tracer Team Member 2",
+        "case_type": "checkin",
+        "checkin_date": "2020-05-31",
+        "checkin_status": "online",
+        "checkin_time": "12:40",
+        "ci_role": "unknown",
+        "ci_team_member": "yes",
+        "ct_role": "ct",
+        "ct_team_member": "yes",
+        "date_opened": "2020-05-31T16:40:12.035000Z",
+        "external_id": null,
+        "languages_display": "English",
+        "name_and_language": "Contact Tracer Team Member 2 (English)",
+        "owner_id": "2021db2fb7b14669939d51ace0c2844f",
+        "primary_language": "en",
+        "username": "ct2"
+      },
+      "resource_uri": "",
+      "server_date_modified": "2020-05-31T16:40:12.486918Z",
+      "server_date_opened": "2020-05-31T16:40:12.486918Z",
+      "user_id": "e5c1f537db8c49f69900202452aab28b",
+      "xform_ids": ["a7ff2174-76b1-4d0c-889d-115170dae92a"]
+    },
+    {
+      "case_id": "a72a3126-3309-4d7f-bc9d-fb20e6dbdbf5",
+      "closed": false,
+      "date_closed": null,
+      "date_modified": "2020-05-31T16:40:48.645000Z",
+      "domain": "nj-covid-integrations",
+      "id": "a72a3126-3309-4d7f-bc9d-fb20e6dbdbf5",
+      "indexed_on": "2020-05-31T16:40:49.541606",
+      "indices": {},
+      "opened_by": "981e67ff7acd41faab58094033996fdc",
+      "properties": {
+        "case_name": "Case Investigatior Supervisor",
+        "case_type": "checkin",
+        "checkin_date": "2020-05-31",
+        "checkin_status": "online",
+        "checkin_time": "12:40",
+        "ci_role": "supervisor",
+        "ci_team_member": "yes",
+        "ct_role": "clinician",
+        "ct_team_member": "no",
+        "date_opened": "2020-05-31T16:40:48.645000Z",
+        "external_id": null,
+        "languages_display": "English",
+        "name_and_language": "Case Investigatior Supervisor (English)",
+        "owner_id": "2021db2fb7b14669939d51ace0c2844f",
+        "primary_language": "en",
+        "username": "ci_supervisor"
+      },
+      "resource_uri": "",
+      "server_date_modified": "2020-05-31T16:40:49.068265Z",
+      "server_date_opened": "2020-05-31T16:40:49.068265Z",
+      "user_id": "981e67ff7acd41faab58094033996fdc",
+      "xform_ids": ["161be4ee-88c0-4181-a7d7-68eaaee7d082"]
+    }
+  ]
+}

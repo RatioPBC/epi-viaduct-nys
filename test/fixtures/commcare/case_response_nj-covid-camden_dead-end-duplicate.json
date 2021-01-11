@@ -1,0 +1,7 @@
+{
+  "case_id": "dead-end-duplicate",
+  "properties": {
+    "external_id": null,
+    "duplicate_of_case_id": "missing-duplicate-terminal-case"
+  }
+}
