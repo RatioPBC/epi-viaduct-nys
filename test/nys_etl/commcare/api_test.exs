@@ -15,14 +15,13 @@ defmodule NYSETL.Commcare.ApiTest do
     end
 
     test "caches the results" do
-      Cachex.clear(:cache)
+      name = {:global, "A#{:rand.uniform}"}
+      Supervisor.start_link([Commcare.Api.cache_spec(name)], strategy: :one_for_all)
 
-      {:ok, _counties, :cache_miss} = Commcare.Api.get_county_list(:cache_enabled)
-      {:ok, _counties, :cache_hit} = Commcare.Api.get_county_list(:cache_enabled)
+      # Always a hit since starting the cache pre-caches the list
+      {:ok, counties, :cache_hit} = Commcare.Api.get_county_list(:cache_enabled, name)
 
-      Cachex.clear(:cache)
-
-      {:ok, _counties, :cache_miss} = Commcare.Api.get_county_list(:cache_enabled)
+      assert hd(counties)["fields"]["domain"] == "ny-allegany-cdcms"
     end
   end
 

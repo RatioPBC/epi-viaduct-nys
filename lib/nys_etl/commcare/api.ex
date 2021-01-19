@@ -8,31 +8,29 @@ defmodule NYSETL.Commcare.Api do
 
   require Logger
 
-  def get_county_list(cache_control \\ :refer_to_config) do
-    cached? = use_cache?(cache_control, :county_list_cache_enabled)
-    get_cacheable_list(:county_list, &get_county_list!/0, cached?)
+  alias NYSETL.Commcare.CountiesCache
+
+  def get_county_list(cache_control \\ :refer_to_config, cache_name \\ __MODULE__) do
+    if use_cache?(cache_control, :county_list_cache_enabled) do
+      {:ok, CountiesCache.get(cache_name), :cache_hit}
+    else
+      http_get_county_list() |> Tuple.append(:cache_skip)
+    end
   end
 
   defp use_cache?(:refer_to_config, cache_enabled_config_key), do: Application.get_env(:nys_etl, cache_enabled_config_key)
   defp use_cache?(:cache_enabled, _), do: true
   defp use_cache?(:cache_disabled, _), do: false
 
-  defp get_cacheable_list(_cache_key, get_fn, false), do: get_fn.() |> Tuple.append(:cache_skip)
-
-  defp get_cacheable_list(cache_key, get_fn, true) do
-    Cachex.fetch(:cache, cache_key, fn _ ->
-      case get_fn.() do
-        {:ok, resp} -> {:commit, resp}
-        {:error, _reason} = error -> {:ignore, error}
-      end
-    end)
-    |> case do
-      {:commit, value} -> {:ok, value, :cache_miss}
-      other -> other |> Tuple.append(:cache_hit)
-    end
+  def cache_spec(cache_name \\ __MODULE__) do
+    %{
+      id: CountiesCache,
+      start: {CountiesCache, :start_link, [fn -> NYSETL.Commcare.Api.http_get_county_list() end, [name: cache_name]]}
+    }
   end
 
-  defp get_county_list!() do
+  @spec http_get_county_list :: {:ok, map()} | {:error, any}
+  def http_get_county_list() do
     root_domain = Application.get_env(:nys_etl, :commcare_root_domain)
 
     case get("/a/#{root_domain}/api/v0.5/fixture/?fixture_type=county_list") do
@@ -87,7 +85,7 @@ defmodule NYSETL.Commcare.Api do
             {:ok, decoded_body |> Map.take(["objects"]) |> Map.merge(%{"next_offset" => get_next_offset(offset, decoded_body, limit)})}
 
           {:error, reason} ->
-            {:something, :is_wrong} = {reason, response_body}
+            {%Jason.DecodeError{position: -1}, "is_wrong"} = {reason, response_body}
         end
 
       {:ok, other} ->

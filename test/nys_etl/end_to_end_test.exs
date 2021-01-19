@@ -117,6 +117,9 @@ defmodule NYSETL.EndToEndTest do
 
         url =~ "http://commcare.test.host/a/uk-midsomer-cdcms/api/v0.5/case/" ->
           {:reply, {:ok, %{body: "", status_code: 404, request_url: ""}}, state}
+
+        url =~ "http://commcare.test.host/a/ny-test-cdcms/api/v0.5/fixture/?fixture_type=county_list" ->
+          {:reply, {:ok, %{body: Fixtures.county_list_response(), status_code: 200}}, state}
       end
     end
 

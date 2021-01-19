@@ -11,7 +11,8 @@ defmodule NYSETL.ViaductSupervisor do
       NYSETL.Engines.E2.Supervisor,
       NYSETL.Engines.E5.Supervisor,
       NYSETL.Engines.E3.Supervisor,
-      NYSETL.Engines.E1.SQSTask
+      NYSETL.Engines.E1.SQSTask,
+      NYSETL.Commcare.Api.cache_spec()
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
