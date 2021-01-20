@@ -18,7 +18,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
 
   test "it fetches the initial value on init (async)", context do
     fun = fn -> {:ok, context.value} end
-    {:ok, pid} = CountiesCache.start_link(fun, [name: context.name] ++ @testparams)
+    {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
     assert CountiesCache.get(pid) == context.value
   end
 
@@ -31,7 +31,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
       {:ok, value}
     end
 
-    {:ok, pid} = CountiesCache.start_link(fun, [name: context.name] ++ @testparams)
+    {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
     assert CountiesCache.get(pid) == context.value
     # Sleep for longer than the ttl (5)
     Process.sleep(10)
@@ -55,7 +55,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
 
     log =
       capture_log(fn ->
-        {:ok, pid} = CountiesCache.start_link(fun, [name: context.name] ++ @testparams)
+        {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
         assert CountiesCache.get(pid) == context.value
         Process.sleep(10)
         assert CountiesCache.get(pid) == context.value
@@ -81,7 +81,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
       end
     end
 
-    {:ok, pid} = CountiesCache.start_link(fun, [name: context.name] ++ @testparams)
+    {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
     assert CountiesCache.get(pid) == context.value
     # Sleep for longer than the ttl (5)
     Process.sleep(10)
@@ -111,7 +111,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
 
     log =
       capture_log(fn ->
-        {:ok, pid} = CountiesCache.start_link(fun, [name: context.name, timeout: 10] ++ @testparams)
+        {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name, timeout: 10] ++ @testparams)
         assert CountiesCache.get(pid) == context.value
         # Sleep for longer than the ttl (5) and the updater's processing time (20)
         Process.sleep(40)

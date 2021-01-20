@@ -23,10 +23,7 @@ defmodule NYSETL.Commcare.Api do
   defp use_cache?(:cache_disabled, _), do: false
 
   def cache_spec(cache_name \\ __MODULE__) do
-    %{
-      id: CountiesCache,
-      start: {CountiesCache, :start_link, [fn -> NYSETL.Commcare.Api.http_get_county_list() end, [name: cache_name]]}
-    }
+    {CountiesCache.Server, [source: fn -> NYSETL.Commcare.Api.http_get_county_list() end, name: cache_name]}
   end
 
   @spec http_get_county_list :: {:ok, map()} | {:error, any}

@@ -15,7 +15,7 @@ defmodule NYSETL.Commcare.ApiTest do
     end
 
     test "caches the results" do
-      name = {:global, "A#{:rand.uniform}"}
+      name = {:global, "A#{:rand.uniform()}"}
       Supervisor.start_link([Commcare.Api.cache_spec(name)], strategy: :one_for_all)
 
       # Always a hit since starting the cache pre-caches the list
