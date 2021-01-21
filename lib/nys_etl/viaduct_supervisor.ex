@@ -7,12 +7,12 @@ defmodule NYSETL.ViaductSupervisor do
 
   def init(_) do
     children = [
+      NYSETL.Commcare.Api.cache_spec(),
       {Oban, Application.get_env(:nys_etl, Oban)},
       NYSETL.Engines.E2.Supervisor,
       NYSETL.Engines.E5.Supervisor,
       NYSETL.Engines.E3.Supervisor,
-      NYSETL.Engines.E1.SQSTask,
-      NYSETL.Commcare.Api.cache_spec()
+      NYSETL.Engines.E1.SQSTask
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
