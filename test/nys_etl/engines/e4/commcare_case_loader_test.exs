@@ -531,7 +531,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
     """
     |> test do
       initial_case_id = "initial-case-id-123"
-      destination_case_id = "destination-case-id-456"
+      transferred_case_id = "transferred-case-id-456"
       county_fips = Test.Fixtures.test_county_1_fips()
       county_domain = Test.Fixtures.test_county_1_domain()
       destination_county_fips = Test.Fixtures.test_county_2_fips()
@@ -545,9 +545,13 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
         %{case_id: initial_case_id, data: %{}, person_id: person.id, county_id: county.id}
         |> Commcare.create_index_case()
 
-      {:ok, destination_index_case} =
+      {:ok, initial_lab_result} =
+        %{data: %{tid: "initial"}, index_case_id: initial_index_case.id, accession_number: "lab_result_1_accession_number"}
+        |> Commcare.create_lab_result()
+
+      {:ok, transferred_index_case} =
         %{
-          case_id: destination_case_id,
+          case_id: transferred_case_id,
           data: %{
             "full_name" => "Full Name from ECLRS",
             "phone_number" => "555-NEW-PHONE-FROM-ECLRS"
@@ -556,6 +560,15 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
           county_id: destination_county_fips
         }
         |> Commcare.create_index_case()
+
+      {:ok, transferred_initial_lab_result} =
+        %{data: %{tid: initial_lab_result.data.tid}, index_case_id: transferred_index_case.id, accession_number: initial_lab_result.accession_number}
+        |> Commcare.create_lab_result()
+
+      # This is the bug: ideally we would also send it to CommCare
+      {:ok, _initial_county_new_lab_result} =
+        %{data: %{tid: "new"}, index_case_id: initial_index_case.id, accession_number: "lab_result_2_accession_number"}
+        |> Commcare.create_lab_result()
 
       initial_case_response = %{
         "case_id" => initial_case_id,
@@ -569,7 +582,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
       destination_case_response = %{
         "objects" => [
           %{
-            "case_id" => destination_case_id,
+            "case_id" => transferred_case_id,
             "properties" => %{
               "owner_id" => Test.Fixtures.test_county_2_location_id(),
               "external_id" => "external-id-123",
@@ -598,11 +611,17 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
       |> expect(:post, fn url, xml, _headers ->
         doc = xml |> Floki.parse_document!()
         assert url =~ "/a/#{destination_county_domain}/receiver/"
-        assert Test.Xml.attr(doc, "case:nth-of-type(1)", "case_id") == destination_case_id
+        assert Test.Xml.attr(doc, "case:nth-of-type(1)", "case_id") == transferred_case_id
         assert Test.Xml.text(doc, "case:nth-of-type(1) create owner_id") == Test.Fixtures.test_county_2_location_id()
         assert Test.Xml.text(doc, "case:nth-of-type(1) update full_name") == "Full Name from CommCare"
         assert Test.Xml.text(doc, "case:nth-of-type(1) update address") == "Address from CommCare"
         assert Test.Xml.text(doc, "case:nth-of-type(1) update phone_number") == "555-NEW-PHONE-FROM-ECLRS"
+
+        assert Test.Xml.attr(doc, "case:nth-of-type(2)", "case_id") == transferred_initial_lab_result.case_id
+        assert Test.Xml.text(doc, "case:nth-of-type(2) update accession_number") == transferred_initial_lab_result.accession_number
+
+        assert Test.Xml.text(doc, "case:nth-of-type(3)") == ""
+
         {:ok, %{status_code: 201, body: Test.Fixtures.commcare_submit_response(:success)}}
       end)
 
@@ -615,7 +634,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
       assert reloaded_destination_index_case.data["owner_id"] == Test.Fixtures.test_county_2_location_id()
 
       initial_index_case |> assert_events(["send_to_commcare_rerouted"])
-      destination_index_case |> assert_events(["updated_from_commcare", "send_to_commcare_succeeded"])
+      transferred_index_case |> assert_events(["updated_from_commcare", "send_to_commcare_succeeded"])
     end
 
     """
