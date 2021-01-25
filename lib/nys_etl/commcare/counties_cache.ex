@@ -31,12 +31,23 @@ defmodule NYSETL.Commcare.CountiesCache do
       GenServer.start_link(__MODULE__, opts, name: name)
     end
 
-    @spec init(keyword) :: {:ok, Server.t()}
+    @spec init(keyword) :: {:ok, Server.t()} | {:stop, any()}
     def init(opts) do
       {:ok, source} = Keyword.fetch(opts, :source)
-      send(self(), :initiate_cache)
       state = new([source: source] ++ Keyword.take(opts, [:ttl, :retry_interval, :timeout]))
-      {:ok, state}
+      task = Task.async(fn -> source.() end)
+
+      case Task.yield(task, state.timeout) || Task.shutdown(task) do
+        {:ok, {:ok, result}} ->
+          Process.send_after(self(), :refresh_cache, state.ttl)
+          {:ok, %{state | cached: result}}
+
+        {:ok, {:error, reason}} ->
+          {:stop, reason}
+
+        nil ->
+          {:stop, "No result in #{state.timeout}ms"}
+      end
     end
 
     def handle_call(:cached, _from, %__MODULE__{cached: cached} = state) do
@@ -54,13 +65,6 @@ defmodule NYSETL.Commcare.CountiesCache do
           Process.send_after(self(), :refresh_cache, state.retry_interval)
           {:noreply, %{state | error_count: state.error_count + 1}}
       end
-    end
-
-    def handle_info(:initiate_cache, %__MODULE__{source: source, ttl: ttl} = state) do
-      # TODO: add a timeout
-      {:ok, value} = source.()
-      Process.send_after(self(), :refresh_cache, ttl)
-      {:noreply, %{state | cached: value}}
     end
 
     def handle_info(:refresh_cache, %__MODULE__{source: source, timeout: timeout} = state) do

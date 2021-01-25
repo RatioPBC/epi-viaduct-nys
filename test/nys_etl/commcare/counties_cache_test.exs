@@ -16,10 +16,15 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
     }
   end
 
-  test "it fetches the initial value on init (async)", context do
+  test "it fetches the initial value on init", context do
     fun = fn -> {:ok, context.value} end
     {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
     assert CountiesCache.get(pid) == context.value
+  end
+
+  test "it fails if it cannot fetch the initial value on init", context do
+    fun = fn -> {:error, "Counties JSON is not available"} end
+    assert {:error, "Counties JSON is not available"} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
   end
 
   test "the cache updates every now and then", context do
@@ -34,7 +39,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
     {:ok, pid} = CountiesCache.start_link([source: fun, name: context.name] ++ @testparams)
     assert CountiesCache.get(pid) == context.value
     # Sleep for longer than the ttl (5)
-    Process.sleep(10)
+    Process.sleep(20)
     assert CountiesCache.get(pid) > context.value
   end
 
@@ -88,7 +93,7 @@ defmodule NYSETL.Commcare.CountiesCacheTest do
     # The updating process is hanging on the `sleep(20)` above so the value hasn't changed
     assert CountiesCache.get(pid) == context.value
     # Let the updating process finish
-    Process.sleep(20)
+    Process.sleep(30)
     assert CountiesCache.get(pid) > context.value
   end
 
