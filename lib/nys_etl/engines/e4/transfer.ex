@@ -18,15 +18,12 @@ defmodule NYSETL.Engines.E4.Transfer do
   def find_or_create_transferred_index_case_and_lab_results(index_case, destination_case_data, destination_county_id) do
     case Commcare.get_index_case(case_id: destination_case_data.case_id, county_id: destination_county_id) do
       {:ok, transferred_index_case} ->
+        copy_missing_lab_results_from_to(index_case, transferred_index_case, destination_case_data)
         {:ok, transferred_index_case, :found}
 
       {:error, :not_found} ->
         {:ok, new_index_case} = create_transferred_index_case(index_case, destination_case_data, destination_county_id)
-
-        index_case
-        |> Commcare.get_lab_results()
-        |> Enum.each(&create_transferred_lab_result(new_index_case, &1, destination_case_data))
-
+        copy_missing_lab_results_from_to(index_case, new_index_case, destination_case_data)
         {:ok, new_index_case, :created}
     end
   end
@@ -38,6 +35,15 @@ defmodule NYSETL.Engines.E4.Transfer do
       county_id: destination_county_id,
       person_id: original_index_case.person_id
     })
+  end
+
+  defp copy_missing_lab_results_from_to(source_case, destination_case, destination_case_data) do
+    preexisting_accession_numbers = Commcare.get_lab_results(destination_case) |> Enum.map(& &1.accession_number)
+
+    source_case
+    |> Commcare.get_lab_results()
+    |> Enum.reject(&Enum.member?(preexisting_accession_numbers, &1.accession_number))
+    |> Enum.each(&create_transferred_lab_result(destination_case, &1, destination_case_data))
   end
 
   defp create_transferred_lab_result(transferred_index_case, old_lab_result, destination_case_data) do

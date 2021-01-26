@@ -565,8 +565,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
         %{data: %{tid: initial_lab_result.data.tid}, index_case_id: transferred_index_case.id, accession_number: initial_lab_result.accession_number}
         |> Commcare.create_lab_result()
 
-      # This is the bug: ideally we would also send it to CommCare
-      {:ok, _initial_county_new_lab_result} =
+      {:ok, initial_county_new_lab_result} =
         %{data: %{tid: "new"}, index_case_id: initial_index_case.id, accession_number: "lab_result_2_accession_number"}
         |> Commcare.create_lab_result()
 
@@ -619,8 +618,8 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
 
         assert Test.Xml.attr(doc, "case:nth-of-type(2)", "case_id") == transferred_initial_lab_result.case_id
         assert Test.Xml.text(doc, "case:nth-of-type(2) update accession_number") == transferred_initial_lab_result.accession_number
-
-        assert Test.Xml.text(doc, "case:nth-of-type(3)") == ""
+        assert Test.Xml.text(doc, "case:nth-of-type(3) update accession_number") == initial_county_new_lab_result.accession_number
+        assert Test.Xml.attr(doc, "case:nth-of-type(3)", "case_id") != initial_county_new_lab_result.case_id
 
         {:ok, %{status_code: 201, body: Test.Fixtures.commcare_submit_response(:success)}}
       end)
