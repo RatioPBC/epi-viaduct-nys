@@ -27,6 +27,7 @@ defmodule NYSETL.Commcare.CountiesCache do
 
     @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
     def start_link(opts) do
+      Logger.info("[#{__MODULE__}] Starting CountiesCache")
       {name, opts} = Keyword.pop(opts, :name, __MODULE__)
       GenServer.start_link(__MODULE__, opts, name: name)
     end
