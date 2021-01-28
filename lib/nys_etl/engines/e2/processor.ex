@@ -461,7 +461,7 @@ defmodule NYSETL.Engines.E2.Processor do
     {gender, gender_other} = gender(test_result.patient_gender)
 
     %{
-      contact_phone_number: Format.format(test_result.patient_phone_home_normalized),
+      contact_phone_number: test_result.patient_phone_home_normalized |> Format.format() |> Format.us_phone_number(),
       dob: Format.format(test_result.patient_dob),
       dob_known: dob_known?(test_result.patient_dob),
       first_name: test_result.patient_name_first,

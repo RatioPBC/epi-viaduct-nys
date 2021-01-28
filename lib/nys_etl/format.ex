@@ -20,4 +20,10 @@ defmodule NYSETL.Format do
 
   def format(int, pad: pad) when is_integer(int), do: int |> format() |> String.pad_leading(pad, "0")
   def format(int, _opts) when is_integer(int), do: int |> Integer.to_string()
+
+  def us_phone_number(phone_number) when byte_size(phone_number) == 10 do
+    "1" <> phone_number
+  end
+
+  def us_phone_number(phone_number), do: phone_number
 end

@@ -31,4 +31,18 @@ defmodule NYSETL.FormatTest do
       6 |> Format.format(pad: 2) |> assert_eq("06")
     end
   end
+
+  describe "us_phone_number" do
+    test "10 digits" do
+      assert Format.us_phone_number("2131234567") == "12131234567"
+    end
+
+    test "11 digits" do
+      assert Format.us_phone_number("92131234567") == "92131234567"
+    end
+
+    test "9 digits" do
+      assert Format.us_phone_number("131234567") == "131234567"
+    end
+  end
 end

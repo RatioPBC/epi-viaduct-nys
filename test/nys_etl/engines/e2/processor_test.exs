@@ -52,8 +52,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           patient_name_first: "Test",
           patient_name_last: "User",
           patient_name_middle: "D",
-          patient_phone_home: "(123) 123-4567",
-          patient_phone_home_normalized: "1231234567",
+          patient_phone_home: "(213) 123-4567",
+          patient_phone_home_normalized: "2131234567",
           patient_updated_at: ~U[2020-05-31 06:00:00Z],
           patient_zip: "12301",
           request_accession_number: "ABC123",
@@ -111,7 +111,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       |> assert_eq(
         Fixtures.index_case_data(%{
           "address_street" => "123 Somewhere St",
-          "contact_phone_number" => "1231234567",
+          "contact_phone_number" => "12131234567",
           "dob" => "1960-01-01",
           "doh_mpi_id" => "P#{donny.id}",
           "external_id" => "P#{donny.id}",
@@ -119,7 +119,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           "has_phone_number" => "yes",
           "initials" => "TU",
           "name_and_id" => "Test User (P#{donny.id})",
-          "phone_home" => "1231234567"
+          "phone_home" => "2131234567"
         }),
         except: ~w{case_import_date}
       )

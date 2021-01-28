@@ -173,8 +173,13 @@ defmodule NYSETL.EndToEndTest do
     assert_receive({:oban, :stop, %{worker: "NYSETL.Engines.E4.CommcareCaseLoader"}}, 15_000)
     assert_receive({:oban, :stop, %{worker: "NYSETL.Engines.E4.CommcareCaseLoader"}}, 1_000)
 
-    assert_received({:http, :post, "http://commcare.test.host/a/sw-yggdrasil-cdcms/receiver/", _})
-    assert_received({:http, :post, "http://commcare.test.host/a/uk-midsomer-cdcms/receiver/", _})
+    assert_received({:http, :post, "http://commcare.test.host/a/uk-midsomer-cdcms/receiver/", posted_body_1})
+    doc1 = Floki.parse_document!(posted_body_1)
+    assert Xml.text(doc1, "case:nth-of-type(1) update contact_phone_number") == "15551234567"
+
+    assert_received({:http, :post, "http://commcare.test.host/a/sw-yggdrasil-cdcms/receiver/", posted_body_2})
+    doc2 = Floki.parse_document!(posted_body_2)
+    assert Xml.text(doc2, "case:nth-of-type(1) update contact_phone_number") == "15551234568"
 
     refute_received({:oban, :exception, _}, 100)
 
