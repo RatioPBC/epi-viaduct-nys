@@ -45,6 +45,7 @@ defmodule NYSETL.MixProject do
       {:cachex, "~> 3.2"},
       {:configparser_ex, "> 2.0.0"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:csv, "~> 2.4"},
       {:earmark, "> 0.0.0"},
       {:ecto_sql, "~> 3.4"},
       {:ex_aws, "~> 2.0"},
