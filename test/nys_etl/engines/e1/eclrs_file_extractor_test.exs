@@ -208,21 +208,6 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       ECLRS.About |> Repo.count() |> assert_eq(2)
     end
 
-    test "reads a v2 file with pipes in the data" do
-      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_records_with_pipes.txt")
-
-      ECLRS.TestResult
-      |> Repo.get_by(patient_name_last: "LASTNAME")
-      |> assert_eq(
-        %{
-          patient_name_first: "FIRSTNAME",
-          lab_name: "ACME LABORATORIES | INC",
-          request_facility_name: "NEW YORK STATE | GREAT LAB"
-        },
-        only: :right_keys
-      )
-    end
-
     # This test has issues.
     # * It's possibly in the wrong file (but it's here because it's here that we want to test this functionality, and
     #   we don't know how to test it through the supervision tree).

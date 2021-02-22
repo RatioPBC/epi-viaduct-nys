@@ -25,11 +25,7 @@ defmodule NYSETL.Engines.E1.Message do
   def new(attrs), do: __struct__(attrs)
 
   def transform({version, row}, file) do
-    {:ok, [fields]} =
-      StringIO.open(row, fn pid ->
-        pid |> IO.binstream(:line) |> CSV.decode!(separator: ?|) |> Enum.take(1)
-      end)
-
+    fields = String.split(row, "|")
     new(raw_data: row, checksum: checksum(version, row, fields), file_id: file.id, version: version, fields: fields)
   end
 
