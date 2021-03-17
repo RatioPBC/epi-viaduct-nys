@@ -32,8 +32,8 @@ defmodule NYSETL.Engines.E1.MessageTest do
 
   describe "remove_new_v2_fields" do
     test "turns the v2 header list into the v1 header list" do
-      v2_headers = Message.file_header(:v2) |> Message.file_headers() |> elem(1)
-      v1_headers = Message.file_header(:v1) |> Message.file_headers() |> elem(1)
+      v2_headers = NYSETL.ECLRS.File.file_header(:v2) |> NYSETL.ECLRS.File.file_headers() |> elem(1)
+      v1_headers = NYSETL.ECLRS.File.file_header(:v1) |> NYSETL.ECLRS.File.file_headers() |> elem(1)
       assert Message.remove_new_v2_fields(v2_headers) == v1_headers
     end
   end

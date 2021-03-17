@@ -85,7 +85,7 @@ defmodule NYSETL.ECLRS do
     |> Repo.get_by(query)
     |> case do
       nil -> {:error, :not_found}
-      file -> {:ok, file}
+      about -> {:ok, about}
     end
   end
 
@@ -99,6 +99,12 @@ defmodule NYSETL.ECLRS do
     |> Repo.insert()
 
     # TODO: look at Commcare.save_event for some inspiration, like `|> do_save_event()`
+  end
+
+  def update_file(%ECLRS.File{} = file, attrs) do
+    file
+    |> ECLRS.File.changeset(attrs)
+    |> Repo.update()
   end
 
   def update_last_seen_file(abouts, file) do

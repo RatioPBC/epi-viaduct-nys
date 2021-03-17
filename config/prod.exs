@@ -45,11 +45,12 @@ config :logger, level: System.get_env("LOG_LEVEL", "info") |> String.to_existing
 
 config :nys_etl, Oban,
   repo: NYSETL.Repo,
-  queues: [commcare: 10],
+  queues: [commcare: 10, backfillers: 10],
   crontab: [
     {"* * * * *", NYSETL.Monitoring.Transformer.FailureReporter}
   ],
   plugins: [
+    Oban.Pro.Plugins.BatchManager,
     Oban.Pro.Plugins.Lifeline,
     Oban.Web.Plugins.Stats
   ]

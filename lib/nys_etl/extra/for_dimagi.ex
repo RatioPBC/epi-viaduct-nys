@@ -3,7 +3,6 @@ defmodule NYSETL.Extra.ForDimagi do
   import Ecto.Query
   alias NYSETL.Commcare.Api
   alias NYSETL.Engines.E1.FileReader
-  alias NYSETL.Engines.E1.Message
 
   def recent_from_server(output_path, limit \\ 100) do
     all =
@@ -17,7 +16,7 @@ defmodule NYSETL.Extra.ForDimagi do
       |> Enum.map(&Kernel.hd/1)
 
     tmp_path = Briefly.create!()
-    header = Message.file_header(:v1)
+    header = NYSETL.ECLRS.File.file_header(:v1)
     File.write!(tmp_path, [header | all] |> Enum.map(fn s -> s <> "\n" end))
     NYSETL.Extra.Scrubber.scrub_file(tmp_path, output_path)
     File.rm!(tmp_path)
@@ -28,7 +27,7 @@ defmodule NYSETL.Extra.ForDimagi do
     eclrs_maps = get_eclrs_maps(input_path, length(cases))
 
     out = File.open!(output_path, [:write])
-    IO.write(out, Message.file_header(:v1) <> "\n")
+    IO.write(out, NYSETL.ECLRS.File.file_header(:v1) <> "\n")
 
     Enum.zip(cases, eclrs_maps)
     |> Enum.with_index(DateTime.utc_now() |> DateTime.to_unix(:microsecond))
@@ -48,7 +47,7 @@ defmodule NYSETL.Extra.ForDimagi do
     |> Enum.each(fn {dimagi_eclrs, patient_key} ->
       name = patient_key |> Integer.to_string() |> Kernel.<>(".csv") |> IO.inspect(label: "writing file")
       out = File.open!(Path.join(output_dir, name), [:write])
-      IO.write(out, Message.file_header(:v1) <> "\n")
+      IO.write(out, NYSETL.ECLRS.File.file_header(:v1) <> "\n")
       merge(dimagi_eclrs, patient_key) |> inline() |> IO.write(out, ...)
       File.close(out)
     end)
@@ -87,7 +86,7 @@ defmodule NYSETL.Extra.ForDimagi do
   end
 
   def inline(eclrs_map) do
-    {:v1, headers} = Message.file_headers(Message.file_header(:v1))
+    {:v1, headers} = NYSETL.ECLRS.File.file_headers(NYSETL.ECLRS.File.file_header(:v1))
 
     headers
     |> Enum.map(fn key -> eclrs_map[key] end)

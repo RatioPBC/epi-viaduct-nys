@@ -21,6 +21,8 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       {:ok, _county} = ECLRS.get_county(9999)
       {:ok, file} = ECLRS.get_file(filename: "test/fixtures/eclrs/new_records.txt")
 
+      assert file.eclrs_version == 1
+
       file.processing_started_at |> assert_recent()
       file.processing_completed_at |> assert_recent()
 
@@ -76,6 +78,8 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       {:ok, _county} = ECLRS.get_county(1111)
       {:ok, _county} = ECLRS.get_county(9999)
       {:ok, file} = ECLRS.get_file(filename: "test/fixtures/eclrs/v2_new_records.txt")
+
+      assert file.eclrs_version == 2
 
       file.processing_started_at |> assert_recent()
       file.processing_completed_at |> assert_recent()
@@ -208,12 +212,41 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       ECLRS.About |> Repo.count() |> assert_eq(2)
     end
 
+    test "reads a v2 file with pipes in the data" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_records_with_pipes.txt")
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          patient_name_first: "FIRSTNAME",
+          lab_name: "ACME LABORATORIES | INC",
+          request_facility_name: "NEW YORK STATE | GREAT LAB"
+        },
+        only: :right_keys
+      )
+    end
+
+    test "parses quotes according to CSV" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_records_with_quotes.txt")
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          patient_name_first: "FIRSTNAME",
+          patient_address_2: "\"\""
+        },
+        only: :right_keys
+      )
+    end
+
     # This test has issues.
     # * It's possibly in the wrong file (but it's here because it's here that we want to test this functionality, and
     #   we don't know how to test it through the supervision tree).
     test "crashes if the header is bad" do
       {:ok, file} = ECLRS.create_file(%{filename: "test/fixtures/eclrs/bad_header.txt"})
-      assert_raise E1.Message.HeaderError, fn -> E1.FileReader.init(file) end
+      assert_raise ECLRS.File.HeaderError, fn -> E1.FileReader.init(file) end
     end
   end
 end

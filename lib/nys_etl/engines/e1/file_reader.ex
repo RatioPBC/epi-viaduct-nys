@@ -5,6 +5,7 @@ defmodule NYSETL.Engines.E1.FileReader do
   """
 
   use GenStage
+  alias NYSETL.ECLRS
   alias NYSETL.Engines.E1
   require Logger
 
@@ -25,10 +26,12 @@ defmodule NYSETL.Engines.E1.FileReader do
     :telemetry.execute([:extractor, :eclrs, :file_reader, :open], %{count: 1})
     {:ok, file_handle} = File.open(file.filename, [:read])
 
-    headers =
+    headers = {eclrs_version, _header_names} =
       IO.read(file_handle, :line)
       |> String.trim()
-      |> E1.Message.file_headers()
+      |> ECLRS.File.file_headers()
+
+    {:ok, file} = ECLRS.update_file(file, %{eclrs_version: ECLRS.File.version_number(eclrs_version)})
 
     {:producer, new(file: file, file_handle: file_handle, line_count: 0, file_headers: headers)}
   end

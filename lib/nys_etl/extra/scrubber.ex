@@ -56,7 +56,7 @@ defmodule NYSETL.Extra.Scrubber do
 
     {version, _headers} =
       header
-      |> NYSETL.Engines.E1.Message.file_headers()
+      |> NYSETL.ECLRS.File.file_headers()
 
     {version, header}
   end

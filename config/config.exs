@@ -97,8 +97,9 @@ config :logger, :console,
 
 config :nys_etl, Oban,
   repo: NYSETL.Repo,
-  queues: [default: 10, commcare: 10],
+  queues: [default: 10, commcare: 10, backfillers: 10],
   plugins: [
+    Oban.Pro.Plugins.BatchManager,
     Oban.Pro.Plugins.Lifeline,
     Oban.Web.Plugins.Stats
   ]
