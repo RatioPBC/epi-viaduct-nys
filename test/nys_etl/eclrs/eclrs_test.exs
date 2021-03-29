@@ -40,7 +40,6 @@ defmodule NYSETL.ECLRSTest do
     test "creates an about", context do
       assert {:ok, _} =
                %{
-                 checksum: "abc123",
                  checksums: %{v1: "abc123", v2: "def456", v3: "ghi789"},
                  county_id: 71,
                  first_seen_file_id: context.eclrs_file.id,
@@ -62,7 +61,6 @@ defmodule NYSETL.ECLRSTest do
 
       {:ok, about} =
         %{
-          checksum: "abc123",
           checksums: %{v1: "abc123", v2: "def456", v3: "ghi789"},
           county_id: 71,
           first_seen_file_id: file.id,
@@ -74,7 +72,6 @@ defmodule NYSETL.ECLRSTest do
         |> ECLRS.create_about()
 
       about_attrs = %{
-        checksum: "foo123",
         county_id: 71,
         first_seen_file_id: file.id,
         last_seen_at: DateTime.utc_now(),
@@ -93,21 +90,69 @@ defmodule NYSETL.ECLRSTest do
                |> ECLRS.create_about()
     end
 
-    test "fails when there are any checksum collisions", context do
-      assert {:error, %{errors: [checksums: {_, constraint: :unique, constraint_name: "abouts_unique_checksum_v1"}]}} =
+    test "succeeds when there are v1 checksum duplicates", context do
+      assert {:ok, _} =
                context.about_attrs
                |> Map.put(:checksums, %{v1: context.about.checksums.v1, v2: "bar456", v3: "baz789"})
                |> ECLRS.create_about()
+    end
 
-      assert {:error, %{errors: [checksums: {_, constraint: :unique, constraint_name: "abouts_unique_checksum_v2"}]}} =
+    test "succeeds when there are v2 checksum duplicates", context do
+      assert {:ok, _} =
                context.about_attrs
                |> Map.put(:checksums, %{v1: "foo123", v2: context.about.checksums.v2, v3: "baz789"})
                |> ECLRS.create_about()
+    end
 
+    test "fails when there is a v3 collision", context do
       assert {:error, %{errors: [checksums: {_, constraint: :unique, constraint_name: "abouts_unique_checksum_v3"}]}} =
                context.about_attrs
                |> Map.put(:checksums, %{v1: "foo123", v2: "bar456", v3: context.about.checksums.v3})
                |> ECLRS.create_about()
+    end
+
+    test "fails when any checksum is missing", context do
+      assert {:error, %{errors: [checksums: {_, [validation: :required]}]}} =
+               context.about_attrs
+               |> Map.put(:checksums, nil)
+               |> ECLRS.create_about()
+
+      assert {:error,
+              %{
+                changes: %{
+                  checksums: %{
+                    errors: [
+                      v1: {"can't be blank", [validation: :required]},
+                      v2: {"can't be blank", [validation: :required]},
+                      v3: {"can't be blank", [validation: :required]}
+                    ]
+                  }
+                }
+              }} =
+               context.about_attrs
+               |> Map.put(:checksums, %{v2: nil, v3: "   "})
+               |> ECLRS.create_about()
+    end
+
+    test "fails when any checksum is missing (bypassing validations and using DB constraints)", context do
+      assert_constraint_failure = fn checksums, constraint_name ->
+        checksum_changeset = %ECLRS.About.Checksums{} |> Ecto.Changeset.change(checksums)
+
+        about_attrs =
+          context.about_attrs
+          |> Map.put(:patient_key_id, String.to_integer(context.about_attrs.patient_key_id))
+          |> Map.put(:checksums, checksum_changeset)
+
+        assert_raise Ecto.ConstraintError, ~r/#{constraint_name}/, fn ->
+          %ECLRS.About{}
+          |> Ecto.Changeset.change(about_attrs)
+          |> Repo.insert()
+        end
+      end
+
+      assert_constraint_failure.(%{v2: "foo", v3: "bar"}, :must_have_checksum_v1)
+      assert_constraint_failure.(%{v1: "foo", v2: nil, v3: "bar"}, :must_have_checksum_v2)
+      assert_constraint_failure.(%{v1: "foo", v2: "bar", v3: "  "}, :must_have_checksum_v3)
     end
   end
 
@@ -227,9 +272,8 @@ defmodule NYSETL.ECLRSTest do
       [county: county, eclrs_file: file, test_result: test_result]
     end
 
-    test "is {:ok, about} when a record can be found by checksum", context do
+    test "is {:ok, about} when a record can be found by v3 checksum", context do
       %{
-        checksum: "abc123",
         checksums: %{v1: "foo", v2: "bar", v3: "abc123"},
         county_id: 71,
         first_seen_file_id: context.eclrs_file.id,
@@ -246,6 +290,146 @@ defmodule NYSETL.ECLRSTest do
 
     test "is {:error, :not_found} when a file does not exist" do
       assert {:error, :not_found} = ECLRS.get_about(checksum: "abc123")
+    end
+
+    test "does not match v1 or v2 checksums", context do
+      {:ok, _about} =
+        %{
+          checksums: %{v1: "abc123", v2: "abc123", v3: "no_match"},
+          county_id: 71,
+          first_seen_file_id: context.eclrs_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: context.eclrs_file.id,
+          patient_key_id: "12345",
+          test_result_id: context.test_result.id
+        }
+        |> ECLRS.create_about()
+
+      assert {:error, :not_found} = ECLRS.get_about(checksum: "abc123")
+    end
+  end
+
+  describe "get_about_by_version" do
+    setup do
+      {:ok, county} = ECLRS.find_or_create_county(71)
+      {:ok, v1_file} = Factory.file_attrs(eclrs_version: 1, filename: "v1_record.txt") |> ECLRS.create_file()
+      {:ok, v2_file} = Factory.file_attrs(eclrs_version: 2, filename: "v2_record.txt") |> ECLRS.create_file()
+      {:ok, v3_file} = Factory.file_attrs(eclrs_version: 3, filename: "v3_record.txt") |> ECLRS.create_file()
+      test_result_attrs = Factory.test_result_attrs(county_id: county.id)
+
+      [county: county, test_result_attrs: test_result_attrs, v1_file: v1_file, v2_file: v2_file, v3_file: v3_file]
+    end
+
+    test "finds a v1 about from a v1 file", context do
+      v1_file = context.v1_file
+      {:ok, test_result} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+
+      {:ok, about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
+          county_id: context.county.id,
+          first_seen_file_id: v1_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v1_file.id,
+          patient_key_id: "123",
+          test_result_id: test_result.id
+        }
+        |> ECLRS.create_about()
+
+      about_id = about.id
+      assert {:ok, %ECLRS.About{id: ^about_id}} = ECLRS.get_about_by_version(%{v1: "v1_checksum", v2: "foo", v3: "bar"})
+    end
+
+    test "finds a v2 about from a v2 file", context do
+      v2_file = context.v2_file
+      {:ok, test_result} = context.test_result_attrs |> Map.merge(%{file_id: v2_file.id}) |> ECLRS.create_test_result()
+
+      {:ok, about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
+          county_id: context.county.id,
+          first_seen_file_id: v2_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v2_file.id,
+          patient_key_id: "123",
+          test_result_id: test_result.id
+        }
+        |> ECLRS.create_about()
+
+      about_id = about.id
+      assert {:ok, %ECLRS.About{id: ^about_id}} = ECLRS.get_about_by_version(%{v1: "foo", v2: "v2_checksum", v3: "bar"})
+    end
+
+    test "finds a v3 about from a v3 file", context do
+      v3_file = context.v3_file
+      {:ok, test_result} = context.test_result_attrs |> Map.merge(%{file_id: v3_file.id}) |> ECLRS.create_test_result()
+
+      {:ok, about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
+          county_id: context.county.id,
+          first_seen_file_id: v3_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v3_file.id,
+          patient_key_id: "123",
+          test_result_id: test_result.id
+        }
+        |> ECLRS.create_about()
+
+      about_id = about.id
+      assert {:ok, %ECLRS.About{id: ^about_id}} = ECLRS.get_about_by_version(%{v1: "foo", v2: "bar", v3: "v3_checksum"})
+    end
+
+    test "does not find an about from a different version", context do
+      v1_file = context.v1_file
+      {:ok, test_result} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+
+      {:ok, _about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
+          county_id: context.county.id,
+          first_seen_file_id: v1_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v1_file.id,
+          patient_key_id: "123",
+          test_result_id: test_result.id
+        }
+        |> ECLRS.create_about()
+
+      assert {:error, :not_found} = ECLRS.get_about_by_version(%{v1: "foo", v2: "v2_checksum", v3: "v3_checksum"})
+    end
+
+    test "works if multiple records exist with the same early version checksums", context do
+      v1_file = context.v1_file
+
+      {:ok, test_result1} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+      {:ok, about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
+          county_id: context.county.id,
+          first_seen_file_id: v1_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v1_file.id,
+          patient_key_id: "123",
+          test_result_id: test_result1.id
+        }
+        |> ECLRS.create_about()
+
+      {:ok, test_result2} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+      {:ok, _about} =
+        %{
+          checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum_brand_new"},
+          county_id: context.county.id,
+          first_seen_file_id: v1_file.id,
+          last_seen_at: DateTime.utc_now(),
+          last_seen_file_id: v1_file.id,
+          patient_key_id: "456",
+          test_result_id: test_result2.id
+        }
+        |> ECLRS.create_about()
+
+      about_id = about.id
+      assert {:ok, %NYSETL.ECLRS.About{id: ^about_id}} = ECLRS.get_about_by_version(%{v1: "v1_checksum", v2: "v2_checksum", v3: "bar"})
     end
   end
 
@@ -293,7 +477,6 @@ defmodule NYSETL.ECLRSTest do
       {:ok, newer_file} = Factory.file_attrs(filename: "/tmp/other") |> ECLRS.create_file()
 
       attrs = %{
-        checksum: "abc123",
         checksums: %{v1: "about1_v1", v2: "about1_v2", v3: "abc123"},
         county_id: 71,
         first_seen_file_id: context.eclrs_file.id,
@@ -304,12 +487,8 @@ defmodule NYSETL.ECLRSTest do
       }
 
       {:ok, about1} = attrs |> ECLRS.create_about()
-
-      {:ok, about2} =
-        attrs |> Map.put(:checksum, "def456") |> Map.put(:checksums, %{v1: "about2_v1", v2: "about2_v2", v3: "def456"}) |> ECLRS.create_about()
-
-      {:ok, _about3} =
-        attrs |> Map.put(:checksum, "cba890") |> Map.put(:checksums, %{v1: "about3_v1", v2: "about3_v2", v3: "cba890"}) |> ECLRS.create_about()
+      {:ok, about2} = attrs |> Map.put(:checksums, %{v1: "about2_v1", v2: "about2_v2", v3: "def456"}) |> ECLRS.create_about()
+      {:ok, _about3} = attrs |> Map.put(:checksums, %{v1: "about3_v1", v2: "about3_v2", v3: "cba890"}) |> ECLRS.create_about()
 
       :ok = [about1, about2] |> ECLRS.update_last_seen_file(newer_file)
 

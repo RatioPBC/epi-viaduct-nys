@@ -11,13 +11,22 @@ defmodule NYSETL.ECLRS.TestResult do
   alias NYSETL.ECLRS
 
   schema "test_results" do
+    field :aoe_date, :utc_datetime_usec
+    field :eclrs_congregate_care_resident, :string
     field :eclrs_create_date, :utc_datetime_usec
+    field :eclrs_hospitalized, :string
+    field :eclrs_icu, :string
+    field :eclrs_pregnant, :string
+    field :eclrs_symptom_onset_date, :utc_datetime_usec
+    field :eclrs_symptomatic, :string
     field :employee_job_title, :string
     field :employee_number, :string
     field :employer_address, :string
     field :employer_name, :string
-    field :employer_phone, :string
     field :employer_phone_alt, :string
+    field :employer_phone, :string
+    field :first_test, :string
+    field :healthcare_employee, :string
     field :lab_id, :string
     field :lab_name, :string
     field :message_master_key, :string
@@ -30,8 +39,8 @@ defmodule NYSETL.ECLRS.TestResult do
     field :patient_name_first, :string
     field :patient_name_last, :string
     field :patient_name_middle, :string
-    field :patient_phone_home, :string
     field :patient_phone_home_normalized, :string
+    field :patient_phone_home, :string
     field :patient_updated_at, :utc_datetime_usec
     field :patient_zip, :string
     field :raw_data, :string
@@ -42,27 +51,27 @@ defmodule NYSETL.ECLRS.TestResult do
     field :request_facility_city, :string
     field :request_facility_code, :string
     field :request_facility_name, :string
-    field :request_phone_facility, :string
     field :request_phone_facility_normalized, :string
+    field :request_phone_facility, :string
     field :request_provider_address_1, :string
     field :request_provider_city, :string
     field :request_provider_id, :string
     field :request_provider_name_first, :string
     field :request_provider_name_last, :string
     field :request_specimen_source_name, :string
-    field :result, :string
     field :result_analysis_date, :utc_datetime_usec
     field :result_local_test_code, :string
     field :result_local_test_desc, :string
     field :result_loinc_code, :string
     field :result_loinc_desc, :string
     field :result_observation_date, :utc_datetime_usec
-    field :result_observation_text, :string
     field :result_observation_text_short, :string
+    field :result_observation_text, :string
     field :result_producer_lab_name, :string
     field :result_snomed_code, :string
     field :result_snomed_desc, :string
     field :result_status_code, :string
+    field :result, :string
     field :school_code, :string
     field :school_district, :string
     field :school_job_class, :string

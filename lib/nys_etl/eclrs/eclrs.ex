@@ -80,9 +80,37 @@ defmodule NYSETL.ECLRS do
     end
   end
 
+  def get_about(checksum: checksum) do
+    ECLRS.About
+    |> where(fragment("(checksums->>'v3') = ?", ^checksum))
+    |> Repo.one()
+    |> case do
+      nil -> {:error, :not_found}
+      about -> {:ok, about}
+    end
+  end
+
   def get_about(query) do
     ECLRS.About
     |> Repo.get_by(query)
+    |> case do
+      nil -> {:error, :not_found}
+      about -> {:ok, about}
+    end
+  end
+
+  def get_about_by_version(checksums) do
+    v1 = dynamic([a], fragment("(checksums->>'v1') = ? AND eclrs_version = ?", ^checksums.v1, 1))
+    v2 = dynamic([a], fragment("(checksums->>'v2') = ? AND eclrs_version = ?", ^checksums.v2, 2))
+    v3 = dynamic([a], fragment("(checksums->>'v3') = ? AND eclrs_version = ?", ^checksums.v3, 3))
+
+    by_checksum_version = dynamic(^v1 or ^v2 or ^v3)
+
+    ECLRS.About
+    |> join(:inner, [a], f in assoc(a, :file))
+    |> where(^by_checksum_version)
+    |> first()
+    |> Repo.one()
     |> case do
       nil -> {:error, :not_found}
       about -> {:ok, about}

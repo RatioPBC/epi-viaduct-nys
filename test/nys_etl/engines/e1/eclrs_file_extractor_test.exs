@@ -38,7 +38,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       ECLRS.TestResult |> Repo.count() |> assert_eq(3)
       ECLRS.About |> Repo.count() |> assert_eq(3)
 
-      about = ECLRS.About |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+      {:ok, about} = ECLRS.get_about(checksum: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4=")
 
       about
       |> assert_eq(
@@ -60,7 +60,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      about = ECLRS.About |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+      {:ok, about} = ECLRS.get_about(checksum: "RdcbYg0gWgHS56YNHxkKDIL1u737MUI2VPNMCXrXcRk=")
 
       about
       |> assert_eq(
@@ -82,7 +82,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      about = ECLRS.About |> Repo.get_by(checksum: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=")
+      {:ok, about} = ECLRS.get_about(checksum: "Vc0JGTOi9LC5qJ+4bTuq4oW76IDd2wWqNhu+rU+s++A=")
 
       about
       |> assert_eq(
@@ -141,7 +141,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       ECLRS.About |> Repo.count() |> assert_eq(3)
 
       # Same checksum as for v1 which doesn't have the employer columns
-      about = ECLRS.About |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+      {:ok, about} = ECLRS.get_about(checksum: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4=")
 
       about
       |> assert_eq(
@@ -163,7 +163,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      about = ECLRS.About |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+      {:ok, about} = ECLRS.get_about(checksum: "VGWpa4/LeQ+wvWzFMAhd1y15msKC/Z83P7wiuU/1pJQ=")
 
       about
       |> assert_eq(
@@ -185,7 +185,7 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      about = ECLRS.About |> Repo.get_by(checksum: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=")
+      {:ok, about} = ECLRS.get_about(checksum: "Vc0JGTOi9LC5qJ+4bTuq4oW76IDd2wWqNhu+rU+s++A=")
 
       about
       |> assert_eq(
@@ -233,7 +233,142 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       )
     end
 
-    test "does not import employer fields for a row that has already been imported without them" do
+    test "reads a v3 file, creates a File record and Abouts for each row" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v3_new_records.txt")
+
+      {:ok, _county} = ECLRS.get_county(1111)
+      {:ok, _county} = ECLRS.get_county(9999)
+      {:ok, file} = ECLRS.get_file(filename: "test/fixtures/eclrs/v3_new_records.txt")
+
+      assert file.eclrs_version == 3
+
+      file.processing_started_at |> assert_recent()
+      file.processing_completed_at |> assert_recent()
+
+      file.statistics
+      |> assert_eq(%{
+        "duplicate" => %{"total" => 0},
+        "error" => %{"total" => 0},
+        "matched" => %{"total" => 0},
+        "new" => %{"total" => 3, "1111" => 1, "9999" => 2}
+      })
+
+      ECLRS.County |> Repo.count() |> assert_eq(2)
+      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
+      ECLRS.About |> Repo.count() |> assert_eq(3)
+
+      # Same checksum as for v1 which doesn't have the employer columns
+      {:ok, about} = ECLRS.get_about(checksum: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4=")
+
+      about
+      |> assert_eq(
+        %{
+          county_id: 1111,
+          first_seen_file_id: file.id,
+          patient_key_id: 15_200_000_000_000
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=",
+          v2: "c4AeQ4s/s7By9VwwvztlzAiqaXk5IVt8G+4H2URT32U=",
+          v3: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4="
+        },
+        only: :right_keys
+      )
+
+      {:ok, about} = ECLRS.get_about(checksum: "VGWpa4/LeQ+wvWzFMAhd1y15msKC/Z83P7wiuU/1pJQ=")
+
+      about
+      |> assert_eq(
+        %{
+          county_id: 9999,
+          first_seen_file_id: file.id,
+          patient_key_id: 15_200_000_000_001
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=",
+          v2: "hk52rV6eghiXb3+9L9DC0/h9vR2Wgt5sZJu+Z4D7EVY=",
+          v3: "VGWpa4/LeQ+wvWzFMAhd1y15msKC/Z83P7wiuU/1pJQ="
+        },
+        only: :right_keys
+      )
+
+      {:ok, about} = ECLRS.get_about(checksum: "j4t6aZHgMawC1oJJFM9mjGH+QIlGQlWRIOy8CeN826o=")
+
+      about
+      |> assert_eq(
+        %{
+          county_id: 9999,
+          first_seen_file_id: file.id,
+          patient_key_id: 15_200_000_000_002
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=",
+          v2: "cVhURpBsRsOm4hVE0c45V8jr7INuCWkqX3GxAR8ldkk=",
+          v3: "j4t6aZHgMawC1oJJFM9mjGH+QIlGQlWRIOy8CeN826o="
+        },
+        only: :right_keys
+      )
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          patient_name_first: "FIRSTNAME",
+          patient_phone_home: "(555) 123-4567",
+          patient_phone_home_normalized: "5551234567"
+        },
+        only: :right_keys
+      )
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "SMITH")
+      |> assert_eq(
+        %{
+          employer_name: "Employer Name",
+          employer_address: "Employer Address",
+          employer_phone_alt: "Employer Phone Alt",
+          school_name: "School Name",
+          school_present: "School Present",
+          patient_name_first: "AGENT"
+        },
+        only: :right_keys
+      )
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "GOODE")
+      |> assert_eq(
+        %{
+          first_test: "A",
+          aoe_date: ~U[2020-03-20 05:02:03.000000Z],
+          healthcare_employee: "B",
+          eclrs_symptomatic: "C",
+          eclrs_symptom_onset_date: ~U[2020-03-21 08:05:06.000000Z],
+          eclrs_hospitalized: "D",
+          eclrs_icu: "E",
+          eclrs_congregate_care_resident: "F",
+          eclrs_pregnant: "G",
+          patient_name_first: "JOHNNY"
+        },
+        only: :right_keys
+      )
+    end
+
+    test "does not import employer fields for a row that was imported at a previous version" do
       :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/new_records.txt")
       :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_new_records.txt")
 
@@ -248,6 +383,92 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
           employer_address: nil,
           employer_phone_alt: nil,
           patient_name_first: "AGENT"
+        },
+        only: :right_keys
+      )
+    end
+
+    test "imports employer fields for a row was previously imported at the same version" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_new_records.txt")
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_new_records_added_info.txt")
+
+      ECLRS.TestResult |> Repo.count() |> assert_eq(4)
+      ECLRS.About |> Repo.count() |> assert_eq(4)
+
+      ECLRS.TestResult
+      |> first()
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          employer_name: nil,
+          employer_address: nil,
+          employer_phone_alt: nil,
+          patient_name_first: "FIRSTNAME"
+        },
+        only: :right_keys
+      )
+
+      ECLRS.TestResult
+      |> last()
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          employer_name: "cool employer",
+          patient_name_first: "FIRSTNAME"
+        },
+        only: :right_keys
+      )
+    end
+
+    test "does not import AOE fields for a row that was imported at a previous version" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_new_records.txt")
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v3_new_records.txt")
+
+      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
+      ECLRS.About |> Repo.count() |> assert_eq(3)
+
+      ECLRS.TestResult
+      |> Repo.get_by(patient_name_last: "GOODE")
+      |> assert_eq(
+        %{
+          first_test: nil,
+          healthcare_employee: nil,
+          eclrs_symptomatic: nil,
+          patient_name_first: "JOHNNY"
+        },
+        only: :right_keys
+      )
+    end
+
+    test "imports AOE fields for a row that was previously imported without them" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v3_new_records.txt")
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v3_new_records_added_info.txt")
+
+      ECLRS.TestResult |> Repo.count() |> assert_eq(4)
+      ECLRS.About |> Repo.count() |> assert_eq(4)
+
+      ECLRS.TestResult
+      |> first()
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          first_test: nil,
+          healthcare_employee: nil,
+          eclrs_symptomatic: nil,
+          patient_name_first: "FIRSTNAME"
+        },
+        only: :right_keys
+      )
+
+      ECLRS.TestResult
+      |> last()
+      |> Repo.get_by(patient_name_last: "LASTNAME")
+      |> assert_eq(
+        %{
+          first_test: "yes",
+          healthcare_employee: "no",
+          eclrs_symptomatic: "maybe so",
+          patient_name_first: "FIRSTNAME"
         },
         only: :right_keys
       )

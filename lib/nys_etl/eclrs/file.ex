@@ -71,7 +71,7 @@ defmodule NYSETL.ECLRS.File do
   def truncate_fields_to_version(fields, :v1), do: truncate_fields(fields, 44)
   def truncate_fields_to_version(fields, :v2), do: truncate_fields(fields, 55)
 
-  def version_number(version), do: Map.fetch!(%{v1: 1, v2: 2}, version)
+  def version_number(version), do: Map.fetch!(%{v1: 1, v2: 2, v3: 3}, version)
 
   defp pad_fields(fields, count) do
     {last, head} = List.pop_at(fields, -1)

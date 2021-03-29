@@ -117,5 +117,5 @@ defmodule NYSETL.Engines.E1.Broadway do
   defp by_county(messages), do: messages |> Enum.reduce(%{}, fn message, acc -> acc |> Map.update(message.data.county_id, 1, &(&1 + 1)) end)
   defp concurrency(), do: Kernel.trunc(System.schedulers_online() * 1.5)
   defp update_message(message, term), do: message |> Message.update_data(fn _data -> term end)
-  defp partition(msg), do: :erlang.phash2(msg.data.checksum)
+  defp partition(msg), do: :erlang.phash2(msg.data.checksums.v3)
 end

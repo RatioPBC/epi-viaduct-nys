@@ -18,7 +18,7 @@ defmodule NYSETL.Engines.E1.Processor do
     current_file_id = message.file_id
 
     E1.Cache.transaction(message.checksum, fn cache ->
-      get_about(message.checksum, cache)
+      get_about(message, cache)
       |> case do
         {:ok, %{last_seen_file_id: ^current_file_id} = about} ->
           {:ok, :duplicate, about}
@@ -43,10 +43,10 @@ defmodule NYSETL.Engines.E1.Processor do
     end
   end
 
-  def get_about(checksum, cache) do
-    E1.Cache.get(cache, checksum)
+  def get_about(message, cache) do
+    E1.Cache.get(cache, message.checksum)
     |> case do
-      {:ok, nil} -> ECLRS.get_about(checksum: checksum)
+      {:ok, nil} -> ECLRS.get_about_by_version(message.checksums)
       {:ok, cache} -> {:ok, %ECLRS.About{} |> Map.merge(cache)}
     end
   end
