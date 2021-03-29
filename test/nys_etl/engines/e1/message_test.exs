@@ -29,12 +29,4 @@ defmodule NYSETL.Engines.E1.MessageTest do
       |> assert_eq(~D[2020-03-20])
     end
   end
-
-  describe "remove_new_v2_fields" do
-    test "turns the v2 header list into the v1 header list" do
-      v2_headers = NYSETL.ECLRS.File.file_header(:v2) |> NYSETL.ECLRS.File.file_headers() |> elem(1)
-      v1_headers = NYSETL.ECLRS.File.file_header(:v1) |> NYSETL.ECLRS.File.file_headers() |> elem(1)
-      assert Message.remove_new_v2_fields(v2_headers) == v1_headers
-    end
-  end
 end

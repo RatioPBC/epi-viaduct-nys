@@ -186,6 +186,7 @@ defmodule NYSETL.EndToEndTest do
     stop_pipelines()
 
     assert_people_created([
+      %{dob: ~D[1972-01-02], name_first: "JOHNNY", name_last: "GOODE", patient_keys: ["15200000000002"]},
       %{dob: ~D[1947-03-01], name_first: "FIRSTNAME", name_last: "LASTNAME", patient_keys: ["15200000000000"]},
       %{dob: ~D[1970-01-01], name_first: "AGENT", name_last: "SMITH", patient_keys: ["15200000000001"]}
     ])

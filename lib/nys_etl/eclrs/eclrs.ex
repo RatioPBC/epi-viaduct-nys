@@ -101,6 +101,12 @@ defmodule NYSETL.ECLRS do
     # TODO: look at Commcare.save_event for some inspiration, like `|> do_save_event()`
   end
 
+  def update_about(%ECLRS.About{} = about, attrs) do
+    about
+    |> ECLRS.About.changeset(attrs)
+    |> Repo.update()
+  end
+
   def update_file(%ECLRS.File{} = file, attrs) do
     file
     |> ECLRS.File.changeset(attrs)

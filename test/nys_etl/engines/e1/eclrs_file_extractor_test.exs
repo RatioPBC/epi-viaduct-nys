@@ -31,15 +31,16 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         "duplicate" => %{"total" => 0},
         "error" => %{"total" => 0},
         "matched" => %{"total" => 0},
-        "new" => %{"total" => 2, "1111" => 1, "9999" => 1}
+        "new" => %{"total" => 3, "1111" => 1, "9999" => 2}
       })
 
       ECLRS.County |> Repo.count() |> assert_eq(2)
-      ECLRS.TestResult |> Repo.count() |> assert_eq(2)
-      ECLRS.About |> Repo.count() |> assert_eq(2)
+      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
+      ECLRS.About |> Repo.count() |> assert_eq(3)
 
-      ECLRS.About
-      |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+      about = ECLRS.About |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+
+      about
       |> assert_eq(
         %{
           county_id: 1111,
@@ -49,13 +50,56 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      ECLRS.About
-      |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=",
+          v2: "c4AeQ4s/s7By9VwwvztlzAiqaXk5IVt8G+4H2URT32U=",
+          v3: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4="
+        },
+        only: :right_keys
+      )
+
+      about = ECLRS.About |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+
+      about
       |> assert_eq(
         %{
           county_id: 9999,
           first_seen_file_id: file.id,
           patient_key_id: 15_200_000_000_001
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=",
+          v2: "DEVIgFpICrIlCFq7yZprPNSqKeuIXM5slqm4VoxT7+U=",
+          v3: "RdcbYg0gWgHS56YNHxkKDIL1u737MUI2VPNMCXrXcRk="
+        },
+        only: :right_keys
+      )
+
+      about = ECLRS.About |> Repo.get_by(checksum: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=")
+
+      about
+      |> assert_eq(
+        %{
+          county_id: 9999,
+          first_seen_file_id: file.id,
+          patient_key_id: 15_200_000_000_002
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=",
+          v2: "cVhURpBsRsOm4hVE0c45V8jr7INuCWkqX3GxAR8ldkk=",
+          v3: "Vc0JGTOi9LC5qJ+4bTuq4oW76IDd2wWqNhu+rU+s++A="
         },
         only: :right_keys
       )
@@ -89,16 +133,17 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         "duplicate" => %{"total" => 0},
         "error" => %{"total" => 0},
         "matched" => %{"total" => 0},
-        "new" => %{"total" => 2, "1111" => 1, "9999" => 1}
+        "new" => %{"total" => 3, "1111" => 1, "9999" => 2}
       })
 
       ECLRS.County |> Repo.count() |> assert_eq(2)
-      ECLRS.TestResult |> Repo.count() |> assert_eq(2)
-      ECLRS.About |> Repo.count() |> assert_eq(2)
+      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
+      ECLRS.About |> Repo.count() |> assert_eq(3)
 
-      ECLRS.About
       # Same checksum as for v1 which doesn't have the employer columns
-      |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+      about = ECLRS.About |> Repo.get_by(checksum: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=")
+
+      about
       |> assert_eq(
         %{
           county_id: 1111,
@@ -108,13 +153,56 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         only: :right_keys
       )
 
-      ECLRS.About
-      |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "YR9Edwh3ctCL7jQnQrjOth98H8njxX+tXxbRm+arnn8=",
+          v2: "c4AeQ4s/s7By9VwwvztlzAiqaXk5IVt8G+4H2URT32U=",
+          v3: "RTUA3m3vajNkf9VHtXDIEkK/WZRmH5y1qizhGDx2l/4="
+        },
+        only: :right_keys
+      )
+
+      about = ECLRS.About |> Repo.get_by(checksum: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=")
+
+      about
       |> assert_eq(
         %{
           county_id: 9999,
           first_seen_file_id: file.id,
           patient_key_id: 15_200_000_000_001
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "2xyXS0QBcixEPmPI2IcHZUyr2OIuSLGhHTdzA0noM/I=",
+          v2: "hk52rV6eghiXb3+9L9DC0/h9vR2Wgt5sZJu+Z4D7EVY=",
+          v3: "VGWpa4/LeQ+wvWzFMAhd1y15msKC/Z83P7wiuU/1pJQ="
+        },
+        only: :right_keys
+      )
+
+      about = ECLRS.About |> Repo.get_by(checksum: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=")
+
+      about
+      |> assert_eq(
+        %{
+          county_id: 9999,
+          first_seen_file_id: file.id,
+          patient_key_id: 15_200_000_000_002
+        },
+        only: :right_keys
+      )
+
+      about.checksums
+      |> assert_eq(
+        %{
+          v1: "k68TeJakzpNDZupxeo0FrjJ3X5DT04ssjUfijnmM5rE=",
+          v2: "cVhURpBsRsOm4hVE0c45V8jr7INuCWkqX3GxAR8ldkk=",
+          v3: "Vc0JGTOi9LC5qJ+4bTuq4oW76IDd2wWqNhu+rU+s++A="
         },
         only: :right_keys
       )
@@ -149,8 +237,8 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/new_records.txt")
       :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/v2_new_records.txt")
 
-      ECLRS.TestResult |> Repo.count() |> assert_eq(2)
-      ECLRS.About |> Repo.count() |> assert_eq(2)
+      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
+      ECLRS.About |> Repo.count() |> assert_eq(3)
 
       ECLRS.TestResult
       |> Repo.get_by(patient_name_last: "SMITH")
@@ -185,8 +273,8 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
       })
 
       ECLRS.County |> Repo.count() |> assert_eq(2)
-      ECLRS.TestResult |> Repo.count() |> assert_eq(3)
-      ECLRS.About |> Repo.count() |> assert_eq(3)
+      ECLRS.TestResult |> Repo.count() |> assert_eq(4)
+      ECLRS.About |> Repo.count() |> assert_eq(4)
     end
 
     test "detects duplicates in a file" do

@@ -51,12 +51,12 @@ defmodule NYSETL.Engines.E1.FileReader do
 
   defp fini(), do: send(self(), :fini)
 
-  def read(%__MODULE__{file_headers: {version, _}, file_handle: handle}, line_count) do
+  def read(%__MODULE__{file_headers: {version, _}, file: file, file_handle: handle}, line_count) do
     1..line_count
     |> Enum.map(fn _x ->
       IO.read(handle, :line)
     end)
     |> Enum.reject(fn line -> line == :eof end)
-    |> Enum.map(fn line -> {version, String.trim(line)} end)
+    |> Enum.map(fn line -> {file, version, String.trim(line)} end)
   end
 end

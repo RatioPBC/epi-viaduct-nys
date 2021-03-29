@@ -18,7 +18,7 @@ defmodule NYSETL.Engines.E1.Broadway do
       producer: [
         module: {E1.FileReader, file},
         concurrency: 1,
-        transformer: {__MODULE__, :transform, [file: file]}
+        transformer: {__MODULE__, :transform, []}
       ],
       processors: [
         default: [concurrency: concurrency()]
@@ -33,9 +33,9 @@ defmodule NYSETL.Engines.E1.Broadway do
     )
   end
 
-  def transform(data, file: file) do
+  def transform({file, version, row}, []) do
     %Message{
-      data: E1.Message.transform(data, file),
+      data: E1.Message.transform({version, row}, file),
       acknowledger: {__MODULE__, :ack_id, :ack_data}
     }
   end

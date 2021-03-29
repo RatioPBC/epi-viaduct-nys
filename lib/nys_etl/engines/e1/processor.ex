@@ -61,7 +61,7 @@ defmodule NYSETL.Engines.E1.Processor do
         |> ECLRS.create_test_result()
 
       test_result
-      |> ECLRS.About.from_test_result(message.checksum, message.file_id)
+      |> ECLRS.About.from_test_result(message.checksums, message.file)
       |> ECLRS.create_about()
       |> case do
         {:ok, about} ->

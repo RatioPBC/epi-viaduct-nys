@@ -7,8 +7,8 @@ defmodule NYSETL.Engines.E1.Message do
   lab result, and is `parse`'d as a new TestResult record.
   """
 
-  use Magritte
-  alias NYSETL.Crypto
+  alias NYSETL.ECLRS.Checksum
+  alias NYSETL.ECLRS.File
 
   defmodule HeaderError do
     defexception [:message]
@@ -16,44 +16,21 @@ defmodule NYSETL.Engines.E1.Message do
 
   defstruct ~w{
     checksum
+    checksums
     file_id
+    file
     raw_data
     version
     fields
   }a
 
-  NimbleCSV.define(ECLRSParser, separator: "|")
-
   def new(attrs), do: __struct__(attrs)
 
   def transform({version, row}, file) do
-    [fields] = ECLRSParser.parse_string(row, skip_headers: false)
+    {:ok, fields} = File.parse_row(row, file)
+    checksums = Checksum.checksums(fields, file)
 
-    new(raw_data: row, checksum: checksum(version, row, fields), file_id: file.id, version: version, fields: fields)
-  end
-
-  @indexes_in_v2_not_in_v1 44..54
-
-  def checksum(:v1, _row, fields) do
-    with [dumped_fields] <- ECLRSParser.dump_to_iodata([fields])
-    do
-      dumped_fields
-      |> Enum.reverse() |> tl() |> Enum.reverse() # supposedly fastest way to remove last element, in this case an unnecessary \n
-      |> IO.iodata_to_binary()
-      |> Crypto.sha256()
-    end
-  end
-
-  def checksum(:v2, row, fields), do: remove_new_v2_fields(fields) |> checksum(:v1, row, ...)
-
-  def remove_new_v2_fields(fields) do
-    fields
-    |> Enum.with_index()
-    |> Enum.reject(fn
-      {_, ix} when ix in @indexes_in_v2_not_in_v1 -> true
-      _ -> false
-    end)
-    |> Enum.map(&elem(&1, 0))
+    new(raw_data: row, checksums: checksums, checksum: checksums.v1, file: file, file_id: file.id, version: version, fields: fields)
   end
 
   def parse(%__MODULE__{version: :v1} = message) do
