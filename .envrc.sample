@@ -15,3 +15,5 @@ export LIVE_VIEW_SIGNING_SALT=""
 export PORT="4000"
 export SECRET_KEY_BASE=""
 export SENTRY_DSN="" # if you are running a local copy of sentry, get your DSN here: http://<sentry container ip address>:9000/settings/sentry/projects/internal/keys/
+
+source_env_if_exists .envrc.private

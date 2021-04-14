@@ -22,9 +22,9 @@
     "css-loader": "^5.x",
     "css-minimizer-webpack-plugin": "^2.x",
     "mini-css-extract-plugin": "^1.x",
-    "node-sass": "^4.13.1",
-    "sass-loader": "^8.0.2",
-    "terser-webpack-plugin": "^2.3.2",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^11.0.0",
+    "terser-webpack-plugin": "^5.0.0",
     "webpack": "^5.x",
     "webpack-cli": "^4.x"
   }

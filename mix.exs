@@ -81,7 +81,7 @@ defmodule NYSETL.MixProject do
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_metrics_cloudwatch, "~> 0.3"},
       {:telemetry_poller, "~> 0.4"},
-      {:timex, "~> 3.6"},
+      {:timex, "~> 3.7"},
       {:xml_builder, "~> 2.1.1"},
       {:yaml_elixir, "~> 2.4"},
       {:zipcode, "> 0.0.0", git: "https://gitlab.com/geometerio/zipcode"}

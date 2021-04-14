@@ -38,6 +38,7 @@ TransferAnalyzer.exs
 .doctor.out
 .env
 .envrc
+.envrc.private
 .idea
 .iex-history
 .yarn-integrity
