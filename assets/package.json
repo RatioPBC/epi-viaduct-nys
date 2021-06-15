@@ -20,7 +20,7 @@
     "babel-loader": "^8.0.0",
     "copy-webpack-plugin": "^8.0",
     "css-loader": "^5.x",
-    "css-minimizer-webpack-plugin": "^2.x",
+    "css-minimizer-webpack-plugin": "^3.x",
     "mini-css-extract-plugin": "^1.x",
     "sass": "^1.34.1",
     "sass-loader": "^11.0.0",

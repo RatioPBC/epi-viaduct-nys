@@ -42,5 +42,5 @@ persons.
 
 ## Copyright and license
 
-Copyright © 2020 Geometer, LLC, and Resolve to Save Lives. The code is made available under the MIT license.  See
+Copyright © 2021 Ratio PBC, Inc, and Resolve to Save Lives. The code is made available under the MIT license.  See
 also [License](LICENSE.md).
