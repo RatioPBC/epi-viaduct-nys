@@ -130,7 +130,7 @@ defmodule NYSETL.Engines.E5.Producer do
     state.current_county_list
     |> case do
       [next | rest] ->
-        Logger.debug("[#{__MODULE__}] extracting domain=#{next.domain}")
+        Logger.info("[#{__MODULE__}] extracting domain=#{next.domain}")
 
         {:ok,
          %{
