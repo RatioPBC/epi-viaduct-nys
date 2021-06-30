@@ -1052,6 +1052,56 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert_events(index_case, ~w(index_case_updated lab_result_created))
     end
 
+    test "sets external_id and doh_mpi_id if none is set", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      accession_number = Faker.format("###???")
+
+      {:ok, person} = Commcare.create_person(%{name_first: String.upcase(first_name), name_last: String.upcase(last_name), dob: dob, patient_keys: [], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "last_name" => last_name,
+        })
+        |> Map.delete("external_id")
+        |> Map.delete("doh_mpi_id")
+
+      {:ok, index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z]
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(NYSETL.ChangeLog),
+        from: 0,
+        to: 1
+      )
+
+      %Commcare.IndexCase{data: data} = Repo.get!(Commcare.IndexCase, index_case.id)
+
+      assert data["external_id"] == "P#{person.id}"
+      assert data["doh_mpi_id"] == "P#{person.id}"
+    end
+
     test "marks test_result as noop when no updates are made", context do
       lab_name = Faker.format("???????")
       dob = Faker.Date.backward(20)
@@ -1221,6 +1271,654 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
       assert_events(index_case, ["retrieved_from_commcare", "index_case_untouched", "lab_result_untouched"])
       assert_events(test_result, ["person_matched", "index_case_untouched", "lab_result_untouched", "no_new_information"])
+    end
+
+    test "creates a new index case when existing index case has closed=true", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)"
+        })
+
+      {:ok, closed_index_case} =
+        Commcare.create_index_case(%{closed: true, data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 2
+      )
+
+      index_case = Commcare.IndexCase |> last |> Repo.one()
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+      assert closed_index_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "creates a new index case when existing index case has data[final_disposition] in (registered_in_error, duplicate, not_a_case)", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)"
+        })
+
+      registered_in_error_data = Map.put(initial_case_data, "final_disposition", "registered_in_error")
+      duplicate_data = Map.put(initial_case_data, "final_disposition", "duplicate")
+      not_a_case_data = Map.put(initial_case_data, "final_disposition", "not_a_case")
+
+      {:ok, registered_in_error_case} =
+        Commcare.create_index_case(%{data: registered_in_error_data, person_id: person.id, county_id: context.county.id})
+
+      {:ok, duplicate_case} = Commcare.create_index_case(%{data: duplicate_data, person_id: person.id, county_id: context.county.id})
+      {:ok, not_a_case} = Commcare.create_index_case(%{data: not_a_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 3,
+        to: 4
+      )
+
+      index_case = Commcare.IndexCase |> last |> Repo.one()
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+
+      assert registered_in_error_case |> Commcare.get_lab_results() |> length() == 0
+      assert duplicate_case |> Commcare.get_lab_results() |> length() == 0
+      assert not_a_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "updates index case when existing index case has other data[final_disposition]", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "final_disposition" => "something"
+        })
+
+      {:ok, index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 1
+      )
+
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+
+    test "creates a new index case when existing index case has data[stub]=yes", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "stub" => "yes"
+        })
+
+      {:ok, stub_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 2
+      )
+
+      index_case = Commcare.IndexCase |> last |> Repo.one()
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+      assert stub_index_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "updates index case when existing index case has data[stub]=no", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "stub" => "no"
+        })
+
+      {:ok, stub_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 1
+      )
+
+      assert stub_index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+
+    test "creates a new index case when existing index case has data[current_status]=closed and data[patient_type]=pui", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "current_status" => "closed",
+          "patient_type" => "pui"
+        })
+
+      {:ok, pui_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 2
+      )
+
+      index_case = Commcare.IndexCase |> last |> Repo.one()
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+      assert pui_index_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "updates index case when existing index case has data[current_status]=closed and data[patient_type] != pui", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "current_status" => "closed",
+          "patient_type" => "confirmed"
+        })
+
+      {:ok, confirmed_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 1
+      )
+
+      assert confirmed_index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+
+    test "updates index case when existing index case has data[current_status] != closed and data[patient_type]=pui", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "current_status" => "open",
+          "patient_type" => "pui"
+        })
+
+      {:ok, pui_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 1
+      )
+
+      assert pui_index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+
+    test "creates a new index case when existing index case has data[transfer_status] in (pending, sent)", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)"
+        })
+
+      pending_case_data = Map.put(initial_case_data, "transfer_status", "pending")
+      sent_case_data = Map.put(initial_case_data, "transfer_status", "sent")
+
+      {:ok, pending_case} = Commcare.create_index_case(%{data: pending_case_data, person_id: person.id, county_id: context.county.id})
+      {:ok, sent_case} = Commcare.create_index_case(%{data: sent_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 2,
+        to: 3
+      )
+
+      index_case = Commcare.IndexCase |> last |> Repo.one()
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+
+      assert pending_case |> Commcare.get_lab_results() |> length() == 0
+      assert sent_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "updates index case when existing index case has other data[transfer_status]", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "transfer_status" => "something"
+        })
+
+      {:ok, index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert_that(E2.Processor.process(test_result),
+        changes: Repo.count(Commcare.IndexCase),
+        from: 1,
+        to: 1
+      )
+
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
     end
   end
 

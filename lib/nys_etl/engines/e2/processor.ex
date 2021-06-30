@@ -174,20 +174,33 @@ defmodule NYSETL.Engines.E2.Processor do
   end
 
   defp find_or_create_index_cases(person, test_result, commcare_county) do
-    person
-    |> Commcare.get_index_cases(county_id: commcare_county.fips, accession_number: test_result.request_accession_number)
-    |> update_or_create_index_cases(person, test_result, commcare_county)
+    with {:ok, index_cases} <-
+           Commcare.get_index_cases(person, county_id: commcare_county.fips, accession_number: test_result.request_accession_number),
+         open_cases when open_cases != [] <- index_cases |> Enum.filter(&is_open_case?/1) do
+      Enum.map(index_cases, &update_index_case(&1, person, test_result, commcare_county))
+    else
+      {:error, :not_found} -> [{:created, create_index_case(person, test_result, commcare_county)}]
+      [] -> [{:created, create_index_case(person, test_result, commcare_county)}]
+    end
   end
 
-  defp update_or_create_index_cases({:error, :not_found}, person, test_result, commcare_county) do
-    [{:created, create_index_case(person, test_result, commcare_county)}]
-  end
+  defp is_open_case?(%Commcare.IndexCase{closed: true}), do: false
 
-  defp update_or_create_index_cases({:ok, index_cases}, person, test_result, commcare_county) do
-    Enum.map(index_cases, &update_or_create_index_case(&1, person, test_result, commcare_county))
-  end
+  defp is_open_case?(%Commcare.IndexCase{data: %{"final_disposition" => final_disposition}})
+       when final_disposition in ["registered_in_error", "duplicate", "not_a_case"],
+       do: false
 
-  defp update_or_create_index_case(%Commcare.IndexCase{} = index_case, person, test_result, commcare_county) do
+  defp is_open_case?(%Commcare.IndexCase{data: %{"stub" => "yes"}}), do: false
+
+  defp is_open_case?(%Commcare.IndexCase{data: %{"current_status" => "closed", "patient_type" => "pui"}}), do: false
+
+  defp is_open_case?(%Commcare.IndexCase{data: %{"transfer_status" => transfer_status}})
+       when transfer_status in ["pending", "sent"],
+       do: false
+
+  defp is_open_case?(_index_case), do: true
+
+  defp update_index_case(%Commcare.IndexCase{} = index_case, person, test_result, commcare_county) do
     old_data = index_case.data
     new_data = to_index_case_data(test_result, person, commcare_county) |> Euclid.Extra.Map.stringify_keys()
 

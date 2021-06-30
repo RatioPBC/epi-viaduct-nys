@@ -130,7 +130,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   end
 
   defp maybe_update_index_case(index_case, :found, patient_case_data, domain) do
-    Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.properties)
+    Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.data)
     |> case do
       {:ok, ^index_case} ->
         Logger.info("[#{__MODULE__}] not modified case_id=#{index_case.case_id} in commcare domain=#{domain}")

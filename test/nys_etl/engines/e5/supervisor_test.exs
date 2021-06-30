@@ -5,12 +5,16 @@ defmodule NYSETL.Engines.E5.SupervisorTest do
   setup :verify_on_exit!
   setup :set_mox_from_context
 
-  alias NYSETL.Test
-
   setup do
     NYSETL.HTTPoisonMock
     |> stub(:get, fn url, _, _ ->
-      body = Test.Fixtures.cases_response("uk-midsomer-cdcms", "patient", 0)
+      body =
+        %{
+          meta: %{},
+          objects: []
+        }
+        |> Jason.encode!()
+
       {:ok, %{body: body, status_code: 200, request_url: url}}
     end)
 

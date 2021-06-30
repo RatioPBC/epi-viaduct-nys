@@ -223,7 +223,7 @@ defmodule NYSETL.EndToEndTest do
     index_case =
       step "CommCare updates the owner id" do
         new_data = index_case.data |> Map.put("owner_id", "other_owner_id")
-        NYSETL.Commcare.update_index_case_from_commcare_data(index_case, new_data)
+        NYSETL.Commcare.update_index_case_from_commcare_data(index_case, %{"properties" => new_data})
 
         [index_case] = index_cases_created()
         assert %{county_id: ^county_id, data: %{"owner_id" => "other_owner_id"}} = index_case

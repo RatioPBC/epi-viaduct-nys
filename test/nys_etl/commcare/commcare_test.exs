@@ -169,6 +169,28 @@ defmodule NYSETL.CommcareTest do
 
       assert "can't be blank" in errors_on(changeset).data
     end
+
+    test "is {:ok, person} with (name_first, name_last, dob) set, but not patient_keys" do
+      {:ok, person} = %{data: %{}, patient_keys: [], name_first: "Joe", name_last: "Testuser", dob: "2020-01-02"} |> Commcare.create_person()
+
+      assert PaperTrail.get_version(person)
+    end
+
+    test "is {:error, changeset} when missing (name_first, name_last, dob) and patient_keys" do
+      assert {:error, changeset} = %{data: %{}, patient_keys: []} |> Commcare.create_person()
+
+      assert "can't be blank" in errors_on(changeset).name_first
+      assert "can't be blank" in errors_on(changeset).name_last
+      assert "can't be blank" in errors_on(changeset).dob
+    end
+
+    test "is {:error, changeset} when any of (name_first, name_last, dob) are blank strings, and patient_keys is empty" do
+      assert {:error, changeset} = %{data: %{}, patient_keys: [], name_first: "", name_last: " ", dob: "  "} |> Commcare.create_person()
+
+      assert "can't be blank" in errors_on(changeset).name_first
+      assert "can't be blank" in errors_on(changeset).name_last
+      assert "is invalid" in errors_on(changeset).dob
+    end
   end
 
   describe "external_id" do
@@ -601,7 +623,7 @@ defmodule NYSETL.CommcareTest do
         "property5" => ""
       }
 
-      {:ok, updated_index_case} = Commcare.update_index_case_from_commcare_data(index_case, commcare_case_properties)
+      {:ok, updated_index_case} = Commcare.update_index_case_from_commcare_data(index_case, %{"properties" => commcare_case_properties})
 
       assert updated_index_case.data == %{
                "property1" => "updated-value-1",
@@ -617,7 +639,7 @@ defmodule NYSETL.CommcareTest do
         "some" => "values"
       }
 
-      {:ok, updated_index_case} = Commcare.update_index_case_from_commcare_data(index_case, commcare_case_properties)
+      {:ok, updated_index_case} = Commcare.update_index_case_from_commcare_data(index_case, %{"properties" => commcare_case_properties})
 
       %{meta: %{"fetched_from_commcare" => fetched_from_commcare}} = PaperTrail.get_version(updated_index_case)
 

@@ -19,5 +19,15 @@ defmodule NYSETL.Commcare.Person do
     struct
     |> cast(attrs, __schema__(:fields) -- [:id])
     |> validate_required([:data, :patient_keys])
+    |> validate_identifiers()
+  end
+
+  defp validate_identifiers(changeset) do
+    if get_field(changeset, :patient_keys) == [] do
+      changeset
+      |> validate_required([:name_first, :name_last, :dob])
+    else
+      changeset
+    end
   end
 end

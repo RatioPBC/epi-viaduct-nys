@@ -6,6 +6,7 @@ defmodule NYSETL.Commcare.IndexCase do
 
   schema "index_cases" do
     field :case_id, :string, read_after_writes: true
+    field :closed, :boolean, default: false
     field :data, :map
     field :tid, :string
 
@@ -21,7 +22,16 @@ defmodule NYSETL.Commcare.IndexCase do
   def changeset(struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, __schema__(:fields) -- [:id])
+    |> cast_closed()
     |> validate_required([:data])
     |> unique_constraint(:case_id)
+  end
+
+  defp cast_closed(changeset) do
+    if changeset |> get_field(:closed) |> is_nil() do
+      put_change(changeset, :closed, false)
+    else
+      changeset
+    end
   end
 end
