@@ -20,6 +20,7 @@ defmodule NYSETL.Engines.E4.Data do
       |> Map.put("owner_id", county_location_id)
       |> Map.put("new_lab_result_specimen_collection_date", new_lab_result_specimen_collection_date(index_case, lab_results))
       |> Map.put("new_lab_result_received_date", new_lab_result_received_date(index_case, lab_results))
+      |> Map.put("new_lab_result_received", "yes")
       |> Map.drop(@keys_to_drop)
 
     %{

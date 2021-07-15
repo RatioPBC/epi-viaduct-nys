@@ -51,7 +51,8 @@ defmodule NYSETL.Engines.E4.DataTest do
             "full_name" => "index-case-full-name",
             "owner_id" => "county-location-id",
             "new_lab_result_specimen_collection_date" => today_as_string,
-            "new_lab_result_received_date" => today_as_string
+            "new_lab_result_received_date" => today_as_string,
+            "new_lab_result_received" => "yes"
           }
         },
         lab_results: [
@@ -153,6 +154,20 @@ defmodule NYSETL.Engines.E4.DataTest do
 
       assert_eq(collection_date, "2020-10-05")
       assert_eq(received_date, lab_result.inserted_at |> NaiveDateTime.to_date() |> Date.to_iso8601())
+    end
+
+    test "it updates new_lab_result_received to yes", context do
+      {:ok, index_case} =
+        %{
+          data: %{"full_name" => "index-case-full-name", "new_lab_result_received" => "no"},
+          person_id: context.person.id,
+          county_id: 111,
+          case_id: "index-case-id"
+        }
+        |> Commcare.create_index_case()
+
+      result = Data.from_index_case(index_case, "county-location-id", DateTime.utc_now())
+      assert result.index_case.data["new_lab_result_received"] == "yes"
     end
   end
 
