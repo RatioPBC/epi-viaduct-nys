@@ -509,6 +509,7 @@ defmodule NYSETL.Engines.E2.Processor do
       eclrs_create_date: Format.format(tr.eclrs_create_date),
       eclrs_hospitalized: tr.eclrs_hospitalized,
       eclrs_icu: tr.eclrs_icu,
+      eclrs_loinc: tr.result_loinc_code,
       eclrs_pregnant: tr.eclrs_pregnant,
       eclrs_symptom_onset_date: Format.format(tr.eclrs_symptom_onset_date),
       eclrs_symptomatic: tr.eclrs_symptomatic,
