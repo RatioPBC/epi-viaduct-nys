@@ -42,5 +42,7 @@ persons.
 
 ## Copyright and license
 
-Copyright © 2021 Ratio PBC, Inc, and Resolve to Save Lives. The code is made available under the MIT license.  See
+
+Copyright (c) 2021 [Ratio PBC, Inc](https://ratiopbc.com).
+The code is made available under the MIT license.  See
 also [License](LICENSE.md).

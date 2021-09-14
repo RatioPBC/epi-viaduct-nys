@@ -627,7 +627,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         Commcare.create_lab_result(%{
           data: %{
             doh_mpi_id: "123456",
-            eclrs_create_date: context.now |> Date.to_iso8601(),
+            eclrs_create_date: Format.format(context.now),
             external_id: "123456",
             laboratory: "My house",
             opinion: "none",
@@ -755,7 +755,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         "aoe_date" => "",
         "doh_mpi_id" => "123456",
         "eclrs_congregate_care_resident" => nil,
-        "eclrs_create_date" => context.now |> Date.to_iso8601(),
+        "eclrs_create_date" => Format.format(context.now),
         "eclrs_hospitalized" => nil,
         "eclrs_icu" => nil,
         "eclrs_loinc" => nil,

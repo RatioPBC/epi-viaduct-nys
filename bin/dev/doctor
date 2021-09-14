@@ -19,10 +19,6 @@ if [[ -f "${HOME}/bin/dev/doctor" ]]; then
   step_header "Running project doctor steps"
 fi
 
-check "git-duet: installed" \
-  "command -v git-duet" \
-  "open https://github.com/git-duet/git-duet#installation"
-
 check "direnv: installed" \
   "command -v direnv" \
   "brew install direnv && echo 'eval \"$(direnv hook bash)\"' >> ~/.bash_profile"
@@ -85,7 +81,7 @@ check "elixir: rebar3 installed" \
 
 check "elixir: authenticated with Hex.pm for oban ui" \
   "mix hex.organization list | grep oban" \
-  "mix hex.organization auth oban --key \$HEX_OBAN_UI_KEY # Grab key from 1Password"
+  'mix hex.organization auth oban --key $HEX_OBAN_UI_KEY # Grab key from 1Password'
 
 check "elixir: deps installed" \
   "test $(mix deps | grep -c 'the dependency is not available') -eq 0" \
@@ -101,7 +97,7 @@ check "postgres: running" \
 
 check "postgres: role exists" \
   "psql -A -c '\du' postgres | grep 'postgres|'" \
-  "createuser -s postgres -U \$USER"
+  'createuser -s postgres -U $USER'
 
 check "postgres: dev database exists" \
   "psql -c '\l' nys_etl_dev" \
