@@ -35,8 +35,12 @@ defmodule NYSETL.Engines.E2.TestResultProducer do
   def handle_demand(demand, state) do
     {elapsed_time, test_results} =
       :timer.tc(fn ->
-        unprocessed_test_results(demand, state)
+        ids = unprocessed_test_results(demand, state)
         |> more_recent_than(state.last_seen_id)
+        |> Repo.all()
+
+        NYSETL.ECLRS.TestResult
+        |> where([tr], tr.id in ^ids)
         |> Repo.all()
       end)
 
@@ -73,6 +77,7 @@ defmodule NYSETL.Engines.E2.TestResultProducer do
           ),
       where: is_nil(tre.event_id),
       limit: ^demand,
+      select: tr.id,
       order_by: [asc: :id]
   end
 
