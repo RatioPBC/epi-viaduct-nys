@@ -5,6 +5,11 @@ defmodule NYSETL.Monitoring.Transformer.FailureReporterTest do
   alias NYSETL.{Repo, ECLRS}
   alias NYSETL.Monitoring.Transformer.FailureReporter
 
+  setup do
+    {:ok, _oban} = start_supervised({Oban, queues: [commcare: 1], repo: NYSETL.Repo})
+    :ok
+  end
+
   test "counts the events of type `processing_failed` created the last week" do
     :ok = NYSETL.Engines.E1.ECLRSFileExtractor.extract!("test/fixtures/eclrs/new_records.txt")
     test_result = Repo.first(ECLRS.TestResult)

@@ -1,116 +1,103 @@
-defmodule NYSETL.Engines.E2.TestResultProducerTest do
+defmodule NYSETL.Engines.E2.Test do
   use NYSETL.DataCase, async: false
+  use Oban.Testing, repo: NYSETL.Repo
 
-  alias Broadway.Message
   alias NYSETL.ECLRS
-  alias NYSETL.Engines.E2.TestResultProducer
-
-  defmodule Forwarder do
-    use Broadway
-
-    def handle_message(_, message, %{test_pid: test_pid}) do
-      send(test_pid, {:message_handled, message.data.tid})
-      message
-    end
-
-    def handle_batch(_, messages, _, _) do
-      messages
-    end
-  end
-
-  defp new_unique_name() do
-    :"Broadway#{System.unique_integer([:positive, :monotonic])}"
-  end
-
-  defp start_broadway() do
-    Broadway.start_link(Forwarder,
-      name: new_unique_name(),
-      context: %{test_pid: self()},
-      producer: [
-        module: {
-          TestResultProducer,
-          event_filters: ["processed", "parsed"], idle_timeout_ms: 500
-        },
-        concurrency: 1,
-        transformer: {__MODULE__, :transform, []}
-      ],
-      processors: [
-        default: [concurrency: 5]
-      ]
-    )
-  end
-
-  def transform(data, _), do: %Message{data: data, acknowledger: {__MODULE__, :ack_id, :ack_data}}
-  def ack(_, _, _), do: :ok
-
-  defp stop_broadway(pid) do
-    ref = Process.monitor(pid)
-    Process.exit(pid, :normal)
-
-    receive do
-      {:DOWN, ^ref, _, _, _} -> :ok
-    end
-  end
+  alias NYSETL.Engines.E2.{TestResultProducer, TestResultProcessor}
 
   setup do
-    {:ok, _county} = ECLRS.find_or_create_county(71)
-    {:ok, _county} = ECLRS.find_or_create_county(72)
+    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
+    {:ok, _} = start_supervised(TestResultProducer)
+    {:ok, _county} = ECLRS.find_or_create_county(42)
     :ok
   end
 
-  describe "handle_demand" do
-    test "sends one event per TestResult without matched Events" do
-      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
-      {:ok, _test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "no-events") |> ECLRS.create_test_result()
-      {:ok, pid} = start_broadway()
+  test "is unique" do
+    # TODO: this should use Oban.insert_all, but it doesn't check uniqueness (at least not our current version)
+    [1, 2, 1, 2]
+    |> Enum.each(&(TestResultProducer.new(%{"file_id" => &1}) |> Oban.insert!()))
 
-      assert_receive({:message_handled, "no-events"})
-      refute_receive({:message_handled, "no-events"}, 100)
+    assert [
+             %Oban.Job{args: %{"file_id" => 2}},
+             %Oban.Job{args: %{"file_id" => 1}}
+           ] = all_enqueued(worker: TestResultProducer)
+  end
 
-      stop_broadway(pid)
-    end
+  test "with %{file_id => file.id} enqueues a TestResultProcessor for each test result in the file" do
+    {:ok, file1} = Factory.file_attrs(filename: "file1") |> ECLRS.create_file()
+    {:ok, tr1} = Factory.test_result_attrs(county_id: 42, file_id: file1.id, raw_data: "tr1") |> ECLRS.create_test_result()
+    {:ok, tr2} = Factory.test_result_attrs(county_id: 42, file_id: file1.id, raw_data: "tr2") |> ECLRS.create_test_result()
+    {:ok, file2} = Factory.file_attrs(filename: "file2") |> ECLRS.create_file()
+    {:ok, tr3} = Factory.test_result_attrs(county_id: 42, file_id: file2.id, raw_data: "tr3") |> ECLRS.create_test_result()
 
-    test "sends one event per TestResult if existing events do not match filter" do
-      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
-      {:ok, test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "has-other-events") |> ECLRS.create_test_result()
-      {:ok, _test_result_event} = test_result |> ECLRS.save_event("did-it")
-      {:ok, pid} = start_broadway()
+    assert :ok = perform_job(TestResultProducer, %{"file_id" => file1.id})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr1.id})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr2.id})
+    refute_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr3.id})
+  end
 
-      assert_receive({:message_handled, "has-other-events"})
+  test "records the last enqueued test result id" do
+    {:ok, file} = Factory.file_attrs(filename: "file") |> ECLRS.create_file()
+    {:ok, tr} = Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "tr1") |> ECLRS.create_test_result()
 
-      stop_broadway(pid)
-    end
+    assert :ok = perform_job(TestResultProducer, %{"file_id" => file.id})
+    assert TestResultProducer.last_enqueued_test_result_id() == tr.id
+  end
 
-    test "does not send TestResults when the have associated Event records" do
-      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
+  test "with %{file_id => :all} enqueues a TestResultProcessor for each test result regardless of file" do
+    {:ok, file1} = Factory.file_attrs(filename: "file1") |> ECLRS.create_file()
+    {:ok, tr1} = Factory.test_result_attrs(county_id: 42, file_id: file1.id, raw_data: "tr1") |> ECLRS.create_test_result()
+    {:ok, tr2} = Factory.test_result_attrs(county_id: 42, file_id: file1.id, raw_data: "tr2") |> ECLRS.create_test_result()
+    {:ok, file2} = Factory.file_attrs(filename: "file2") |> ECLRS.create_file()
+    {:ok, tr3} = Factory.test_result_attrs(county_id: 42, file_id: file2.id, raw_data: "tr3") |> ECLRS.create_test_result()
 
-      {:ok, test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "with-processed-event") |> ECLRS.create_test_result()
+    assert :ok = perform_job(TestResultProducer, %{"file_id" => :all})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr1.id})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr2.id})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => tr3.id})
+  end
 
-      {:ok, _test_result_event} = test_result |> ECLRS.save_event("processed")
-      {:ok, test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "with-parsed-event") |> ECLRS.create_test_result()
-      {:ok, _test_result_event} = test_result |> ECLRS.save_event("other-event")
-      {:ok, _test_result_event} = test_result |> ECLRS.save_event("parsed")
-      {:ok, pid} = start_broadway()
+  test "orders them by eclrs_create_date" do
+    {:ok, file} = Factory.file_attrs(filename: "file1") |> ECLRS.create_file()
 
-      refute_receive({:message_handled, "with-processed-event"}, 100)
-      refute_receive({:message_handled, "with-parsed-event"}, 100)
+    {:ok, second} =
+      Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "second", eclrs_create_date: ~U[2021-01-02 12:00:00Z])
+      |> ECLRS.create_test_result()
 
-      stop_broadway(pid)
-    end
+    {:ok, third} =
+      Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "third", eclrs_create_date: ~U[2021-01-03 12:00:00Z])
+      |> ECLRS.create_test_result()
 
-    test "keeps trying to pull test results, even after test results are drained" do
-      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
-      {:ok, _test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "no-event") |> ECLRS.create_test_result()
-      {:ok, pid} = start_broadway()
+    {:ok, first} =
+      Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "first", eclrs_create_date: ~U[2021-01-01 12:00:00Z])
+      |> ECLRS.create_test_result()
 
-      assert_receive({:message_handled, "no-event"})
-      refute_receive({:message_handled, "new-event"}, 100)
+    first_id = first.id
+    second_id = second.id
+    third_id = third.id
 
-      {:ok, _test_result} = Factory.test_result_attrs(county_id: 71, file_id: file.id, tid: "new-event") |> ECLRS.create_test_result()
-      refute_receive({:message_handled, "no-event"})
-      assert_receive({:message_handled, "new-event"}, 2000)
+    assert :ok = perform_job(TestResultProducer, %{"file_id" => file.id})
+    # all_enqueued sorts by id desc
+    assert [
+             %Oban.Job{args: %{"test_result_id" => ^first_id}},
+             %Oban.Job{args: %{"test_result_id" => ^second_id}},
+             %Oban.Job{args: %{"test_result_id" => ^third_id}}
+           ] = all_enqueued(worker: TestResultProcessor) |> Enum.reverse()
+  end
 
-      stop_broadway(pid)
-    end
+  test "excludes test results that have already been processed" do
+    {:ok, file} = Factory.file_attrs(filename: "file1") |> ECLRS.create_file()
+    {:ok, processed} = Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "tr1") |> ECLRS.create_test_result()
+    {:ok, failed} = Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "tr2") |> ECLRS.create_test_result()
+    {:ok, unprocessed} = Factory.test_result_attrs(county_id: 42, file_id: file.id, raw_data: "tr3") |> ECLRS.create_test_result()
+
+    ECLRS.save_event(processed, "processed")
+    ECLRS.save_event(failed, "processing_failed")
+    ECLRS.save_event(unprocessed, "some_other_event")
+
+    assert :ok = perform_job(TestResultProducer, %{"file_id" => file.id})
+    refute_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => processed.id})
+    refute_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => failed.id})
+    assert_enqueued(worker: TestResultProcessor, args: %{"test_result_id" => unprocessed.id})
   end
 end

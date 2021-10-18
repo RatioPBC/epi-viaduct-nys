@@ -41,6 +41,13 @@ defmodule NYSETL.EndToEndTest do
   end
 
   def start_pipelines(_context) do
+    oban_env = Application.get_env(:nys_etl, Oban)
+    Application.put_env(:nys_etl, Oban, repo: NYSETL.Repo, queues: [default: 1, commcare: 1, backfillers: 1, eclrs: 1])
+
+    on_exit(fn ->
+      Application.put_env(:nys_etl, Oban, oban_env)
+    end)
+
     {:ok, _pid} = start_supervised(NYSETL.ViaductSupervisor)
     :ok
   end
@@ -207,6 +214,9 @@ defmodule NYSETL.EndToEndTest do
         )
         |> NYSETL.ECLRS.create_test_result()
 
+      # extracting a file triggers the producer, so if we don't extract then we have to manually trigger
+      NYSETL.Engines.E2.TestResultProducer.new(%{"file_id" => :all}) |> Oban.insert!()
+
       assert_receive({:oban, :stop, %{worker: "NYSETL.Engines.E4.CommcareCaseLoader"}}, 15_000)
 
       expected_post_url = "http://commcare.test.host/a/#{Fixtures.test_county_1_domain()}/receiver/"
@@ -242,6 +252,9 @@ defmodule NYSETL.EndToEndTest do
           request_accession_number: "ZED0987"
         )
         |> NYSETL.ECLRS.create_test_result()
+
+      # extracting a file triggers the producer, so if we don't extract then we have to manually trigger
+      NYSETL.Engines.E2.TestResultProducer.new(%{"file_id" => :all}) |> Oban.insert!()
 
       assert_receive({:oban, :stop, %{worker: "NYSETL.Engines.E4.CommcareCaseLoader"}}, 15_000)
       expected_post_url = "http://commcare.test.host/a/#{Fixtures.test_county_1_domain()}/receiver/"

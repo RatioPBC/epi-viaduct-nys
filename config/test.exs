@@ -96,12 +96,8 @@ config :logger, backends: [:console]
 config :logger, level: :warn
 
 config :nys_etl, Oban,
-  repo: NYSETL.Repo,
-  queues: [default: 1, commcare: 1, backfillers: 1],
-  plugins: [
-    Oban.Pro.Plugins.Lifeline,
-    Oban.Web.Plugins.Stats
-  ]
+  queues: false,
+  plugins: false
 
 config :nys_etl, :sql_sandbox, true
 

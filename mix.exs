@@ -102,7 +102,8 @@ defmodule NYSETL.MixProject do
 
   defp extras() do
     ~w{
-      guides/introduction/overview.md
+      guides/overview.md
+      guides/integration_testing.md
     }
   end
 

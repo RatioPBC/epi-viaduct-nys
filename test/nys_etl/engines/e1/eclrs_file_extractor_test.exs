@@ -1,12 +1,16 @@
 defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
   use NYSETL.DataCase, async: false
+  use Oban.Testing, repo: NYSETL.Repo
 
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E1
   alias NYSETL.Engines.E1.ECLRSFileExtractor
+  alias NYSETL.Engines.E2
 
   setup do
     E1.Cache.clear()
+
+    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
 
     on_exit(fn ->
       E1.Cache.clear()
@@ -548,6 +552,12 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
         },
         only: :right_keys
       )
+    end
+
+    test "enqueues E2.TestResultProducer" do
+      :ok = ECLRSFileExtractor.extract!("test/fixtures/eclrs/new_records.txt")
+      {:ok, file} = ECLRS.get_file(filename: "test/fixtures/eclrs/new_records.txt")
+      assert_enqueued(worker: E2.TestResultProducer, args: %{"file_id" => file.id})
     end
 
     # This test has issues.

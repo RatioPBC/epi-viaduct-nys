@@ -58,6 +58,18 @@ config :nys_etl,
       "is_state_domain" => "",
       "location_id" => "d87c0134be3c401bb14e6c4420b7a178",
       "participating" => "yes"
+    },
+    %{
+      "analysis_date" => "2020-05-24 00:00:00",
+      "county_display" => "Integrations",
+      "county_name" => "integrations",
+      "county_sort" => "zz_integrations",
+      "domain" => "ny-integrations-cdcms",
+      "fips" => "800",
+      "gaz" => "",
+      "is_state_domain" => "",
+      "location_id" => "8a4a05a87003445ab63e9407c6f00bf4",
+      "participating" => "yes"
     }
   ],
   start_viaduct_workers: false

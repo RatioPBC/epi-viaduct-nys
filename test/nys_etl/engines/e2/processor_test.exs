@@ -13,20 +13,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
   setup :verify_on_exit!
   setup :mock_county_list
 
-  def event(schema, name) do
-    schema
-    |> Repo.preload(:events)
-    |> Map.get(:events)
-    |> Enum.find(fn e -> e.type == name end)
-  end
-
   describe "process" do
-    setup do
-      {:ok, county} = ECLRS.find_or_create_county(1111)
-      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
-      now = DateTime.utc_now()
-      [county: county, eclrs_file: file, now: now]
-    end
+    setup :setup_defaults
 
     test "creates Commcare Person records, adds event to test result", context do
       {:ok, donny_test_result} =
@@ -632,7 +620,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
             laboratory: "My house",
             opinion: "none",
             patient_key: "12345",
-            accession_number: "ABC123"
+            accession_number: "ABC123",
+            owner_id: "fee-fi-fo-fum"
           },
           index_case_id: index_case.id,
           accession_number: "ABC123"
@@ -679,7 +668,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           "dropped_changes" => %{
             "doh_mpi_id" => index_case.data["external_id"],
             "external_id" => "#{index_case.data["external_id"]}#12345#ABC123",
-            "laboratory" => "Some Hospital"
+            "laboratory" => "Some Hospital",
+            "owner_id" => "a1a1a1a1a1"
           }
         },
         only: ~w{source_type source_id dropped_changes}s
@@ -729,7 +719,6 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         "ordering_provider_first_name" => nil,
         "ordering_provider_last_name" => nil,
         "ordering_provider_name" => nil,
-        "owner_id" => "a1a1a1a1a1",
         "parent_external_id" => index_case.data["external_id"],
         "parent_type" => "patient",
         "school_attended" => nil,
@@ -746,7 +735,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       |> assert_eq(%{
         "doh_mpi_id" => index_case.data["external_id"],
         "external_id" => "#{index_case.data["external_id"]}#12345#ABC123",
-        "laboratory" => "Some Hospital"
+        "laboratory" => "Some Hospital",
+        "owner_id" => "a1a1a1a1a1"
       })
 
       assert_eq(data, %{
@@ -785,7 +775,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         "ordering_provider_first_name" => nil,
         "ordering_provider_last_name" => nil,
         "ordering_provider_name" => nil,
-        "owner_id" => "a1a1a1a1a1",
+        "owner_id" => "fee-fi-fo-fum",
         "parent_external_id" => index_case.data["external_id"],
         "parent_type" => "patient",
         "patient_key" => "12345",
@@ -1062,14 +1052,15 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       last_name = Faker.Person.last_name()
       accession_number = Faker.format("###???")
 
-      {:ok, person} = Commcare.create_person(%{name_first: String.upcase(first_name), name_last: String.upcase(last_name), dob: dob, patient_keys: [], data: %{}})
+      {:ok, person} =
+        Commcare.create_person(%{name_first: String.upcase(first_name), name_last: String.upcase(last_name), dob: dob, patient_keys: [], data: %{}})
 
       initial_case_data =
         Fixtures.index_case_data(%{
           "dob" => Format.format(dob),
           "fips" => to_string(context.county.id),
           "first_name" => first_name,
-          "last_name" => last_name,
+          "last_name" => last_name
         })
         |> Map.delete("external_id")
         |> Map.delete("doh_mpi_id")
@@ -1339,6 +1330,75 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       index_case = Commcare.IndexCase |> last |> Repo.one()
       assert index_case |> Commcare.get_lab_results() |> length() == 1
       assert closed_index_case |> Commcare.get_lab_results() |> length() == 0
+    end
+
+    test "only update open cases with new test results", context do
+      lab_name = Faker.format("???????")
+      dob = Faker.Date.backward(20)
+      patient_key = Faker.format("########")
+      first_name = Faker.Person.first_name()
+      last_name = Faker.Person.last_name()
+      name = first_name <> " " <> last_name
+      accession_number = Faker.format("###???")
+      home_phone_number = Faker.format("1##########")
+      raw_data = Faker.Lorem.sentence()
+      street_address = Faker.Address.street_address()
+
+      {:ok, person} = Commcare.create_person(%{patient_keys: [patient_key], data: %{}})
+
+      initial_case_data =
+        Fixtures.index_case_data(%{
+          "aaa" => "AAA",
+          "a_nil_value" => nil,
+          "dob" => Format.format(dob),
+          "fips" => to_string(context.county.id),
+          "first_name" => first_name,
+          "full_name" => name,
+          "last_name" => last_name,
+          "name" => name,
+          "name_and_id" => "#{name} (600000)",
+          "new_lab_result_received" => "no"
+        })
+
+      {:ok, closed_index_case} =
+        Commcare.create_index_case(%{closed: true, data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      {:ok, open_index_case} = Commcare.create_index_case(%{data: initial_case_data, person_id: person.id, county_id: context.county.id})
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        eclrs_create_date: ~U[2020-05-31 12:00:00Z],
+        lab_name: lab_name,
+        patient_dob: dob,
+        patient_address_1: street_address,
+        patient_gender: "f",
+        patient_key: patient_key,
+        patient_name_first: first_name,
+        patient_name_last: last_name,
+        patient_phone_home_normalized: home_phone_number,
+        request_accession_number: accession_number,
+        request_collection_date: ~U[2020-05-30 03:59:00Z],
+        raw_data: raw_data
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      assert Repo.count(Commcare.IndexCase) == 2
+      E2.Processor.process(test_result)
+      assert Repo.count(Commcare.IndexCase) == 2
+
+      assert open_index_case |> Commcare.get_lab_results() |> length() == 1
+      open_index_case = Repo.reload(open_index_case)
+      assert open_index_case.data["new_lab_result_received"] == "yes"
+
+      assert closed_index_case |> Commcare.get_lab_results() |> length() == 0
+      closed_index_case = Repo.reload(closed_index_case)
+      assert closed_index_case.data["new_lab_result_received"] == "no"
     end
 
     test "creates a new index case when existing index case has data[final_disposition] in (registered_in_error, duplicate, not_a_case)", context do
@@ -1924,6 +1984,324 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
       assert index_case |> Commcare.get_lab_results() |> length() == 1
     end
+
+    test "reactivation", context do
+      {:ok, person} = Commcare.create_person(%{patient_keys: ["12345"], data: %{}})
+
+      {:ok, index_case} =
+        Commcare.create_index_case(%{
+          data: %{
+            "current_status" => "closed",
+            "date_opened" => ~U[2021-02-01 00:00:00Z] |> DateTime.to_iso8601(),
+            "all_activity_complete_date" => "2021-03-01",
+            "first_name" => nil,
+            "last_name" => "",
+            "owner_id" => "inactive-location-id"
+          },
+          person_id: person.id,
+          county_id: context.county.id
+        })
+
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        request_collection_date: ~U[2021-04-01 00:00:00Z],
+        eclrs_create_date: context.now,
+        lab_name: "Some Hospital",
+        patient_dob: ~D[1960-01-01],
+        patient_key: "12345",
+        patient_name_first: "DONNY",
+        patient_name_last: "DOE",
+        request_accession_number: "ABC123",
+        raw_data: "some raw data"
+      ]
+
+      {:ok, test_result} =
+        test_result_attrs
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      E2.Processor.process(test_result)
+      assert Repo.count(Commcare.IndexCase) == 1
+
+      updated_index_case = Repo.reload(index_case)
+      assert updated_index_case.data["reactivated_case"] == "yes"
+      assert updated_index_case.data["owner_id"] == "a1a1a1a1a1"
+      assert index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+  end
+
+  describe "process (reinfection workflow)" do
+    setup :setup_defaults
+
+    setup context do
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        request_collection_date: ~U[2021-04-01 00:00:00Z],
+        eclrs_create_date: context.now,
+        lab_name: "Some Hospital",
+        patient_dob: ~D[1960-01-01],
+        patient_key: "12345",
+        patient_name_first: "DONNY",
+        patient_name_last: "DOE",
+        request_accession_number: "ABC123",
+        raw_data: "some raw data"
+      ]
+
+      Map.merge(context, %{
+        test_result_attrs: test_result_attrs
+      })
+    end
+
+    test "creates a new index case", context do
+      {:ok, person} = Commcare.create_person(%{patient_keys: ["12345"], data: %{}})
+
+      {:ok, index_case} =
+        Commcare.create_index_case(%{
+          data: %{
+            "current_status" => "closed",
+            "date_opened" => ~U[2021-01-01 00:00:00Z] |> DateTime.to_iso8601(),
+            "all_activity_complete_date" => "2021-02-01",
+            "first_name" => nil,
+            "last_name" => "",
+            "some_custom_value" => "this should not be set on reinfection case"
+          },
+          person_id: person.id,
+          county_id: context.county.id
+        })
+
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      E2.Processor.process(test_result)
+
+      updated_index_case = Repo.reload(index_case)
+      assert updated_index_case.data["reinfected_case_created"] == "yes"
+      assert index_case |> Commcare.get_lab_results() |> length() == 0
+
+      assert Repo.count(Commcare.IndexCase) == 2
+
+      reinfection_index_case = Commcare.IndexCase |> Ecto.Query.last() |> Repo.one()
+      assert reinfection_index_case.data["reinfected_case"] == "yes"
+      assert reinfection_index_case.data["patient_type"] == "confirmed"
+      assert reinfection_index_case.data["first_name"] == "DONNY"
+      assert reinfection_index_case.data["archived_case_id"] && reinfection_index_case.data["archived_case_id"] == updated_index_case.case_id
+      refute reinfection_index_case.data["some_custom_value"]
+      assert reinfection_index_case |> Commcare.get_lab_results() |> length() == 1
+    end
+
+    test "copies original index case data to the reinfection case", context do
+      {:ok, person} = Commcare.create_person(%{patient_keys: ["12345"], data: %{}})
+
+      fields_to_copy =
+        ~w(first_name last_name full_name doh_mpi_id initials name_and_id preferred_name dob contact_phone_number phone_home phone_work address address_city address_county address_state address_street address_zip commcare_email_address gender gender_other race race_specify ethnicity ec_address_city ec_address_state ec_address_street ec_address_zip ec_email_address ec_first_name ec_last_name ec_phone_home ec_phone_work ec_relation provider_name provider_phone_number provider_email_address provider_affiliated_facility)
+
+      original_data = Enum.into(fields_to_copy, %{}, &{&1, "original #{&1}"})
+
+      {:ok, _index_case} =
+        Commcare.create_index_case(%{
+          data:
+            %{
+              "current_status" => "closed",
+              "date_opened" => ~U[2021-01-01 00:00:00Z] |> DateTime.to_iso8601(),
+              "all_activity_complete_date" => "2021-02-01"
+            }
+            |> Map.merge(original_data),
+          person_id: person.id,
+          county_id: context.county.id
+        })
+
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      E2.Processor.process(test_result)
+
+      assert Repo.count(Commcare.IndexCase) == 2
+
+      reinfection_case = Commcare.IndexCase |> Ecto.Query.last() |> Repo.one()
+
+      reinfection_case.data
+      |> assert_eq(
+        original_data,
+        only: fields_to_copy
+      )
+    end
+  end
+
+  describe "repeat_type(index_case, test_result)" do
+    setup do
+      {:ok, county} = ECLRS.find_or_create_county(1111)
+      {:ok, person} = Commcare.create_person(%{patient_keys: ["12345"], data: %{}})
+      {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
+
+      {:ok, index_case} =
+        Commcare.create_index_case(%{
+          data: %{
+            "current_status" => "closed",
+            "date_opened" => ~U[2021-01-01 00:00:00Z] |> DateTime.to_iso8601(),
+            "all_activity_complete_date" => "2021-02-01"
+          },
+          person_id: person.id,
+          county_id: county.id
+        })
+
+      test_result_attrs =
+        [
+          county_id: county.id,
+          file_id: file.id,
+          request_collection_date: ~U[2021-04-01 00:00:00Z],
+          eclrs_create_date: ~U[2021-05-01 00:00:00Z],
+          lab_name: "Some Hospital",
+          patient_dob: ~D[1960-01-01],
+          patient_key: "12345",
+          patient_name_first: "DONNY",
+          patient_name_last: "DOE",
+          request_accession_number: "ABC123",
+          raw_data: "some raw data"
+        ]
+        |> Enum.into(%{})
+
+      [county: county, person: person, index_case: index_case, test_result_attrs: test_result_attrs]
+    end
+
+    test "is :reinfection when index case and test result match reinfection criteria", context do
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+      assert E2.Processor.repeat_type(context.index_case, test_result) == :reinfection
+    end
+
+    test "is nil when index case current_status != closed", context do
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+
+      new_data = Map.put(context.index_case.data, "current_status", "open")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      refute E2.Processor.repeat_type(index_case, test_result)
+    end
+
+    test "is nil when index case has no date_opened", context do
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+
+      new_data = Map.put(context.index_case.data, "date_opened", "")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+      refute E2.Processor.repeat_type(index_case, test_result)
+
+      new_data = Map.delete(context.index_case.data, "date_opened")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+      refute E2.Processor.repeat_type(index_case, test_result)
+    end
+
+    test "is nil when the index case has reinfected_case_created = yes", context do
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+
+      new_data = Map.put(context.index_case.data, "reinfected_case_created", "yes")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      refute E2.Processor.repeat_type(index_case, test_result)
+    end
+
+    test "is nil when index case has no all_activity_complete_date", context do
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+
+      new_data = Map.put(context.index_case.data, "all_activity_complete_date", "")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      refute E2.Processor.repeat_type(index_case, test_result)
+    end
+
+    test "is nil when test result date is not later than index case all_activity_complete_date", context do
+      new_data = Map.put(context.index_case.data, "all_activity_complete_date", "2021-06-01")
+      {:ok, index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.put(:request_collection_date, ~U[2021-06-01 12:00:00Z])
+        |> ECLRS.create_test_result()
+
+      refute E2.Processor.repeat_type(index_case, test_result)
+    end
+
+    test "is :reactivation when test result request_collection_date is on day 90", context do
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.put(:request_collection_date, ~U[2021-03-31 12:00:00Z])
+        |> Map.put(:eclrs_create_date, ~U[2021-04-30 12:00:00Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(context.index_case, test_result) == :reactivation
+    end
+
+    test "is :reinfection when there is no request_collection_date and eclrs_create_date is on day 91", context do
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.delete(:request_collection_date)
+        |> Map.put(:eclrs_create_date, ~U[2021-04-01 00:00:00Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(context.index_case, test_result)
+    end
+
+    test "is reactivation when there is no request_collection_date and eclrs_create_date is on day 90", context do
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.delete(:request_collection_date)
+        |> Map.put(:eclrs_create_date, ~U[2021-03-31 00:00:00Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(context.index_case, test_result) == :reactivation
+    end
+
+    test "disregard request_collection_date if it is after eclrs_create_date", context do
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.put(:request_collection_date, ~U[2021-05-01 12:00:00Z])
+        |> Map.put(:eclrs_create_date, ~U[2021-03-31 12:00:00Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(context.index_case, test_result) == :reactivation
+    end
+
+    test "exclude collection dates before 2020", context do
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.put(:request_collection_date, ~U[2019-12-31 23:59:59Z])
+        |> Map.put(:eclrs_create_date, ~U[2021-04-02 12:00:00Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(context.index_case, test_result)
+    end
+
+    test "use eclrs_create_date even before 2020", context do
+      new_data = Map.put(context.index_case.data, "all_activity_complete_date", "2019-12-01")
+      {:ok, updated_index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Map.put(:request_collection_date, ~U[2019-12-01 23:59:59Z])
+        |> Map.put(:eclrs_create_date, ~U[2019-12-31 23:59:59Z])
+        |> ECLRS.create_test_result()
+
+      assert E2.Processor.repeat_type(updated_index_case, test_result) == :reactivation
+    end
+
+    test "trims whitespace from index case dates", context do
+      new_data =
+        Map.merge(context.index_case.data, %{
+          "date_opened" => "   2021-01-01T00:00:00Z   ",
+          "all_activity_complete_date" => "   2021-02-01   "
+        })
+
+      {:ok, updated_index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+      assert E2.Processor.repeat_type(updated_index_case, test_result) == :reinfection
+    end
   end
 
   describe "to_index_case_data" do
@@ -2116,5 +2494,19 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       E2.Processor.lab_result_text("this person is definitely infected")
       |> assert_eq("other")
     end
+  end
+
+  defp event(schema, name) do
+    schema
+    |> Repo.preload(:events)
+    |> Map.get(:events)
+    |> Enum.find(fn e -> e.type == name end)
+  end
+
+  defp setup_defaults(_context) do
+    {:ok, county} = ECLRS.find_or_create_county(1111)
+    {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
+    now = DateTime.utc_now()
+    %{county: county, eclrs_file: file, now: now}
   end
 end

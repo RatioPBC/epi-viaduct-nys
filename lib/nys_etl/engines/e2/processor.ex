@@ -21,6 +21,8 @@ defmodule NYSETL.Engines.E2.Processor do
 
   require Logger
 
+  @reinfection_fields ~w(first_name last_name full_name doh_mpi_id initials name_and_id preferred_name dob contact_phone_number phone_home phone_work address address_city address_county address_state address_street address_zip commcare_email_address gender gender_other race race_specify ethnicity ec_address_city ec_address_state ec_address_street ec_address_zip ec_email_address ec_first_name ec_last_name ec_phone_home ec_phone_work ec_relation provider_name provider_phone_number provider_email_address provider_affiliated_facility)
+
   def process(test_result, ignore_before \\ Application.get_env(:nys_etl, :eclrs_ignore_before_timestamp)) do
     with :ok <- processable?(test_result, ignore_before),
          {:ok, county} <- get_county(test_result.county_id),
@@ -50,11 +52,11 @@ defmodule NYSETL.Engines.E2.Processor do
 
       {status, reason} ->
         Sentry.capture_message("Mishandled case", extra: %{test_result_id: test_result.id, status: status, reason: reason})
-        :error
+        {:error, "Mishandled case"}
 
       _ ->
         Sentry.capture_message("Unhandled case", extra: %{test_result_id: test_result.id})
-        :error
+        {:error, "Unhandled case"}
     end
   end
 
@@ -173,14 +175,27 @@ defmodule NYSETL.Engines.E2.Processor do
     {:ok, person}
   end
 
+  defp reinfected_case_created?({_modification_status, %{data: %{"reinfected_case_created" => "yes"}}}), do: true
+  defp reinfected_case_created?({_modification_status, _index_case}), do: false
+
   defp find_or_create_index_cases(person, test_result, commcare_county) do
     with {:ok, index_cases} <-
            Commcare.get_index_cases(person, county_id: commcare_county.fips, accession_number: test_result.request_accession_number),
-         open_cases when open_cases != [] <- index_cases |> Enum.filter(&is_open_case?/1) do
-      Enum.map(index_cases, &update_index_case(&1, person, test_result, commcare_county))
+         open_cases when open_cases != [] <- Enum.filter(index_cases, &is_open_case?/1),
+         updated_cases = Enum.map(open_cases, &update_index_case(&1, person, test_result, commcare_county)),
+         {_reinfection_cases, current_infection_cases} when current_infection_cases != [] <-
+           Enum.split_with(updated_cases, &reinfected_case_created?/1) do
+      current_infection_cases
     else
-      {:error, :not_found} -> [{:created, create_index_case(person, test_result, commcare_county)}]
-      [] -> [{:created, create_index_case(person, test_result, commcare_county)}]
+      {:error, :not_found} ->
+        [{:created, create_index_case(person, test_result, commcare_county)}]
+
+      [] ->
+        [{:created, create_index_case(person, test_result, commcare_county)}]
+
+      {updated_reinfection_cases, []} ->
+        reinfection_cases = Enum.map(updated_reinfection_cases, fn {_status, rc} -> rc end)
+        [{:created, create_index_case(person, test_result, commcare_county, reinfection_cases)}]
     end
   end
 
@@ -200,11 +215,66 @@ defmodule NYSETL.Engines.E2.Processor do
 
   defp is_open_case?(_index_case), do: true
 
+  def repeat_type(%Commcare.IndexCase{data: %{"reinfected_case_created" => "yes"}}, _test_result), do: nil
+
+  def repeat_type(
+        %Commcare.IndexCase{
+          data: %{"current_status" => "closed", "date_opened" => date_opened, "all_activity_complete_date" => activity_date} = data
+        },
+        test_result
+      )
+      when is_binary(date_opened) and is_binary(activity_date) do
+    with {:ok, all_activity_complete_date} <- data["all_activity_complete_date"] |> String.trim() |> Date.from_iso8601(),
+         {:ok, datetime_opened, 0} <- data["date_opened"] |> String.trim() |> DateTime.from_iso8601() do
+      date_opened = DateTime.to_date(datetime_opened)
+
+      eclrs_date =
+        [test_result.request_collection_date, test_result.eclrs_create_date]
+        |> Enum.reject(&is_nil/1)
+        |> Enum.reject(&(DateTime.compare(&1, ~U[2020-01-01 00:00:00Z]) == :lt))
+        |> Enum.min(DateTime, fn -> test_result.eclrs_create_date end)
+        |> DateTime.to_date()
+
+      if Date.compare(eclrs_date, all_activity_complete_date) == :gt do
+        if Date.diff(eclrs_date, date_opened) >= 90 do
+          :reinfection
+        else
+          :reactivation
+        end
+      end
+    else
+      {:error, :invalid_format} -> nil
+    end
+  end
+
+  def repeat_type(_index_case, _test_result), do: nil
+
   defp update_index_case(%Commcare.IndexCase{} = index_case, person, test_result, commcare_county) do
     old_data = index_case.data
-    new_data = to_index_case_data(test_result, person, commcare_county) |> Euclid.Extra.Map.stringify_keys()
 
-    {additions, updates} = old_data |> diff(new_data, prefer_right: ["has_phone_number"])
+    repeat_type = repeat_type(index_case, test_result)
+
+    new_data =
+      case repeat_type do
+        :reinfection ->
+          %{reinfected_case_created: "yes"}
+
+        :reactivation ->
+          test_result |> to_index_case_data(person, commcare_county) |> Map.put(:reactivated_case, "yes")
+
+        _ ->
+          to_index_case_data(test_result, person, commcare_county)
+      end
+      |> Euclid.Extra.Map.stringify_keys()
+
+    prefer_right_fields =
+      if repeat_type == :reactivation do
+        ["has_phone_number", "new_lab_result_received", "owner_id"]
+      else
+        ["has_phone_number", "new_lab_result_received"]
+      end
+
+    {additions, updates} = old_data |> diff(new_data, prefer_right: prefer_right_fields)
 
     merged_data = old_data |> NYSETL.Extra.Map.merge_empty_fields(additions)
     address_complete = address_complete?(merged_data)
@@ -252,9 +322,9 @@ defmodule NYSETL.Engines.E2.Processor do
     end
   end
 
-  defp create_index_case(person, test_result, commcare_county) do
+  defp create_index_case(person, test_result, commcare_county, reinfection_cases \\ []) do
     %{
-      data: to_index_case_data(test_result, person, commcare_county) |> Euclid.Extra.Map.stringify_keys(),
+      data: to_index_case_data(test_result, person, commcare_county, reinfection_cases) |> Euclid.Extra.Map.stringify_keys(),
       county_id: commcare_county.fips,
       person_id: person.id
     }
@@ -423,7 +493,7 @@ defmodule NYSETL.Engines.E2.Processor do
     end
   end
 
-  def to_index_case_data(test_result, person, commcare_county) do
+  def to_index_case_data(test_result, person, commcare_county, reinfection_cases \\ []) do
     external_id = Commcare.external_id(person)
 
     %{
@@ -437,6 +507,25 @@ defmodule NYSETL.Engines.E2.Processor do
     |> Map.merge(to_index_case_data_person_block(test_result, external_id))
     |> Map.merge(to_index_case_data_rest(test_result))
     |> with_index_case_data_complete_fields()
+    |> with_reinfection_case_fields(reinfection_cases)
+  end
+
+  defp with_reinfection_case_fields(data, []), do: data
+
+  defp with_reinfection_case_fields(data, current_cases) do
+    most_recent_case = List.last(current_cases)
+
+    fields_to_copy =
+      most_recent_case.data
+      |> Map.take(@reinfection_fields)
+      |> Euclid.Extra.Map.atomize_keys()
+
+    fields_to_copy
+    |> NYSETL.Extra.Map.merge_empty_fields(data)
+    |> Map.merge(%{
+      reinfected_case: "yes",
+      archived_case_id: most_recent_case.case_id
+    })
   end
 
   def with_index_case_data_complete_fields(data) do
