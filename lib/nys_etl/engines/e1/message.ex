@@ -422,10 +422,19 @@ defmodule NYSETL.Engines.E1.Message do
     "#{day}#{Macro.camelize(String.downcase(month))}#{year}:#{hour}:#{minute}:#{second}.#{microseconds}"
     |> Timex.parse("%d%b%Y:%H:%M:%S.%f", :strftime)
     |> case do
-      {:ok, datetime} -> datetime |> Timex.to_datetime("America/New_York") |> DateTime.shift_zone!("Etc/UTC")
+      {:ok, datetime} -> shift_to_utc(datetime)
       {:error, _error} -> nil
     end
   end
 
   def to_utc_datetime(_), do: nil
+
+  defp shift_to_utc(datetime) do
+    datetime
+    |> Timex.to_datetime("America/New_York")
+    |> shift_zone!()
+  end
+
+  defp shift_zone!(%DateTime{} = datetime), do: DateTime.shift_zone!(datetime, "Etc/UTC")
+  defp shift_zone!(%Timex.AmbiguousDateTime{after: after_dt}), do: shift_zone!(after_dt)
 end

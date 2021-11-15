@@ -20,6 +20,12 @@ defmodule NYSETL.Engines.E1.MessageTest do
       |> Message.to_utc_datetime()
       |> assert_eq(~U[2020-03-20 10:03:36.589Z])
     end
+
+    test "parses dates that fall on the daylight savings time hour" do
+      "07NOV2021:01:19:00.000000"
+      |> Message.to_utc_datetime()
+      |> assert_eq(~U[2021-11-07 06:19:00.000000Z])
+    end
   end
 
   describe "to_date" do

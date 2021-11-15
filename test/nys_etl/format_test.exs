@@ -8,15 +8,13 @@ defmodule NYSETL.FormatTest do
     end
   end
 
-  describe "Date" do
-    test "formats as ddMMMYYYY" do
+  describe "format/2" do
+    test "formats Date as ddMMMYYYY" do
       ~D[2017-01-05] |> Format.format() |> assert_eq("2017-01-05")
       ~D[2000-02-25] |> Format.format() |> assert_eq("2000-02-25")
     end
-  end
 
-  describe "DateTime" do
-    test "formats as ddMMMYYYY in New York time" do
+    test "formats DateTime as ddMMMYYYY in New York time" do
       ~U[2017-01-05 01:00:00Z] |> Format.format() |> assert_eq("2017-01-04")
       ~U[2000-02-25 12:00:00Z] |> Format.format() |> assert_eq("2000-02-25")
     end
