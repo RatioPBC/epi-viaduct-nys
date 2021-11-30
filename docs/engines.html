@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="project" content="nys_etl v0.1.0">
+
+    <title>Viaduct Engines — nys_etl v0.1.0</title>
+    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+
+    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+
+      <script src="docs_config.js"></script>
+
+    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+
+
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button" aria-label="Submit Search">
+      <span class="icon-search" aria-hidden="true" title="Submit search"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button" aria-label="Cancel Search">
+      <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="overview.html" class="sidebar-projectName">
+nys_etl
+      </a>
+      <strong class="sidebar-projectVersion">
+        v0.1.0
+      </strong>
+    </div>
+
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+<h1>Viaduct Engines</h1><p>Viaduct is built for speed and asynchronous processing with clear separations of responsibilities. The code can be
+divided into 5 <a href="https://en.wikipedia.org/wiki/Software_engine">engines</a> that each perform their own work independent of
+the others.  The engines are</p><ul><li>Engine 1: The <em>ECLRS extractor</em> that takes the ECLRS export files from S3, weeds out the lines Viaduct has seen
+  before, and inserts all new lines into the database.</li><li>Engine 2: The <em>ECLRS-&gt;CommCare Transformer</em> that discovers as-yet unprocessed lines from ECLRS,
+  finds or creates a &quot;person&quot; (Viaduct's own, internal concept) and then creates or updates the records that will later
+  be sent to CommCare: an &quot;index case&quot; and a &quot;lab result&quot;.</li><li>Engine 3: The <em>CommCare Enqueuer</em> that discovers index cases that haven't been synched to CommCare since their
+  last change, and puts them on the Oban queue for controlled processing.</li><li>Engine 4: The <em>CommCare Case Loader</em> that takes one index case at a time and posts it and its lab results to
+  CommCare after figuring out which county's project space it belongs to - either the one that ECLRS said, or one
+  to which it has been transferred within CommCare.</li><li>Engine 5: The <em>CommCare Extractor</em> which runs constantly, synching down new and updated information about
+  patients that we recognize.</li></ul><p>The &quot;independent&quot; aspect bears elaborating: Rather than one engine passing work to the next one in the conceptual
+pipeline, each engine looks for data (in the database, etc) that is ready to be processed by that engine.  Thus,
+the API between the engines is not a callable API, but data at rest in a certain format.</p><p>In the following sections we are going to look at each of the engines in more detail.  The code for each engine
+can be found in <code class="inline">lib/nys_etl/engines/e1</code> for engine 1, etc.</p><h2 id="e1-eclrs-extractor" class="section-heading">
+  <a href="#e1-eclrs-extractor" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  E1: ECLRS extractor
+</h2>
+<p><code class="inline">NYSETL.Engines.E1.*</code>: <em>A Broadway pipeline started on demand by a Task that listens for SQS notifications.</em></p><p>The NYS DOH delivers a 14-day export of positive Covid-19 test results to an <a href="https://aws.amazon.com/s3/">Amazon S3</a> bucket roughly every 30 minutes. S3
+notifies Viaduct (via <a href="https://aws.amazon.com/sns/">Amazon SNS</a> and <a href="https://aws.amazon.com/sqs/">Amazon SQS</a>) when a new file is received.  This notification is received by <a href="NYSETL.Engines.E1.SQSListener.html"><code class="inline">NYSETL.Engines.E1.SQSListener</code></a>
+in collaboration with <a href="NYSETL.Engines.E1.SQSTask.html"><code class="inline">NYSETL.Engines.E1.SQSTask</code></a>, which then kick off <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor</code></a>, which in turn starts the
+engine's <a href="NYSETL.Engines.E1.Supervisor.html"><code class="inline">NYSETL.Engines.E1.Supervisor</code></a> and actively waits for it to finish before letting <a href="NYSETL.Engines.E1.SQSTask.html"><code class="inline">NYSETL.Engines.E1.SQSTask</code></a> listen for the next
+notification.</p><p><a href="NYSETL.Engines.E1.Supervisor.html"><code class="inline">NYSETL.Engines.E1.Supervisor</code></a> starts two children: <a href="NYSETL.Engines.E1.State.html"><code class="inline">NYSETL.Engines.E1.State</code></a>, which keeps track of the main process's progress, and <a href="NYSETL.Engines.E1.Broadway.html"><code class="inline">NYSETL.Engines.E1.Broadway</code></a>
+which orchestrates a two-step <a href="https://samuelmullen.com/articles/understanding-elixirs-broadway/">Broadway
+pipeline</a> to process all rows in the input file.
+Rows are read from the ECLRS file by <a href="NYSETL.Engines.E1.FileReader.html"><code class="inline">NYSETL.Engines.E1.FileReader</code></a>, and then converted from plain strings
+to <a href="NYSETL.Engines.E1.Message.html"><code class="inline">NYSETL.Engines.E1.Message</code></a>s which contain the raw row, its checksum, and a <a href="https://hexdocs.pm/elixir/Map.html"><code class="inline">Map</code></a> with the data, prepared for the database. These
+messages are then processed by <a href="NYSETL.Engines.E1.Processor.html"><code class="inline">NYSETL.Engines.E1.Processor</code></a> which stores them in the <code class="inline">test_results</code> table along with some
+meta-data in the <code class="inline">abouts</code> table (if the information is new) or just updates the corresponding record in the
+<code class="inline">abouts</code> table (if the ECLRS row has been seen before).</p><p>At the end of the import round, some summary statistics is stored in the <code class="inline">files</code> table.</p><p>Notes:</p><ul><li>The <code class="inline">files</code> table has a unique index on the file path to make sure we don't import the same file twice.  This
+worked well when the files were stored orderly on the server, but since we switched to on-the-fly downloading to
+a random tmp path, the uniquiness constraint is moot.</li></ul><h2 id="e2-eclrs-commcare-transformer" class="section-heading">
+  <a href="#e2-eclrs-commcare-transformer" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  E2: ECLRS-&gt;CommCare Transformer
+</h2>
+<p><code class="inline">NYSETL.Engines.E2.*</code>: <em>A Broadway pipeline that runs continuously.</em></p><p><a href="NYSETL.Engines.E2.TestResultProducer.html"><code class="inline">NYSETL.Engines.E2.TestResultProducer</code></a> queries the database for <code class="inline">test_results</code> records that have no finished-state
+<code class="inline">test_result_events</code> record and makes them available to the pipeline.  <a href="NYSETL.Engines.E2.Processor.html#process/2"><code class="inline">NYSETL.Engines.E2.Processor.process/2</code></a> processes the records one by
+one in parallel like so:</p><ul><li>Find a person in the <code class="inline">people</code> table that matches patient key, or exact combination of date of birth, last name and first name. If none found, create one.</li><li>Look up index cases in the same county of the test result, creating a new one if necessary.</li><li>For the index case(s) in the previous step, update lab result records with the &quot;accession number&quot; in the test result.  If an index case does not have a lab result with that accession number, create one.</li></ul><p>Notes:</p><ul><li>&quot;Update&quot; means add-if-missing.  Viaduct never overwrites existing data.</li><li>While idling, the producer polls the database every 5 seconds for unprocessed test result records.  While
+processing, it polls every 100 ms or when requested by Broadway.</li><li>A single ECLRS row, which contains information about <em>one</em> test result, may result in several lab result records
+being created if the &quot;person&quot; in Viaduct has more than one index case in the county of the test result.</li><li>For historical reasons, Engine 2 borrows the <a href="NYSETL.Engines.E1.Cache.html"><code class="inline">NYSETL.Engines.E1.Cache</code></a> library from Engine 1.</li><li>First names are split on spaces, and the first part gets used. e.g. a first name of &quot;Mary Ann&quot; would match on &quot;Mary&quot;.</li></ul><h2 id="e3-commcare-enqueuer" class="section-heading">
+  <a href="#e3-commcare-enqueuer" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  E3: CommCare Enqueuer
+</h2>
+<p><code class="inline">NYSETL.Engines.E3.*</code>: <em>A Broadway pipeline that runs continuously.</em></p><p><a href="NYSETL.Engines.E3.IndexCaseProducer.html"><code class="inline">NYSETL.Engines.E3.IndexCaseProducer</code></a> queries the database for index cases that have not been enqueued since they were last
+updated.  All such index cases are enqueued in Oban for processing by <a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a>.</p><p>Notes:</p><ul><li>While idling, the producer polls the database every 5 seconds for enqueueable index cases.  While processing, it
+polls every second or when requested by Broadway.</li></ul><h2 id="e4-commcare-case-loader" class="section-heading">
+  <a href="#e4-commcare-case-loader" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  E4: CommCare Case Loader
+</h2>
+<p><code class="inline">NYSETL.Engines.E4.*</code>: <em>An Oban Worker that is retried up to 20 times over a number of days.</em></p><p><a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a> creates or updates an index case with all its lab results to the county domain in CommCare
+where it belongs.  Before posting, <a href="NYSETL.Engines.E4.CaseTransferChain.html"><code class="inline">NYSETL.Engines.E4.CaseTransferChain</code></a> is used to determine if the index case has been
+transferred to another county domain within CommCare.  If so, <a href="NYSETL.Engines.E4.CaseTransferChain.html"><code class="inline">NYSETL.Engines.E4.CaseTransferChain</code></a> tries to find the index case in
+the transfer destination county domain and update that one instead.</p><p>Notes:</p><ul><li>A single ECLRS row, which contains information about <em>one</em> test result, may result in several lab result records
+  being created if the &quot;person&quot; in Viaduct has more than one index case in the county of the test result.  The
+  index cases, and thus the lab results, are enqueued separately and posted separately to CommCare.</li><li>A transfer chain can be long and winding and might even be circular.  Sometimes it is not possible to find the
+  final index case in the chain.  Sometimes it would be possible, but it's not sure that implementing a solution
+  would be an overall gain: it might solve some case but make the whole system too complicated to reason about.</li><li>If a final-destination index case cannot be found, it is always the case that the same lab result that Viaduct is
+  trying to publish can also be found on another index case, often in the right county.  For that reason, broken
+  transfer chains are rarely a problem.</li></ul><h2 id="e5-commcare-extractor" class="section-heading">
+  <a href="#e5-commcare-extractor" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  E5: CommCare Extractor
+</h2>
+<p><code class="inline">NYSETL.Engines.E5.*</code>: <em>A Broadway pipeline that runs continuously.</em></p><p><a href="NYSETL.Engines.E5.Producer.html"><code class="inline">NYSETL.Engines.E5.Producer</code></a> wakes up every five minutes and polls CommCare for all changes to index cases since midnight.  It
+works its way through the counties list (in reverse alphabetical order), downloading index cases and their lab
+results. <a href="NYSETL.Engines.E5.Processor.html"><code class="inline">NYSETL.Engines.E5.Processor</code></a> processes the cases according to the first rule that matches:</p><ul><li>An index case with this <code class="inline">case_id</code> exists in our DB:<ul><li>Update the case with changes from CommCare, but ignore any new lab results.</li></ul></li><li>A person exists that can be matched by dob + last_name + first_name:<ul><li>Create an index case linked to the person and lab results linked to the index case.</li></ul></li></ul><p>If no matching case or person exists, the data from CommCare is ignored.</p><p>Notes:</p><ul><li>We're polling for changes since midnight since that is what we thought the API allowed.  We've since found how
+to express a timestamp that would allow us to fetch changes since any time, and we should fix that at some point.</li><li>The data we sync down is used when merging records in Engine 3.  It is not (yet) used to figure out transfer
+chains for Engine 4.</li></ul>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+          </span>
+          <span class="line">
+            Designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+
+
+  </body>
+</html>

@@ -10,7 +10,7 @@
     <title>NYSETLWeb.Gettext — nys_etl v0.1.0</title>
     <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
 
-    <script src="dist/sidebar_items-2526e64c1b.js"></script>
+    <script src="dist/sidebar_items-0f44426ed1.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -75,6 +75,11 @@ nys_etl
       <h1>
 NYSETLWeb.Gettext <small class="app-vsn">(nys_etl v0.1.0)</small>
 
+          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+
       </h1>
 
 
@@ -83,15 +88,15 @@ NYSETLWeb.Gettext <small class="app-vsn">(nys_etl v0.1.0)</small>
 your module gains a set of macros for translations, for example:</p><pre><code class="nohighlight makeup elixir"><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETLWeb.Gettext</span><span class="w">
 
 </span><span class="c1"># Simple translation</span><span class="w">
-</span><span class="n">gettext</span><span class="p" data-group-id="0851348662-1">(</span><span class="s">&quot;Here is the string to translate&quot;</span><span class="p" data-group-id="0851348662-1">)</span><span class="w">
+</span><span class="n">gettext</span><span class="p" data-group-id="8504679096-1">(</span><span class="s">&quot;Here is the string to translate&quot;</span><span class="p" data-group-id="8504679096-1">)</span><span class="w">
 
 </span><span class="c1"># Plural translation</span><span class="w">
-</span><span class="n">ngettext</span><span class="p" data-group-id="0851348662-2">(</span><span class="s">&quot;Here is the string to translate&quot;</span><span class="p">,</span><span class="w">
+</span><span class="n">ngettext</span><span class="p" data-group-id="8504679096-2">(</span><span class="s">&quot;Here is the string to translate&quot;</span><span class="p">,</span><span class="w">
          </span><span class="s">&quot;Here are the strings to translate&quot;</span><span class="p">,</span><span class="w">
-         </span><span class="mi">3</span><span class="p" data-group-id="0851348662-2">)</span><span class="w">
+         </span><span class="mi">3</span><span class="p" data-group-id="8504679096-2">)</span><span class="w">
 
 </span><span class="c1"># Domain-based translation</span><span class="w">
-</span><span class="n">dgettext</span><span class="p" data-group-id="0851348662-3">(</span><span class="s">&quot;errors&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the error message to translate&quot;</span><span class="p" data-group-id="0851348662-3">)</span></code></pre><p>See the <a href="https://hexdocs.pm/gettext">Gettext Docs</a> for detailed usage.</p>
+</span><span class="n">dgettext</span><span class="p" data-group-id="8504679096-3">(</span><span class="s">&quot;errors&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the error message to translate&quot;</span><span class="p" data-group-id="8504679096-3">)</span></code></pre><p>See the <a href="https://hexdocs.pm/gettext">Gettext Docs</a> for detailed usage.</p>
         </section>
 
 
@@ -320,6 +325,11 @@ Functions
     </a>
     <h1 class="signature">dgettext(domain, msgid, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -338,6 +348,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">dgettext_noop(domain, msgid)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -360,6 +375,11 @@ Functions
     </a>
     <h1 class="signature">dngettext(domain, msgid, msgid_plural, n, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -378,6 +398,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">dngettext_noop(domain, msgid, msgid_plural)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -400,6 +425,11 @@ Functions
     </a>
     <h1 class="signature">dpgettext(domain, msgctxt, msgid, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -418,6 +448,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">dpgettext_noop(domain, msgctxt, msgid)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -440,6 +475,11 @@ Functions
     </a>
     <h1 class="signature">dpngettext(domain, msgctxt, msgid, msgid_plural, n, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -458,6 +498,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">dpngettext_noop(domain, msgctxt, msgid, msgid_plural)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -480,6 +525,11 @@ Functions
     </a>
     <h1 class="signature">gettext(msgid, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -498,6 +548,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">gettext_comment(comment)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -518,6 +573,11 @@ Functions
     </a>
     <h1 class="signature">gettext_noop(msgid)</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -537,6 +597,11 @@ Functions
     </a>
     <h1 class="signature">handle_missing_bindings(exception, incomplete)</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L23" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
   </div>
 
@@ -554,6 +619,11 @@ Functions
     </a>
     <h1 class="signature">handle_missing_plural_translation(locale, domain, msgid, msgid_plural, n, bindings)</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L23" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
   </div>
 
@@ -570,6 +640,11 @@ Functions
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">handle_missing_translation(locale, domain, msgid, bindings)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L23" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
   </div>
@@ -590,6 +665,11 @@ Functions
     </a>
     <h1 class="signature">lgettext(locale, domain, msgctxt \\ nil, msgid, bindings)</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
   </div>
 
@@ -608,6 +688,11 @@ Functions
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">lngettext(locale, domain, msgctxt \\ nil, msgid, msgid_plural, n, bindings)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
   </div>
@@ -628,6 +713,11 @@ Functions
     </a>
     <h1 class="signature">ngettext(msgid, msgid_plural, n, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -646,6 +736,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">ngettext_noop(msgid, msgid_plural)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -668,6 +763,11 @@ Functions
     </a>
     <h1 class="signature">pgettext(msgctxt, msgid, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -686,6 +786,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">pgettext_noop(msgid, context)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -708,6 +813,11 @@ Functions
     </a>
     <h1 class="signature">pngettext(msgctxt, msgid, msgid_plural, n, bindings \\ Macro.escape(%{}))</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
       <span class="note">(macro)</span>
 
@@ -726,6 +836,11 @@ Functions
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">pngettext_noop(msgctxt, msgid, msgid_plural)</h1>
+
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/gettext.ex#L1" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
 
 
       <span class="note">(macro)</span>
@@ -754,8 +869,6 @@ Functions
           </span>
         </p>
         <p>
-
-            <a href="api-reference.html" title="API reference" class="line footer-button">API Reference</a>
 
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts

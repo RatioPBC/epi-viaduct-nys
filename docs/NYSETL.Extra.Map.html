@@ -10,7 +10,7 @@
     <title>NYSETL.Extra.Map — nys_etl v0.1.0</title>
     <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
 
-    <script src="dist/sidebar_items-2526e64c1b.js"></script>
+    <script src="dist/sidebar_items-0f44426ed1.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -75,6 +75,11 @@ nys_etl
       <h1>
 NYSETL.Extra.Map <small class="app-vsn">(nys_etl v0.1.0)</small>
 
+          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/map.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+
       </h1>
 
 
@@ -130,6 +135,11 @@ Functions
     </a>
     <h1 class="signature">merge_empty_fields(a, b)</h1>
 
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/map.ex#L26" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+
 
   </div>
 
@@ -148,14 +158,14 @@ nil or empty take precedence over values from map b.</p><h2 id="merge_empty_fiel
   Examples
 </h2>
 <pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Map</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="5924768039-1">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="5924768039-1">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="5924768039-2">(</span><span class="p" data-group-id="5924768039-3">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-3">}</span><span class="p" data-group-id="5924768039-2">)</span><span class="w">
-</span><span class="p" data-group-id="5924768039-4">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="5924768039-4">}</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="5924768039-5">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="5924768039-5">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="5924768039-6">(</span><span class="p" data-group-id="5924768039-7">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-7">}</span><span class="p" data-group-id="5924768039-6">)</span><span class="w">
-</span><span class="p" data-group-id="5924768039-8">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-8">}</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="5924768039-9">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="5924768039-9">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="5924768039-10">(</span><span class="p" data-group-id="5924768039-11">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-11">}</span><span class="p" data-group-id="5924768039-10">)</span><span class="w">
-</span><span class="p" data-group-id="5924768039-12">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-12">}</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="5924768039-13">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p" data-group-id="5924768039-13">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="5924768039-14">(</span><span class="p" data-group-id="5924768039-15">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-15">}</span><span class="p" data-group-id="5924768039-14">)</span><span class="w">
-</span><span class="p" data-group-id="5924768039-16">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="5924768039-16">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="6903291128-1">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="6903291128-1">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="6903291128-2">(</span><span class="p" data-group-id="6903291128-3">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-3">}</span><span class="p" data-group-id="6903291128-2">)</span><span class="w">
+</span><span class="p" data-group-id="6903291128-4">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="6903291128-4">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="6903291128-5">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="6903291128-5">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="6903291128-6">(</span><span class="p" data-group-id="6903291128-7">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-7">}</span><span class="p" data-group-id="6903291128-6">)</span><span class="w">
+</span><span class="p" data-group-id="6903291128-8">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-8">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="6903291128-9">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="6903291128-9">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="6903291128-10">(</span><span class="p" data-group-id="6903291128-11">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-11">}</span><span class="p" data-group-id="6903291128-10">)</span><span class="w">
+</span><span class="p" data-group-id="6903291128-12">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-12">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="p" data-group-id="6903291128-13">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p" data-group-id="6903291128-13">}</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">merge_empty_fields</span><span class="p" data-group-id="6903291128-14">(</span><span class="p" data-group-id="6903291128-15">%{</span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-15">}</span><span class="p" data-group-id="6903291128-14">)</span><span class="w">
+</span><span class="p" data-group-id="6903291128-16">%{</span><span class="ss">a</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">b</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p" data-group-id="6903291128-16">}</span></code></pre>
   </section>
 </section>
 
@@ -175,8 +185,6 @@ nil or empty take precedence over values from map b.</p><h2 id="merge_empty_fiel
           </span>
         </p>
         <p>
-
-            <a href="api-reference.html" title="API reference" class="line footer-button">API Reference</a>
 
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
