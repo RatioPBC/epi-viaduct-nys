@@ -90,27 +90,38 @@ defmodule NYSETL.MixProject do
 
   defp docs() do
     [
+      api_reference: false,
+      main: "overview",
       assets: "guides/assets",
       extra_section: "GUIDES",
       extras: extras(),
       formatters: ["html"],
-      groups_for_extras: groups_for_extras(),
-      source_ref: "v#{@version}",
-      main: "overview"
+      source_url: "https://github.com/RatioPBC/epi-viaduct-nys",
+      main: "overview",
+      nest_modules_by_prefix: [
+        NYSETL.Backfillers,
+        NYSETL.Commcare,
+        NYSETL.ECLRS,
+        NYSETL.Engines.E1,
+        NYSETL.Engines.E2,
+        NYSETL.Engines.E3,
+        NYSETL.Engines.E4,
+        NYSETL.Engines.E5,
+        NYSETL.Extra,
+        NYSETL.Monitoring,
+        NYSETL.Tasks,
+        NYSETLWeb
+      ]
     ]
   end
 
   defp extras() do
     ~w{
       guides/overview.md
+      guides/engines.md
+      guides/performance.md
       guides/integration_testing.md
     }
-  end
-
-  defp groups_for_extras() do
-    [
-      Introduction: ~r/guides\/introduction\/.?/
-    ]
   end
 
   defp local_or_remote(:local, package, options) do
