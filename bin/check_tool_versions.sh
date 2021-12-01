@@ -1,13 +1,19 @@
 #!/bin/sh
 
+grep_version=$(grep --version)
+if [ $? -gt 1 ]; then
+  echo "Unsupported version of grep. Use BSD or GNU grep"
+  exit 1
+fi
+
+set -e
+
 # GNU grep supports -P for perl regexes; other greps use -E
-if grep --version | grep -q "GNU grep"; then
+if echo $grep_version | grep -q "GNU grep"; then
   grep_flag="-P"
 else
   grep_flag="-E"
 fi
-
-set -e
 
 expected_elixir=$(cat .tool-versions | grep elixir | grep $grep_flag -o '(\d+\.\d+\.\d+)')
 actual_elixir=$(elixir -e "IO.puts(System.version())")
