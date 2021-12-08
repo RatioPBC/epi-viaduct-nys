@@ -14,7 +14,10 @@ defmodule NYSETL.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       releases: releases(),
       start_permanent: [:prod, :dry_run] |> Enum.member?(Mix.env()),
-      version: @version
+      version: @version,
+      test_coverage: [
+        summary: [ threshold: 0 ]
+      ]
     ]
   end
 

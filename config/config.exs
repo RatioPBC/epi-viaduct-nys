@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 defmodule AwsConfig do
   def config(env_variable, profile \\ System.get_env("AWS_PROFILE"))
