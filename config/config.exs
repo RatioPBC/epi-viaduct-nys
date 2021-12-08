@@ -96,9 +96,11 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :nys_etl, Oban,
+  engine: Oban.Pro.Queue.SmartEngine,
   repo: NYSETL.Repo,
   queues: [default: 10, commcare: 10, backfillers: 10, eclrs: 10],
   plugins: [
+    Oban.Plugins.Gossip,
     Oban.Pro.Plugins.BatchManager,
     Oban.Pro.Plugins.Lifeline,
     Oban.Web.Plugins.Stats
