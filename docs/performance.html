@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>Performance statistics — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="extras">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,7 +79,17 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-<h1>Performance statistics</h1><p>These stats are generated using data from 2021-10-19 to 2021-11-29 and encompass ~300,000 unique test results. We chose 2021-10-19 as the cutoff, because on 2021-10-18 we replaced a Broadway implementation with Oban to dramatically speed up test result processing.</p><p>Viaduct processes ECLRS files much faster than ECLRS can send them. ECLRS sends files every 30 minutes, and Viaduct processes an ECLRS file in ~15 seconds.</p><p><a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a> and <a href="NYSETL.Engines.E5.Broadway.html"><code class="inline">NYSETL.Engines.E5.Broadway</code></a> make API calls to CommCare, and so are subject to network connectivity and CommCare API's responsiveness.</p><h2 id="processing-eclrs-files" class="section-heading">
+<h1 id="content">
+Performance statistics
+
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/guides/performance.md#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
+
+</h1>
+
+<p>These stats are generated using data from 2021-10-19 to 2021-11-29 and encompass ~300,000 unique test results. We chose 2021-10-19 as the cutoff, because on 2021-10-18 we replaced a Broadway implementation with Oban to dramatically speed up test result processing.</p><p>Viaduct processes ECLRS files much faster than ECLRS can send them. ECLRS sends files every 30 minutes, and Viaduct processes an ECLRS file in ~15 seconds.</p><p><a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a> and <a href="NYSETL.Engines.E5.Broadway.html"><code class="inline">NYSETL.Engines.E5.Broadway</code></a> make API calls to CommCare, and so are subject to network connectivity and CommCare API's responsiveness.</p><h2 id="processing-eclrs-files" class="section-heading">
   <a href="#processing-eclrs-files" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Processing ECLRS files
 </h2>
@@ -140,16 +157,44 @@ from
   Importing from CommCare
 </h2>
 <p><a href="NYSETL.Engines.E5.Producer.html#handle_demand/2"><code class="inline">NYSETL.Engines.E5.Producer.handle_demand/2</code></a> continually polls CommCare domains for any cases that have changed since they were previously polled. It doesn't record data to the database, so we can't produce statistics with a SQL query.</p><p>It does log the times at which it makes API requests, and includes the text e.g. <code class="inline">extracting domain=ny-monroe-cdcms</code>. We produced these statistic by grepping a single day's log file for those lines, and then calculating the time differences in a spreadsheet.</p><p><strong>Average time to process a CommCare domain</strong>: 29 seconds (1 minute, 7 seconds standard deviation)</p>
+<div class="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="engines.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Viaduct Engines
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="integration_testing.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Integration Testing
+        </span>
+      </a>
+
+  </div>
+</div>
+
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -157,15 +202,11 @@ from
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>

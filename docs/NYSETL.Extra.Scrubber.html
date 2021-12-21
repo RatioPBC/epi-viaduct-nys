@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>NYSETL.Extra.Scrubber — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="modules">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,111 +79,119 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-      <h1>
-NYSETL.Extra.Scrubber <small class="app-vsn">(nys_etl v0.1.0)</small>
+<h1>
+  <span translate="no">NYSETL.Extra.Scrubber</span> 
+  <small class="app-vsn" translate="no">(nys_etl v0.1.0)</small>
 
-          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L1" title="View Source" class="view-source" rel="help">
-            <span class="icon-code" aria-hidden="true"></span>
-            <span class="sr-only">View Source</span>
-          </a>
-
-      </h1>
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
 
 
-        <section id="moduledoc">
+</h1>
+
+
+  <section id="moduledoc">
 <p>Functions to scrub all PII in ECLRS dump files so that it can be used in development.
 Sensitive data is replaced with random strings of the same length and format (letters
 for letters, digits for digits and dates for dates).  Currently only works with the
-45-column ECLRS files but can easily be extended.</p><p>To use, run</p><pre><code class="nohighlight makeup elixir"><span class="kn">alias</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
-</span><span class="nc">Scrubber</span><span class="o">.</span><span class="n">scrub_file</span><span class="p" data-group-id="2781051290-1">(</span><span class="s">&quot;../eclrs/data/c201012_0932.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;./scrubbed.txt&quot;</span><span class="p" data-group-id="2781051290-1">)</span></code></pre><p>Some internal functions have been left public for your pleasure.</p>
-        </section>
+45-column ECLRS files but can easily be extended.</p><p>To use, run</p><pre><code class="makeup elixir"><span class="kn">alias</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
+</span><span class="nc">Scrubber</span><span class="o">.</span><span class="n">scrub_file</span><span class="p" data-group-id="4163426854-1">(</span><span class="s">&quot;../eclrs/data/c201012_0932.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;./scrubbed.txt&quot;</span><span class="p" data-group-id="4163426854-1">)</span></code></pre><p>Some internal functions have been left public for your pleasure.</p>
+  </section>
 
 
-        <section id="summary" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#summary">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
-            Summary
-          </h1>
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
+      Summary
+    </h1>
 
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
     </h2>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#random_date/1">random_date(time)</a>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#random_date/1" translate="no">random_date(time)</a>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#scrub_and_remember/2">scrub_and_remember(string, ets)</a>
+        </div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Return a string which is based on the input string but with all letters replaced
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#scrub_and_remember/2" translate="no">scrub_and_remember(string, ets)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Return a string which is based on the input string but with all letters replaced
 with random uppercase letters and all digits replaced with random digits.
 Uses ETS to always return the same output for a certain input.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#scrub_file/3">scrub_file(input_path, output_path, ets \\ :ets.new(:scrubber, [:public]))</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#scrub_file/3" translate="no">scrub_file(input_path, output_path, ets \\ :ets.new(:scrubber, [:public]))</a>
 
-    <div class="summary-synopsis"><p>Make a copy of the input file with all sensitive data replaced with random data of the
+        </div>
+
+          <div class="summary-synopsis"><p>Make a copy of the input file with all sensitive data replaced with random data of the
 same type and length.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#scrub_if_index_should_be_scrubbed/3">scrub_if_index_should_be_scrubbed(atom, arg, ets)</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#scrub_if_index_should_be_scrubbed/3" translate="no">scrub_if_index_should_be_scrubbed(atom, arg, ets)</a>
 
-    <div class="summary-synopsis"><p>Scrubs a string if its field index requires scrubbing the specified column layout.</p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#scrub_random/1">scrub_random(string)</a>
+          <div class="summary-synopsis"><p>Scrubs a string if its field index requires scrubbing the specified column layout.</p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Return a string which is based on the input string but with all letters replaced
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#scrub_random/1" translate="no">scrub_random(string)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Return a string which is based on the input string but with all letters replaced
 with random uppercase letters and all digits replaced with random digits.
 Replaces valid ISO dates with valid ISO dates.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#scrub_row/2">scrub_row(arg, ets)</a>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#scrub_row/2" translate="no">scrub_row(arg, ets)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Scrub all PII fields in one row.</p></div>
+
+      </div>
 
   </div>
 
-    <div class="summary-synopsis"><p>Scrub all PII fields in one row.</p></div>
-
-</div>
-
-  </div>
-
-        </section>
+  </section>
 
 
-        <section id="functions" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#functions">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
 Functions
-          </h1>
-          <div class="functions-list">
+    </h1>
+    <div class="functions-list">
 <section class="detail" id="random_date/1">
 
   <div class="detail-header">
@@ -184,9 +199,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">random_date(time)</h1>
+    <h1 class="signature" translate="no">random_date(time)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L209" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L209" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -206,9 +221,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">scrub_and_remember(string, ets)</h1>
+    <h1 class="signature" translate="no">scrub_and_remember(string, ets)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L152" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L152" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -224,14 +239,14 @@ Uses ETS to always return the same output for a certain input.</p><h2 id="scrub_
   <a href="#scrub_and_remember/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Examples
 </h2>
-<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="2298842373-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2298842373-2">[</span><span class="ss">:public</span><span class="p" data-group-id="2298842373-2">]</span><span class="p" data-group-id="2298842373-1">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="ss">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="2298842373-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2298842373-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="2298842373-4">}</span><span class="p" data-group-id="2298842373-3">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="2298842373-5">(</span><span class="s">&quot;john doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="2298842373-5">)</span><span class="w">
+<pre><code class="makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="9462108147-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9462108147-2">[</span><span class="ss">:public</span><span class="p" data-group-id="9462108147-2">]</span><span class="p" data-group-id="9462108147-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="9462108147-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9462108147-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="9462108147-4">}</span><span class="p" data-group-id="9462108147-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="9462108147-5">(</span><span class="s">&quot;john doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="9462108147-5">)</span><span class="w">
 </span><span class="s">&quot;XTKK RDF&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="2298842373-6">(</span><span class="s">&quot;mary-ann doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="2298842373-6">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="9462108147-6">(</span><span class="s">&quot;mary-ann doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="9462108147-6">)</span><span class="w">
 </span><span class="s">&quot;EWZB-YLL ZCH&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="2298842373-7">(</span><span class="s">&quot;john doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="2298842373-7">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_and_remember</span><span class="p" data-group-id="9462108147-7">(</span><span class="s">&quot;john doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="9462108147-7">)</span><span class="w">
 </span><span class="s">&quot;XTKK RDF&quot;</span></code></pre>
   </section>
 </section>
@@ -244,9 +259,9 @@ Uses ETS to always return the same output for a certain input.</p><h2 id="scrub_
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">scrub_file(input_path, output_path, ets \\ :ets.new(:scrubber, [:public]))</h1>
+    <h1 class="signature" translate="no">scrub_file(input_path, output_path, ets \\ :ets.new(:scrubber, [:public]))</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L27" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L27" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -258,7 +273,7 @@ Uses ETS to always return the same output for a certain input.</p><h2 id="scrub_
 
 <p>Make a copy of the input file with all sensitive data replaced with random data of the
 same type and length.</p><p>Uses ETS to make sure that a given source string is consistently replaced with the same
-scrubbed string.  The caller can supply an existing ETS for testing purposes or similar.</p><pre><code class="nohighlight makeup elixir"><span class="nc">Scrubber</span><span class="o">.</span><span class="n">scrub_file</span><span class="p" data-group-id="3121053447-1">(</span><span class="s">&quot;../eclrs/data/c201012_0932.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;./scrubbed.txt&quot;</span><span class="p" data-group-id="3121053447-1">)</span></code></pre>
+scrubbed string.  The caller can supply an existing ETS for testing purposes or similar.</p><pre><code class="makeup elixir"><span class="nc">Scrubber</span><span class="o">.</span><span class="n">scrub_file</span><span class="p" data-group-id="7238719505-1">(</span><span class="s">&quot;../eclrs/data/c201012_0932.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;./scrubbed.txt&quot;</span><span class="p" data-group-id="7238719505-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="scrub_if_index_should_be_scrubbed/3">
@@ -268,9 +283,9 @@ scrubbed string.  The caller can supply an existing ETS for testing purposes or 
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">scrub_if_index_should_be_scrubbed(atom, arg, ets)</h1>
+    <h1 class="signature" translate="no">scrub_if_index_should_be_scrubbed(atom, arg, ets)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L132" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L132" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -284,12 +299,12 @@ scrubbed string.  The caller can supply an existing ETS for testing purposes or 
   <a href="#scrub_if_index_should_be_scrubbed/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Examples
 </h2>
-<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="3068309450-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3068309450-2">[</span><span class="ss">:public</span><span class="p" data-group-id="3068309450-2">]</span><span class="p" data-group-id="3068309450-1">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="ss">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="3068309450-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3068309450-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="3068309450-4">}</span><span class="p" data-group-id="3068309450-3">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_if_index_should_be_scrubbed</span><span class="p" data-group-id="3068309450-5">(</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3068309450-6">{</span><span class="s">&quot;Doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p" data-group-id="3068309450-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="3068309450-5">)</span><span class="w">
+<pre><code class="makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="7166696917-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7166696917-2">[</span><span class="ss">:public</span><span class="p" data-group-id="7166696917-2">]</span><span class="p" data-group-id="7166696917-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="7166696917-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7166696917-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="7166696917-4">}</span><span class="p" data-group-id="7166696917-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_if_index_should_be_scrubbed</span><span class="p" data-group-id="7166696917-5">(</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7166696917-6">{</span><span class="s">&quot;Doe&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p" data-group-id="7166696917-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="7166696917-5">)</span><span class="w">
 </span><span class="s">&quot;XTK&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_if_index_should_be_scrubbed</span><span class="p" data-group-id="3068309450-7">(</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3068309450-8">{</span><span class="s">&quot;59483&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p" data-group-id="3068309450-8">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="3068309450-7">)</span><span class="w"> </span><span class="c1"># ZIP is not PII</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_if_index_should_be_scrubbed</span><span class="p" data-group-id="7166696917-7">(</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7166696917-8">{</span><span class="s">&quot;59483&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p" data-group-id="7166696917-8">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="7166696917-7">)</span><span class="w"> </span><span class="c1"># ZIP is not PII</span><span class="w">
 </span><span class="s">&quot;59483&quot;</span></code></pre>
   </section>
 </section>
@@ -300,9 +315,9 @@ scrubbed string.  The caller can supply an existing ETS for testing purposes or 
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">scrub_random(string)</h1>
+    <h1 class="signature" translate="no">scrub_random(string)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L192" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L192" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -318,17 +333,17 @@ Replaces valid ISO dates with valid ISO dates.</p><h2 id="scrub_random/1-example
   <a href="#scrub_random/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Examples
 </h2>
-<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="ss">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="8144211083-1">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8144211083-2">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="8144211083-2">}</span><span class="p" data-group-id="8144211083-1">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="8144211083-3">(</span><span class="s">&quot;john doe&quot;</span><span class="p" data-group-id="8144211083-3">)</span><span class="w">
+<pre><code class="makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="2274767800-1">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2274767800-2">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="2274767800-2">}</span><span class="p" data-group-id="2274767800-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="2274767800-3">(</span><span class="s">&quot;john doe&quot;</span><span class="p" data-group-id="2274767800-3">)</span><span class="w">
 </span><span class="s">&quot;XTKK RDF&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="8144211083-4">(</span><span class="s">&quot;john doe&quot;</span><span class="p" data-group-id="8144211083-4">)</span><span class="w"> </span><span class="c1"># no memory</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="2274767800-4">(</span><span class="s">&quot;john doe&quot;</span><span class="p" data-group-id="2274767800-4">)</span><span class="w"> </span><span class="c1"># no memory</span><span class="w">
 </span><span class="s">&quot;EWZB YLL&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="8144211083-5">(</span><span class="s">&quot;123 West 27th St.&quot;</span><span class="p" data-group-id="8144211083-5">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="2274767800-5">(</span><span class="s">&quot;123 West 27th St.&quot;</span><span class="p" data-group-id="2274767800-5">)</span><span class="w">
 </span><span class="s">&quot;432 ZCHT 39OA QS.&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="8144211083-6">(</span><span class="s">&quot;23MAY1965&quot;</span><span class="p" data-group-id="8144211083-6">)</span><span class="w"> </span><span class="c1"># special handling of dates</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="2274767800-6">(</span><span class="s">&quot;23MAY1965&quot;</span><span class="p" data-group-id="2274767800-6">)</span><span class="w"> </span><span class="c1"># special handling of dates</span><span class="w">
 </span><span class="s">&quot;17FEB1945&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="8144211083-7">(</span><span class="s">&quot;23MAY1965:00:00:00.000000&quot;</span><span class="p" data-group-id="8144211083-7">)</span><span class="w"> </span><span class="c1"># special handling of datetimes</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_random</span><span class="p" data-group-id="2274767800-7">(</span><span class="s">&quot;23MAY1965:00:00:00.000000&quot;</span><span class="p" data-group-id="2274767800-7">)</span><span class="w"> </span><span class="c1"># special handling of datetimes</span><span class="w">
 </span><span class="s">&quot;29NOV1994:00:00:00.000000&quot;</span></code></pre>
   </section>
 </section>
@@ -339,9 +354,9 @@ Replaces valid ISO dates with valid ISO dates.</p><h2 id="scrub_random/1-example
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">scrub_row(arg, ets)</h1>
+    <h1 class="signature" translate="no">scrub_row(arg, ets)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/extra/scrubber.ex#L77" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/extra/scrubber.ex#L77" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -355,29 +370,30 @@ Replaces valid ISO dates with valid ISO dates.</p><h2 id="scrub_random/1-example
   <a href="#scrub_row/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Examples
 </h2>
-<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="6277976674-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6277976674-2">[</span><span class="ss">:public</span><span class="p" data-group-id="6277976674-2">]</span><span class="p" data-group-id="6277976674-1">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="ss">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="6277976674-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6277976674-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="6277976674-4">}</span><span class="p" data-group-id="6277976674-3">)</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_row</span><span class="p" data-group-id="6277976674-5">(</span><span class="p" data-group-id="6277976674-6">{</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Doe|J|John|18MAR1965:00:00:00|||||||||||||||||||||||||||||||||||||||||unclear</span><span class="se">\n</span><span class="s">&quot;</span><span class="p" data-group-id="6277976674-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="6277976674-5">)</span><span class="w">
+<pre><code class="makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nc">NYSETL.Extra.Scrubber</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">ets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">:ets</span><span class="o">.</span><span class="n">new</span><span class="p" data-group-id="3636267973-1">(</span><span class="ss">:scrubber</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3636267973-2">[</span><span class="ss">:public</span><span class="p" data-group-id="3636267973-2">]</span><span class="p" data-group-id="3636267973-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">:rand</span><span class="o">.</span><span class="n">seed</span><span class="p" data-group-id="3636267973-3">(</span><span class="ss">:exsss</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3636267973-4">{</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="mi">103</span><span class="p" data-group-id="3636267973-4">}</span><span class="p" data-group-id="3636267973-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_row</span><span class="p" data-group-id="3636267973-5">(</span><span class="p" data-group-id="3636267973-6">{</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Doe|J|John|18MAR1965:00:00:00|||||||||||||||||||||||||||||||||||||||||unclear</span><span class="se">\n</span><span class="s">&quot;</span><span class="p" data-group-id="3636267973-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="3636267973-5">)</span><span class="w">
 </span><span class="s">&quot;XTK|K|RDFE|28AUG2018:00:00:00|||||||||||||||||||||||||||||||||||||||||unclear</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_row</span><span class="p" data-group-id="6277976674-7">(</span><span class="p" data-group-id="6277976674-8">{</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Doe|A|Mary|23MAY1965:00:00:00.000000|||||||||||||||||||||||||||||||||||||||||POS&quot;</span><span class="p" data-group-id="6277976674-8">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="6277976674-7">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">scrub_row</span><span class="p" data-group-id="3636267973-7">(</span><span class="p" data-group-id="3636267973-8">{</span><span class="ss">:v1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Doe|A|Mary|23MAY1965:00:00:00.000000|||||||||||||||||||||||||||||||||||||||||POS&quot;</span><span class="p" data-group-id="3636267973-8">}</span><span class="p">,</span><span class="w"> </span><span class="n">ets</span><span class="p" data-group-id="3636267973-7">)</span><span class="w">
 </span><span class="s">&quot;XTK|Z|BYLL|18APR2016:00:00:00.000000|||||||||||||||||||||||||||||||||||||||||POS&quot;</span></code></pre>
   </section>
 </section>
 
-          </div>
-        </section>
+    </div>
+  </section>
 
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -385,15 +401,11 @@ Replaces valid ISO dates with valid ISO dates.</p><h2 id="scrub_random/1-example
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>

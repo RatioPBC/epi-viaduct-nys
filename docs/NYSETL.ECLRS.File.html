@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>NYSETL.ECLRS.File — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="modules">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,102 +79,112 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-      <h1>
-NYSETL.ECLRS.File <small class="app-vsn">(nys_etl v0.1.0)</small>
+<h1>
+  <span translate="no">NYSETL.ECLRS.File</span> 
+  <small class="app-vsn" translate="no">(nys_etl v0.1.0)</small>
 
-          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L1" title="View Source" class="view-source" rel="help">
-            <span class="icon-code" aria-hidden="true"></span>
-            <span class="sr-only">View Source</span>
-          </a>
-
-      </h1>
-
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
 
 
-        <section id="summary" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#summary">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
-            Summary
-          </h1>
+</h1>
+
+
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
+      Summary
+    </h1>
 
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
     </h2>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#changeset/2">changeset(struct \\ %__MODULE__{}, attrs)</a>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#changeset/2" translate="no">changeset(struct \\ %__MODULE__{}, attrs)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#file_header/1" translate="no">file_header(atom)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#file_headers/1" translate="no">file_headers(other)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#header_names/1" translate="no">header_names(arg1)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#pad_fields/3" translate="no">pad_fields(fields, atom1, atom2)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#parse_row/2" translate="no">parse_row(row, file)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#truncate_fields_to_version/2" translate="no">truncate_fields_to_version(fields, atom)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#version_number/1" translate="no">version_number(version)</a>
+
+        </div>
+
+      </div>
 
   </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#file_header/1">file_header(atom)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#file_headers/1">file_headers(other)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#header_names/1">header_names(arg1)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#pad_fields/3">pad_fields(fields, atom1, atom2)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#parse_row/2">parse_row(row, file)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#truncate_fields_to_version/2">truncate_fields_to_version(fields, atom)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#version_number/1">version_number(version)</a>
-
-  </div>
-
-</div>
-
-  </div>
-
-        </section>
+  </section>
 
 
-        <section id="functions" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#functions">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
 Functions
-          </h1>
-          <div class="functions-list">
+    </h1>
+    <div class="functions-list">
 <section class="detail" id="changeset/2">
 
     <span id="changeset/1"></span>
@@ -177,9 +194,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">changeset(struct \\ %__MODULE__{}, attrs)</h1>
+    <h1 class="signature" translate="no">changeset(struct \\ %__MODULE__{}, attrs)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L32" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L32" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -199,9 +216,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">file_header(atom)</h1>
+    <h1 class="signature" translate="no">file_header(atom)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L38" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L38" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -221,9 +238,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">file_headers(other)</h1>
+    <h1 class="signature" translate="no">file_headers(other)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L42" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L42" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -243,9 +260,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">header_names(arg1)</h1>
+    <h1 class="signature" translate="no">header_names(arg1)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L47" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L47" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -265,9 +282,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">pad_fields(fields, atom1, atom2)</h1>
+    <h1 class="signature" translate="no">pad_fields(fields, atom1, atom2)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L54" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L54" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -287,9 +304,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">parse_row(row, file)</h1>
+    <h1 class="signature" translate="no">parse_row(row, file)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L58" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L58" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -309,9 +326,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">truncate_fields_to_version(fields, atom)</h1>
+    <h1 class="signature" translate="no">truncate_fields_to_version(fields, atom)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L71" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L71" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -331,9 +348,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">version_number(version)</h1>
+    <h1 class="signature" translate="no">version_number(version)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/eclrs/file.ex#L74" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/eclrs/file.ex#L74" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -347,19 +364,20 @@ Functions
   </section>
 </section>
 
-          </div>
-        </section>
+    </div>
+  </section>
 
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -367,15 +385,11 @@ Functions
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>

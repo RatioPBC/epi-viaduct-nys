@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>NYSETLWeb.Endpoint — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="modules">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,252 +79,281 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-      <h1>
-NYSETLWeb.Endpoint <small class="app-vsn">(nys_etl v0.1.0)</small>
+<h1>
+  <span translate="no">NYSETLWeb.Endpoint</span> 
+  <small class="app-vsn" translate="no">(nys_etl v0.1.0)</small>
 
-          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L1" title="View Source" class="view-source" rel="help">
-            <span class="icon-code" aria-hidden="true"></span>
-            <span class="sr-only">View Source</span>
-          </a>
-
-      </h1>
-
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
 
 
-        <section id="summary" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#summary">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
-            Summary
-          </h1>
+</h1>
+
+
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
+      Summary
+    </h1>
 
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
     </h2>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#broadcast/3">broadcast(topic, event, msg)</a>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#broadcast/3" translate="no">broadcast(topic, event, msg)</a>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast/3"><code class="inline">Phoenix.Endpoint.broadcast/3</code></a>.</p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#broadcast!/3">broadcast!(topic, event, msg)</a>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast/3"><code class="inline">Phoenix.Endpoint.broadcast/3</code></a>.</p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast!/3"><code class="inline">Phoenix.Endpoint.broadcast!/3</code></a>.</p></div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#broadcast!/3" translate="no">broadcast!(topic, event, msg)</a>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#broadcast_from/4">broadcast_from(from, topic, event, msg)</a>
+        </div>
 
-  </div>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast!/3"><code class="inline">Phoenix.Endpoint.broadcast!/3</code></a>.</p></div>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast_from/4"><code class="inline">Phoenix.Endpoint.broadcast_from/4</code></a>.</p></div>
+      </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#broadcast_from!/4">broadcast_from!(from, topic, event, msg)</a>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#broadcast_from/4" translate="no">broadcast_from(from, topic, event, msg)</a>
 
-  </div>
+        </div>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast_from!/4"><code class="inline">Phoenix.Endpoint.broadcast_from!/4</code></a>.</p></div>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast_from/4"><code class="inline">Phoenix.Endpoint.broadcast_from/4</code></a>.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#call/2">call(conn, opts)</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#broadcast_from!/4" translate="no">broadcast_from!(from, topic, event, msg)</a>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/plug/1.11.0/Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a>.</p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#child_spec/1">child_spec(opts)</a>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast_from!/4"><code class="inline">Phoenix.Endpoint.broadcast_from!/4</code></a>.</p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Returns the child specification to start the endpoint
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#call/2" translate="no">call(conn, opts)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/plug/1.12.1/Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a>.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#child_spec/1" translate="no">child_spec(opts)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Returns the child specification to start the endpoint
 under a supervision tree.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#config/2">config(key, default \\ nil)</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#config/2" translate="no">config(key, default \\ nil)</a>
 
-    <div class="summary-synopsis"><p>Returns the endpoint configuration for <code class="inline">key</code></p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#config_change/2">config_change(changed, removed)</a>
+          <div class="summary-synopsis"><p>Returns the endpoint configuration for <code class="inline">key</code></p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Reloads the configuration given the application environment changes.</p></div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#config_change/2" translate="no">config_change(changed, removed)</a>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#host/0">host()</a>
+        </div>
 
-  </div>
+          <div class="summary-synopsis"><p>Reloads the configuration given the application environment changes.</p></div>
 
-    <div class="summary-synopsis"><p>Returns the host for the given endpoint.</p></div>
+      </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#init/1">init(opts)</a>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#host/0" translate="no">host()</a>
 
-  </div>
+        </div>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/plug/1.11.0/Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a>.</p></div>
+          <div class="summary-synopsis"><p>Returns the host for the given endpoint.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#local_broadcast/3">local_broadcast(topic, event, msg)</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#init/1" translate="no">init(opts)</a>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:local_broadcast/3"><code class="inline">Phoenix.Endpoint.local_broadcast/3</code></a>.</p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#local_broadcast_from/4">local_broadcast_from(from, topic, event, msg)</a>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/plug/1.12.1/Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a>.</p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:local_broadcast_from/4"><code class="inline">Phoenix.Endpoint.local_broadcast_from/4</code></a>.</p></div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#local_broadcast/3" translate="no">local_broadcast(topic, event, msg)</a>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#path/1">path(path)</a>
+        </div>
 
-  </div>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:local_broadcast/3"><code class="inline">Phoenix.Endpoint.local_broadcast/3</code></a>.</p></div>
 
-    <div class="summary-synopsis"><p>Generates the path information when routing to this endpoint.</p></div>
+      </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#script_name/0">script_name()</a>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#local_broadcast_from/4" translate="no">local_broadcast_from(from, topic, event, msg)</a>
 
-  </div>
+        </div>
 
-    <div class="summary-synopsis"><p>Generates the script name.</p></div>
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:local_broadcast_from/4"><code class="inline">Phoenix.Endpoint.local_broadcast_from/4</code></a>.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#start_link/1">start_link(opts \\ [])</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#path/1" translate="no">path(path)</a>
 
-    <div class="summary-synopsis"><p>Starts the endpoint supervision tree.</p></div>
+        </div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#static_integrity/1">static_integrity(path)</a>
+          <div class="summary-synopsis"><p>Generates the path information when routing to this endpoint.</p></div>
 
-  </div>
+      </div>
 
-    <div class="summary-synopsis"><p>Generates a base64-encoded cryptographic hash (sha512) to a static file
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#script_name/0" translate="no">script_name()</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates the script name.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#start_link/1" translate="no">start_link(opts \\ [])</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Starts the endpoint supervision tree.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#static_integrity/1" translate="no">static_integrity(path)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates a base64-encoded cryptographic hash (sha512) to a static file
 in <code class="inline">priv/static</code>. Meant to be used for Subresource Integrity with CDNs.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#static_lookup/1">static_lookup(path)</a>
+      </div>
 
-  </div>
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#static_lookup/1" translate="no">static_lookup(path)</a>
 
-    <div class="summary-synopsis"><p>Returns a two item tuple with the first item being the <code class="inline">static_path</code>
+        </div>
+
+          <div class="summary-synopsis"><p>Returns a two item tuple with the first item being the <code class="inline">static_path</code>
 and the second item being the <code class="inline">static_integrity</code>.</p></div>
 
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#static_path/1">static_path(path)</a>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#static_path/1" translate="no">static_path(path)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates a route to a static file in <code class="inline">priv/static</code>.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#static_url/0" translate="no">static_url()</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates the static URL without any path information.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#struct_url/0" translate="no">struct_url()</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates the endpoint base URL but as a <a href="https://hexdocs.pm/elixir/URI.html"><code class="inline">URI</code></a> struct.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#subscribe/2" translate="no">subscribe(topic, opts \\ [])</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:subscribe/2"><code class="inline">Phoenix.Endpoint.subscribe/2</code></a>.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#unsubscribe/1" translate="no">unsubscribe(topic)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:unsubscribe/1"><code class="inline">Phoenix.Endpoint.unsubscribe/1</code></a>.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#url/0" translate="no">url()</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Generates the endpoint base URL without any path information.</p></div>
+
+      </div>
 
   </div>
 
-    <div class="summary-synopsis"><p>Generates a route to a static file in <code class="inline">priv/static</code>.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#static_url/0">static_url()</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Generates the static URL without any path information.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#struct_url/0">struct_url()</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Generates the endpoint base URL but as a <a href="https://hexdocs.pm/elixir/URI.html"><code class="inline">URI</code></a> struct.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#subscribe/2">subscribe(topic, opts \\ [])</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#unsubscribe/1">unsubscribe(topic)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#url/0">url()</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Generates the endpoint base URL without any path information.</p></div>
-
-</div>
-
-  </div>
-
-        </section>
+  </section>
 
 
-        <section id="functions" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#functions">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
 Functions
-          </h1>
-          <div class="functions-list">
+    </h1>
+    <div class="functions-list">
 <section class="detail" id="broadcast/3">
 
   <div class="detail-header">
@@ -325,9 +361,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">broadcast(topic, event, msg)</h1>
+    <h1 class="signature" translate="no">broadcast(topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -337,7 +373,7 @@ Functions
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast/3"><code class="inline">Phoenix.Endpoint.broadcast/3</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast/3"><code class="inline">Phoenix.Endpoint.broadcast/3</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="broadcast!/3">
@@ -347,9 +383,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">broadcast!(topic, event, msg)</h1>
+    <h1 class="signature" translate="no">broadcast!(topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -359,7 +395,7 @@ Functions
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast!/3"><code class="inline">Phoenix.Endpoint.broadcast!/3</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast!/3"><code class="inline">Phoenix.Endpoint.broadcast!/3</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="broadcast_from/4">
@@ -369,9 +405,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">broadcast_from(from, topic, event, msg)</h1>
+    <h1 class="signature" translate="no">broadcast_from(from, topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -381,7 +417,7 @@ Functions
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast_from/4"><code class="inline">Phoenix.Endpoint.broadcast_from/4</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast_from/4"><code class="inline">Phoenix.Endpoint.broadcast_from/4</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="broadcast_from!/4">
@@ -391,9 +427,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">broadcast_from!(from, topic, event, msg)</h1>
+    <h1 class="signature" translate="no">broadcast_from!(from, topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -403,7 +439,7 @@ Functions
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:broadcast_from!/4"><code class="inline">Phoenix.Endpoint.broadcast_from!/4</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:broadcast_from!/4"><code class="inline">Phoenix.Endpoint.broadcast_from!/4</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="call/2">
@@ -413,9 +449,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">call(conn, opts)</h1>
+    <h1 class="signature" translate="no">call(conn, opts)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L1" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L1" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -425,7 +461,7 @@ Functions
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/plug/1.11.0/Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/plug/1.12.1/Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="child_spec/1">
@@ -435,9 +471,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">child_spec(opts)</h1>
+    <h1 class="signature" translate="no">child_spec(opts)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -460,9 +496,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">config(key, default \\ nil)</h1>
+    <h1 class="signature" translate="no">config(key, default \\ nil)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -482,9 +518,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">config_change(changed, removed)</h1>
+    <h1 class="signature" translate="no">config_change(changed, removed)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -504,9 +540,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">host()</h1>
+    <h1 class="signature" translate="no">host()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -526,9 +562,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">init(opts)</h1>
+    <h1 class="signature" translate="no">init(opts)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -538,7 +574,7 @@ under a supervision tree.</p>
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/plug/1.11.0/Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/plug/1.12.1/Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="local_broadcast/3">
@@ -548,9 +584,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">local_broadcast(topic, event, msg)</h1>
+    <h1 class="signature" translate="no">local_broadcast(topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -560,7 +596,7 @@ under a supervision tree.</p>
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:local_broadcast/3"><code class="inline">Phoenix.Endpoint.local_broadcast/3</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:local_broadcast/3"><code class="inline">Phoenix.Endpoint.local_broadcast/3</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="local_broadcast_from/4">
@@ -570,9 +606,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">local_broadcast_from(from, topic, event, msg)</h1>
+    <h1 class="signature" translate="no">local_broadcast_from(from, topic, event, msg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -582,7 +618,7 @@ under a supervision tree.</p>
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.5.7/Phoenix.Endpoint.html#c:local_broadcast_from/4"><code class="inline">Phoenix.Endpoint.local_broadcast_from/4</code></a>.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:local_broadcast_from/4"><code class="inline">Phoenix.Endpoint.local_broadcast_from/4</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="path/1">
@@ -592,9 +628,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">path(path)</h1>
+    <h1 class="signature" translate="no">path(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -614,9 +650,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">script_name()</h1>
+    <h1 class="signature" translate="no">script_name()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -638,9 +674,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">start_link(opts \\ [])</h1>
+    <h1 class="signature" translate="no">start_link(opts \\ [])</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -650,7 +686,12 @@ under a supervision tree.</p>
 
   <section class="docstring">
 
-<p>Starts the endpoint supervision tree.</p>
+<p>Starts the endpoint supervision tree.</p><h2 id="start_link/1-options" class="section-heading">
+  <a href="#start_link/1-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+<ul><li><code class="inline">:log_access_url</code> - if the access url should be logged
+once the endpoint starts</li></ul><p>All other options are merged into the endpoint configuration.</p>
   </section>
 </section>
 <section class="detail" id="static_integrity/1">
@@ -660,9 +701,9 @@ under a supervision tree.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">static_integrity(path)</h1>
+    <h1 class="signature" translate="no">static_integrity(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -683,9 +724,9 @@ in <code class="inline">priv/static</code>. Meant to be used for Subresource Int
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">static_lookup(path)</h1>
+    <h1 class="signature" translate="no">static_lookup(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -706,9 +747,9 @@ and the second item being the <code class="inline">static_integrity</code>.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">static_path(path)</h1>
+    <h1 class="signature" translate="no">static_path(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -728,9 +769,9 @@ and the second item being the <code class="inline">static_integrity</code>.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">static_url()</h1>
+    <h1 class="signature" translate="no">static_url()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -751,9 +792,9 @@ such. It falls back to <code class="inline">:url</code> if <code class="inline">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">struct_url()</h1>
+    <h1 class="signature" translate="no">struct_url()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -777,9 +818,9 @@ URL helpers.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">subscribe(topic, opts \\ [])</h1>
+    <h1 class="signature" translate="no">subscribe(topic, opts \\ [])</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -789,7 +830,7 @@ URL helpers.</p>
 
   <section class="docstring">
 
-
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:subscribe/2"><code class="inline">Phoenix.Endpoint.subscribe/2</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="unsubscribe/1">
@@ -799,9 +840,9 @@ URL helpers.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">unsubscribe(topic)</h1>
+    <h1 class="signature" translate="no">unsubscribe(topic)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -811,7 +852,7 @@ URL helpers.</p>
 
   <section class="docstring">
 
-
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.6.2/Phoenix.Endpoint.html#c:unsubscribe/1"><code class="inline">Phoenix.Endpoint.unsubscribe/1</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="url/0">
@@ -821,9 +862,9 @@ URL helpers.</p>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">url()</h1>
+    <h1 class="signature" translate="no">url()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl_web/endpoint.ex#L2" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -837,19 +878,20 @@ URL helpers.</p>
   </section>
 </section>
 
-          </div>
-        </section>
+    </div>
+  </section>
 
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -857,15 +899,11 @@ URL helpers.</p>
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>

@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>NYSETL.Engines.E1.Cache — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="modules">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,128 +79,140 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-      <h1>
-NYSETL.Engines.E1.Cache <small class="app-vsn">(nys_etl v0.1.0)</small>
+<h1>
+  <span translate="no">NYSETL.Engines.E1.Cache</span> 
+  <small class="app-vsn" translate="no">(nys_etl v0.1.0)</small>
 
-          <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L1" title="View Source" class="view-source" rel="help">
-            <span class="icon-code" aria-hidden="true"></span>
-            <span class="sr-only">View Source</span>
-          </a>
-
-      </h1>
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
 
 
-        <section id="moduledoc">
+</h1>
+
+
+  <section id="moduledoc">
 <p>Wrapper for Cachex, providing a large number of checksum caches under a supervision
 tree. While Cachex provides non-blocking reads and writes for caches, transactions
 for a specific cache block other transactions via a single GenServer message queue.</p><p>This supervision tree improves the concurrency of transactions by providing a cache ring
-of N caches, using <a href="http://www.erlang.org/doc/man/erlang.html#phash2-2"><code class="inline">:erlang.phash2/2</code></a> to deterministically assign each checksum to a
+of N caches, using <a href="https://erlang.org/doc/man/erlang.html#phash2-2"><code class="inline">:erlang.phash2/2</code></a> to deterministically assign each checksum to a
 member of the ring.</p>
-        </section>
+  </section>
 
 
-        <section id="summary" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#summary">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
-            Summary
-          </h1>
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
+      Summary
+    </h1>
 
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
     </h2>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#child_spec/1">child_spec(init_arg)</a>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#child_spec/1" translate="no">child_spec(init_arg)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>Returns a specification to start this module under a supervisor.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#clear/0" translate="no">clear()</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#dump/1" translate="no">dump(path)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#get/1" translate="no">get(checksum)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#get/2" translate="no">get(cache, key)</a>
+
+        </div>
+
+          <div class="summary-synopsis"><p>See <a href="https://hexdocs.pm/cachex/3.4.0/Cachex.html#get/2"><code class="inline">Cachex.get/2</code></a>.</p></div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#load/1" translate="no">load(path)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#put!/2" translate="no">put!(checksum, value)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#put!/3" translate="no">put!(cache, checksum, value)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#start_link/1" translate="no">start_link(init_arg)</a>
+
+        </div>
+
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-signature">
+          <a href="#transaction/2" translate="no">transaction(checksum, fun)</a>
+
+        </div>
+
+      </div>
 
   </div>
 
-    <div class="summary-synopsis"><p>Returns a specification to start this module under a supervisor.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#clear/0">clear()</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#dump/1">dump(path)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#get/1">get(checksum)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#get/2">get(cache, key)</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>See <a href="https://hexdocs.pm/cachex/3.3.0/Cachex.html#get/2"><code class="inline">Cachex.get/2</code></a>.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#load/1">load(path)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#put!/2">put!(checksum, value)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#put!/3">put!(cache, checksum, value)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#start_link/1">start_link(init_arg)</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#transaction/2">transaction(checksum, fun)</a>
-
-  </div>
-
-</div>
-
-  </div>
-
-        </section>
+  </section>
 
 
-        <section id="functions" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#functions">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <span class="icon-link" aria-hidden="true"></span>
+        <span class="sr-only">Link to this section</span>
+      </a>
 Functions
-          </h1>
-          <div class="functions-list">
+    </h1>
+    <div class="functions-list">
 <section class="detail" id="child_spec/1">
 
   <div class="detail-header">
@@ -201,9 +220,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">child_spec(init_arg)</h1>
+    <h1 class="signature" translate="no">child_spec(init_arg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L12" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L12" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -223,9 +242,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">clear()</h1>
+    <h1 class="signature" translate="no">clear()</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L18" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L18" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -245,9 +264,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">dump(path)</h1>
+    <h1 class="signature" translate="no">dump(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L23" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L23" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -267,9 +286,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">get(checksum)</h1>
+    <h1 class="signature" translate="no">get(checksum)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L37" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L37" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -289,9 +308,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">get(cache, key)</h1>
+    <h1 class="signature" translate="no">get(cache, key)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L14" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L14" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -301,7 +320,7 @@ Functions
 
   <section class="docstring">
 
-<p>See <a href="https://hexdocs.pm/cachex/3.3.0/Cachex.html#get/2"><code class="inline">Cachex.get/2</code></a>.</p>
+<p>See <a href="https://hexdocs.pm/cachex/3.4.0/Cachex.html#get/2"><code class="inline">Cachex.get/2</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="load/1">
@@ -311,9 +330,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">load(path)</h1>
+    <h1 class="signature" translate="no">load(path)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L30" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L30" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -333,9 +352,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">put!(checksum, value)</h1>
+    <h1 class="signature" translate="no">put!(checksum, value)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L48" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L48" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -355,9 +374,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">put!(cache, checksum, value)</h1>
+    <h1 class="signature" translate="no">put!(cache, checksum, value)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L43" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L43" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -377,9 +396,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">start_link(init_arg)</h1>
+    <h1 class="signature" translate="no">start_link(init_arg)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L61" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L61" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -399,9 +418,9 @@ Functions
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">transaction(checksum, fun)</h1>
+    <h1 class="signature" translate="no">transaction(checksum, fun)</h1>
 
-      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/master/lib/nys_etl/engines/e1/cache.ex#L54" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/lib/nys_etl/engines/e1/cache.ex#L54" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -415,19 +434,20 @@ Functions
   </section>
 </section>
 
-          </div>
-        </section>
+    </div>
+  </section>
 
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -435,15 +455,11 @@ Functions
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>

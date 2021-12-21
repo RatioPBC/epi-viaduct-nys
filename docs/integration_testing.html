@@ -4,22 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="generator" content="ExDoc v0.26.0">
     <meta name="project" content="nys_etl v0.1.0">
 
     <title>Integration Testing — nys_etl v0.1.0</title>
-    <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+    <link rel="stylesheet" href="dist/elixir-b5076885a795c65e636c.css" />
 
-    <script src="dist/sidebar_items-0f44426ed1.js"></script>
+    <script src="dist/sidebar_items-f699437b33.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+    <script async src="dist/app-a404e1e870b77c874f9e.js"></script>
 
 
   </head>
   <body data-type="extras">
-    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+    <script>
+
+      try {
+        if (localStorage.getItem('night-mode') === 'true') {
+          document.body.classList.add('night-mode');
+        }
+      } catch (error) { }
+    </script>
 
 <div class="main">
 
@@ -36,7 +43,7 @@
       <span class="icon-cross" aria-hidden="true" title="Cancel search"></span>
     </button>
     <label class="search-label">
-      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
+      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" />
     </label>
   </form>
 
@@ -47,10 +54,10 @@
 
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
-      <a href="overview.html" class="sidebar-projectName">
+      <a href="overview.html" class="sidebar-projectName" translate="no">
 nys_etl
       </a>
-      <strong class="sidebar-projectVersion">
+      <strong class="sidebar-projectVersion" translate="no">
         v0.1.0
       </strong>
     </div>
@@ -58,9 +65,9 @@ nys_etl
   </div>
 
   <ul class="sidebar-listNav">
-    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+    <li><a id="extras-list-link" href="#full-list">GUIDES</a></li>
 
-      <li><a id="modules-list" href="#full-list">Modules</a></li>
+      <li><a id="modules-list-link" href="#full-list">Modules</a></li>
 
 
   </ul>
@@ -72,7 +79,17 @@ nys_etl
   <div class="content-outer">
     <div id="content" class="content-inner">
 
-<h1>Integration Testing</h1><p>Integration testing in this context means processing test results locally in the development environment, and uploading any created / updated index cases and test results to Dimagi.</p><p>By default, the dev environment does not run the <a href="NYSETL.ViaductSupervisor.html"><code class="inline">NYSETL.ViaductSupervisor</code></a> and so does not run any engines. This gives you more control over the process - you can run each stage of the workflow manually.</p><p>The basic process for integration testing is:</p><ol><li>(Optionally) import any desired index cases from CommCare.</li><li>Create an ECLRS file with necessary test data.</li><li>Extract the file with <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor</code></a>.</li><li>Process test results with <a href="NYSETL.Engines.E2.TestResultProcessor.html"><code class="inline">NYSETL.Engines.E2.TestResultProcessor</code></a>.</li><li>Load index cases to CommCare with <a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a>.</li></ol><p>You can run the entire process automatically with <a href="NYSETL.ViaductSupervisor.html#start_link/1"><code class="inline">NYSETL.ViaductSupervisor.start_link/1</code></a>. The only thing you'll need to manually do is extract the ECLRS file (because there will be no SQS event for <a href="NYSETL.Engines.E1.SQSTask.html"><code class="inline">NYSETL.Engines.E1.SQSTask</code></a> to read).</p><h2 id="county-setup" class="section-heading">
+<h1 id="content">
+Integration Testing
+
+    <a href="https://github.com/RatioPBC/epi-viaduct-nys/blob/main/guides/integration_testing.md#L1" title="View Source" class="view-source" rel="help">
+      <span class="icon-code" aria-hidden="true"></span>
+      <span class="sr-only">View Source</span>
+    </a>
+
+</h1>
+
+<p>Integration testing in this context means processing test results locally in the development environment, and uploading any created / updated index cases and test results to Dimagi.</p><p>By default, the dev environment does not run the <a href="NYSETL.ViaductSupervisor.html"><code class="inline">NYSETL.ViaductSupervisor</code></a> and so does not run any engines. This gives you more control over the process - you can run each stage of the workflow manually.</p><p>The basic process for integration testing is:</p><ol><li>(Optionally) import any desired index cases from CommCare.</li><li>Create an ECLRS file with necessary test data.</li><li>Extract the file with <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor</code></a>.</li><li>Process test results with <a href="NYSETL.Engines.E2.TestResultProcessor.html"><code class="inline">NYSETL.Engines.E2.TestResultProcessor</code></a>.</li><li>Load index cases to CommCare with <a href="NYSETL.Engines.E4.CommcareCaseLoader.html"><code class="inline">NYSETL.Engines.E4.CommcareCaseLoader</code></a>.</li></ol><p>You can run the entire process automatically with <a href="NYSETL.ViaductSupervisor.html#start_link/1"><code class="inline">NYSETL.ViaductSupervisor.start_link/1</code></a>. The only thing you'll need to manually do is extract the ECLRS file (because there will be no SQS event for <a href="NYSETL.Engines.E1.SQSTask.html"><code class="inline">NYSETL.Engines.E1.SQSTask</code></a> to read).</p><h2 id="county-setup" class="section-heading">
   <a href="#county-setup" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   County setup
 </h2>
@@ -80,25 +97,25 @@ nys_etl
   <a href="#partial-automation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Partial automation
 </h2>
-<p>It is probably easiest to manually import index cases from CommCare, extract an ECLRS file, and then let Viaduct handle the rest. This means running Oban and E3:</p><pre><code class="nohighlight makeup elixir"><span class="nc">Oban</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="3915544150-1">(</span><span class="nc">Application</span><span class="o">.</span><span class="n">get_env</span><span class="p" data-group-id="3915544150-2">(</span><span class="ss">:nys_etl</span><span class="p">,</span><span class="w"> </span><span class="nc">Oban</span><span class="p" data-group-id="3915544150-2">)</span><span class="p" data-group-id="3915544150-1">)</span><span class="w">
-</span><span class="nc">NYSETL.Engines.E2.TestResultProducer</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="3915544150-3">(</span><span class="p" data-group-id="3915544150-3">)</span><span class="w">
-</span><span class="nc">NYSETL.Engines.E3.Supervisor</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="3915544150-4">(</span><span class="p" data-group-id="3915544150-4">)</span></code></pre><h2 id="import-index-cases-from-commcare" class="section-heading">
+<p>It is probably easiest to manually import index cases from CommCare, extract an ECLRS file, and then let Viaduct handle the rest. This means running Oban and E3:</p><pre><code class="makeup elixir"><span class="nc">Oban</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="0302966515-1">(</span><span class="nc">Application</span><span class="o">.</span><span class="n">get_env</span><span class="p" data-group-id="0302966515-2">(</span><span class="ss">:nys_etl</span><span class="p">,</span><span class="w"> </span><span class="nc">Oban</span><span class="p" data-group-id="0302966515-2">)</span><span class="p" data-group-id="0302966515-1">)</span><span class="w">
+</span><span class="nc">NYSETL.Engines.E2.TestResultProducer</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="0302966515-3">(</span><span class="p" data-group-id="0302966515-3">)</span><span class="w">
+</span><span class="nc">NYSETL.Engines.E3.Supervisor</span><span class="o">.</span><span class="n">start_link</span><span class="p" data-group-id="0302966515-4">(</span><span class="p" data-group-id="0302966515-4">)</span></code></pre><h2 id="import-index-cases-from-commcare" class="section-heading">
   <a href="#import-index-cases-from-commcare" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Import index cases from CommCare
 </h2>
-<p>To manually import cases one at a time:</p><pre><code class="nohighlight makeup elixir"><span class="c1"># Get a reference to the county struct</span><span class="w">
+<p>To manually import cases one at a time:</p><pre><code class="makeup elixir"><span class="c1"># Get a reference to the county struct</span><span class="w">
 </span><span class="n">county</span><span class="w"> </span><span class="o">=</span><span class="w">
-  </span><span class="nc">NYSETL.Commcare.County</span><span class="o">.</span><span class="n">participating_counties</span><span class="p" data-group-id="5878985926-1">(</span><span class="p" data-group-id="5878985926-1">)</span><span class="w">
-  </span><span class="o">|&gt;</span><span class="w"> </span><span class="nc">Enum</span><span class="o">.</span><span class="n">find</span><span class="p" data-group-id="5878985926-2">(</span><span class="o">&amp;</span><span class="w"> </span><span class="ni">&amp;1</span><span class="o">.</span><span class="n">domain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;ny-integrations-cdcms&quot;</span><span class="p" data-group-id="5878985926-2">)</span><span class="w">
+  </span><span class="nc">NYSETL.Commcare.County</span><span class="o">.</span><span class="n">participating_counties</span><span class="p" data-group-id="7714919055-1">(</span><span class="p" data-group-id="7714919055-1">)</span><span class="w">
+  </span><span class="o">|&gt;</span><span class="w"> </span><span class="nc">Enum</span><span class="o">.</span><span class="n">find</span><span class="p" data-group-id="7714919055-2">(</span><span class="o">&amp;</span><span class="w"> </span><span class="ni">&amp;1</span><span class="o">.</span><span class="n">domain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;ny-integrations-cdcms&quot;</span><span class="p" data-group-id="7714919055-2">)</span><span class="w">
 
 </span><span class="c1"># Fetch the case</span><span class="w">
-</span><span class="p" data-group-id="5878985926-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">cc</span><span class="p" data-group-id="5878985926-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">NYSETL.Commcare.Api</span><span class="o">.</span><span class="n">get_case</span><span class="p" data-group-id="5878985926-4">(</span><span class="w">
+</span><span class="p" data-group-id="7714919055-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">cc</span><span class="p" data-group-id="7714919055-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">NYSETL.Commcare.Api</span><span class="o">.</span><span class="n">get_case</span><span class="p" data-group-id="7714919055-4">(</span><span class="w">
   </span><span class="ss">commcare_case_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;96204059-54b2-401d-b68e-db92030fda02&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">county_domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ny-integrations-cdcms&quot;</span><span class="w">
-</span><span class="p" data-group-id="5878985926-4">)</span><span class="w">
+</span><span class="p" data-group-id="7714919055-4">)</span><span class="w">
 
 </span><span class="c1"># Import the case data</span><span class="w">
-</span><span class="nc">NYSETL.Engines.E5.Processor</span><span class="o">.</span><span class="n">process</span><span class="p" data-group-id="5878985926-5">(</span><span class="ss">case</span><span class="p">:</span><span class="w"> </span><span class="n">cc</span><span class="p">,</span><span class="w"> </span><span class="ss">county</span><span class="p">:</span><span class="w"> </span><span class="n">county</span><span class="p" data-group-id="5878985926-5">)</span></code></pre><h2 id="create-an-eclrs-file" class="section-heading">
+</span><span class="nc">NYSETL.Engines.E5.Processor</span><span class="o">.</span><span class="n">process</span><span class="p" data-group-id="7714919055-5">(</span><span class="ss">case</span><span class="p">:</span><span class="w"> </span><span class="n">cc</span><span class="p">,</span><span class="w"> </span><span class="ss">county</span><span class="p">:</span><span class="w"> </span><span class="n">county</span><span class="p" data-group-id="7714919055-5">)</span></code></pre><h2 id="create-an-eclrs-file" class="section-heading">
   <a href="#create-an-eclrs-file" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Create an ECLRS file
 </h2>
@@ -106,36 +123,55 @@ nys_etl
   <a href="#extract-the-file" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Extract the file
 </h2>
-<p>Using <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html#extract!/1"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor.extract!/1</code></a> (with Oban running):</p><pre><code class="nohighlight makeup elixir"><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">extract!</span><span class="p" data-group-id="4486499783-1">(</span><span class="s">&quot;path/to/file.txt&quot;</span><span class="p" data-group-id="4486499783-1">)</span></code></pre><p>Using <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html#extract/1"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor.extract/1</code></a> (without Oban running):</p><pre><code class="nohighlight makeup elixir"><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">extract</span><span class="p" data-group-id="7381582669-1">(</span><span class="s">&quot;path/to/file.txt&quot;</span><span class="p" data-group-id="7381582669-1">)</span><span class="w">
-</span><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">wait</span><span class="p" data-group-id="7381582669-2">(</span><span class="p" data-group-id="7381582669-2">)</span><span class="w">
-</span><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">stop</span><span class="p" data-group-id="7381582669-3">(</span><span class="p" data-group-id="7381582669-3">)</span></code></pre><h2 id="process-test-result" class="section-heading">
+<p>Using <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html#extract!/1"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor.extract!/1</code></a> (with Oban running):</p><pre><code class="makeup elixir"><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">extract!</span><span class="p" data-group-id="1224949260-1">(</span><span class="s">&quot;path/to/file.txt&quot;</span><span class="p" data-group-id="1224949260-1">)</span></code></pre><p>Using <a href="NYSETL.Engines.E1.ECLRSFileExtractor.html#extract/1"><code class="inline">NYSETL.Engines.E1.ECLRSFileExtractor.extract/1</code></a> (without Oban running):</p><pre><code class="makeup elixir"><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">extract</span><span class="p" data-group-id="9997824910-1">(</span><span class="s">&quot;path/to/file.txt&quot;</span><span class="p" data-group-id="9997824910-1">)</span><span class="w">
+</span><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">wait</span><span class="p" data-group-id="9997824910-2">(</span><span class="p" data-group-id="9997824910-2">)</span><span class="w">
+</span><span class="nc">NYSETL.Engines.E1.ECLRSFileExtractor</span><span class="o">.</span><span class="n">stop</span><span class="p" data-group-id="9997824910-3">(</span><span class="p" data-group-id="9997824910-3">)</span></code></pre><h2 id="process-test-result" class="section-heading">
   <a href="#process-test-result" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Process test result
 </h2>
-<p>Using <code class="inline">NYSETL.Engines.E2.TestResultProcessor.perform/1</code>:</p><pre><code class="nohighlight makeup elixir"><span class="nc">NYSETL.Engines.E2.TestResultProcessor</span><span class="o">.</span><span class="n">process</span><span class="p" data-group-id="8759923708-1">(</span><span class="p" data-group-id="8759923708-2">%{</span><span class="ss">args</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8759923708-3">%{</span><span class="s">&quot;test_result_id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="8759923708-3">}</span><span class="p" data-group-id="8759923708-2">}</span><span class="p" data-group-id="8759923708-1">)</span></code></pre><h2 id="load-index-case-to-commcare" class="section-heading">
+<p>Using <code class="inline">NYSETL.Engines.E2.TestResultProcessor.perform/1</code>:</p><pre><code class="makeup elixir"><span class="nc">NYSETL.Engines.E2.TestResultProcessor</span><span class="o">.</span><span class="n">process</span><span class="p" data-group-id="2227364676-1">(</span><span class="p" data-group-id="2227364676-2">%{</span><span class="ss">args</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="2227364676-3">%{</span><span class="s">&quot;test_result_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="2227364676-3">}</span><span class="p" data-group-id="2227364676-2">}</span><span class="p" data-group-id="2227364676-1">)</span></code></pre><h2 id="load-index-case-to-commcare" class="section-heading">
   <a href="#load-index-case-to-commcare" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Load index case to CommCare
 </h2>
-<p>Using <code class="inline">NYSETL.Engines.E4.CommcareCaseLoader.perform/1</code>:</p><pre><code class="nohighlight makeup elixir"><span class="n">county</span><span class="w"> </span><span class="o">=</span><span class="w">
-  </span><span class="nc">NYSETL.Commcare.County</span><span class="o">.</span><span class="n">participating_counties</span><span class="p" data-group-id="4632793811-1">(</span><span class="p" data-group-id="4632793811-1">)</span><span class="w">
-  </span><span class="o">|&gt;</span><span class="w"> </span><span class="nc">Enum</span><span class="o">.</span><span class="n">find</span><span class="p" data-group-id="4632793811-2">(</span><span class="o">&amp;</span><span class="w"> </span><span class="ni">&amp;1</span><span class="o">.</span><span class="n">domain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;ny-integrations-cdcms&quot;</span><span class="p" data-group-id="4632793811-2">)</span><span class="w">
+<p>Using <code class="inline">NYSETL.Engines.E4.CommcareCaseLoader.perform/1</code>:</p><pre><code class="makeup elixir"><span class="n">county</span><span class="w"> </span><span class="o">=</span><span class="w">
+  </span><span class="nc">NYSETL.Commcare.County</span><span class="o">.</span><span class="n">participating_counties</span><span class="p" data-group-id="6826161760-1">(</span><span class="p" data-group-id="6826161760-1">)</span><span class="w">
+  </span><span class="o">|&gt;</span><span class="w"> </span><span class="nc">Enum</span><span class="o">.</span><span class="n">find</span><span class="p" data-group-id="6826161760-2">(</span><span class="o">&amp;</span><span class="w"> </span><span class="ni">&amp;1</span><span class="o">.</span><span class="n">domain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;ny-integrations-cdcms&quot;</span><span class="p" data-group-id="6826161760-2">)</span><span class="w">
 
-</span><span class="nc">NYSETL.Engines.E4.CommcareCaseLoader</span><span class="o">.</span><span class="n">perform</span><span class="p" data-group-id="4632793811-3">(</span><span class="p" data-group-id="4632793811-4">%{</span><span class="w">
-  </span><span class="ss">args</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="4632793811-5">%{</span><span class="w">
-    </span><span class="s">&quot;case_id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="s">&quot;96204059-54b2-401d-b68e-db92030fda02&quot;</span><span class="p">,</span><span class="w">
-    </span><span class="s">&quot;county_id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">county</span><span class="o">.</span><span class="n">fips</span><span class="w">
-  </span><span class="p" data-group-id="4632793811-5">}</span><span class="w">
-</span><span class="p" data-group-id="4632793811-4">}</span><span class="p" data-group-id="4632793811-3">)</span></code></pre>
+</span><span class="nc">NYSETL.Engines.E4.CommcareCaseLoader</span><span class="o">.</span><span class="n">perform</span><span class="p" data-group-id="6826161760-3">(</span><span class="p" data-group-id="6826161760-4">%{</span><span class="w">
+  </span><span class="ss">args</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6826161760-5">%{</span><span class="w">
+    </span><span class="s">&quot;case_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;96204059-54b2-401d-b68e-db92030fda02&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="s">&quot;county_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">county</span><span class="o">.</span><span class="n">fips</span><span class="w">
+  </span><span class="p" data-group-id="6826161760-5">}</span><span class="w">
+</span><span class="p" data-group-id="6826161760-4">}</span><span class="p" data-group-id="6826161760-3">)</span></code></pre>
+<div class="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="performance.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Performance statistics
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+  </div>
+</div>
+
       <footer class="footer">
+
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
-            <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.26.0) for the
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>.
           </span>
           <span class="line">
             Designed by
-            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire" translate="no">Friedel Ziegelmayer</a>.
           </span>
         </p>
         <p>
@@ -143,15 +179,11 @@ nys_etl
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
-          <button class="line footer-button night-mode-toggle">
-            Toggle night mode
-          </button>
           <button class="line footer-button display-quick-switch">
             Go to a HexDocs package
           </button>
-          <button class="line footer-button tooltips-toggle">
-            <span class="tooltips-option-disable">Disable tooltips</span>
-            <span class="tooltips-option-enable">Enable tooltips</span>
+          <button class="line footer-button display-settings">
+            Settings
           </button>
         </p>
       </footer>
