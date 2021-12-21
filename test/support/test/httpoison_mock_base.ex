@@ -124,6 +124,8 @@ defmodule NYSETL.Test.HTTPoisonMockBase do
       @impl true
       def request!(_, _, _, _, _), do: raise("unimplemented")
       @impl true
+      def request(_), do: raise("unimplemented")
+      @impl true
       def request(_, _), do: raise("unimplemented")
       @impl true
       def request(_, _, _), do: raise("unimplemented")

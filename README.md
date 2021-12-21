@@ -9,12 +9,13 @@ built on [CommCare](https://dimagi.com/commcare/) from [Dimagi](https://dimagi.c
 The development of _Epi Viaduct_ in NY and other jurisdictions is sponsored by [Resolve to Save Lives, an
 initiative of Vital Strategies](https://resolvetosavelives.org/).
 
+Documentation, including a technical overview of Viaduct's engines and performance statisctics, can be found at https://ratiopbc.com/epi-viaduct-nys/overview.html
+
 ## Usage
 
 The source code is published here to inspire others to do similar work, but it is not expected that the code be
 reusable in any other settings than those for which it was written.  Anyone interested in studying the code should
-be able to download it and run the test suite.  A [Technical Introduction](technical_introduction.md) is available
-for those wanting to become more familiar with the code.
+be able to download it and run the test suite.
 
 The software is being actively developed on MacOS and Linux, but it's probably not too hard to get it running under
 Windows, especially using WSL2.

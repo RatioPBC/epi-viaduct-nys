@@ -42,7 +42,19 @@ defmodule NYSETL.EndToEndTest do
 
   def start_pipelines(_context) do
     oban_env = Application.get_env(:nys_etl, Oban)
-    Application.put_env(:nys_etl, Oban, repo: NYSETL.Repo, queues: [default: 1, commcare: 1, backfillers: 1, eclrs: 1])
+
+    Application.put_env(:nys_etl, Oban,
+      engine: Oban.Pro.Queue.SmartEngine,
+      repo: NYSETL.Repo,
+      queues: [default: 1, commcare: 1, backfillers: 1, eclrs: 1],
+      plugins: [
+        Oban.Plugins.Gossip,
+        Oban.Pro.Plugins.BatchManager,
+        Oban.Pro.Plugins.Lifeline,
+        Oban.Web.Plugins.Stats,
+        Oban.Plugins.Repeater # Repeater is only needed because of SQL Sandbox in test mode
+      ]
+    )
 
     on_exit(fn ->
       Application.put_env(:nys_etl, Oban, oban_env)

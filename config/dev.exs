@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :ex_aws,
   session_token: [{:system, "AWS_SESSION_TOKEN"}, {:awscli, System.get_env("AWS_PROFILE"), 30}, :instance_role]
