@@ -94,6 +94,7 @@ defmodule NYSETL.MixProject do
 
   defp docs() do
     [
+      output: "docs",
       api_reference: false,
       main: "overview",
       assets: "guides/assets",

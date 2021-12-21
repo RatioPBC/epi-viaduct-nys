@@ -118,8 +118,8 @@ results. `NYSETL.Engines.E5.Processor` processes the cases according to the firs
     * Update the case with changes from CommCare, but ignore any new lab results.
 * A person exists that can be matched by dob + last_name + first_name:
     * Create an index case linked to the person and lab results linked to the index case.
-
-If no matching case or person exists, the data from CommCare is ignored.
+* If no matching case or person exists:
+    * Create a person, index case, and lab result record(s).
 
 Notes:
 
