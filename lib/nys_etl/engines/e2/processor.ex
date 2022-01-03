@@ -506,8 +506,8 @@ defmodule NYSETL.Engines.E2.Processor do
     |> Map.merge(to_index_case_data_county_block(commcare_county))
     |> Map.merge(to_index_case_data_person_block(test_result, external_id))
     |> Map.merge(to_index_case_data_rest(test_result))
-    |> with_index_case_data_complete_fields()
     |> with_reinfection_case_fields(reinfection_cases)
+    |> with_index_case_data_complete_fields()
   end
 
   defp with_reinfection_case_fields(data, []), do: data

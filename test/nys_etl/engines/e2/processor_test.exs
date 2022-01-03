@@ -2132,6 +2132,9 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         original_data,
         only: fields_to_copy
       )
+
+      assert reinfection_case.data["address_complete"] == "yes"
+      assert reinfection_case.data["has_phone_number"] == "yes"
     end
   end
 
