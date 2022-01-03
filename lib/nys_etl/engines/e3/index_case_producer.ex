@@ -28,7 +28,7 @@ defmodule NYSETL.Engines.E3.IndexCaseProducer do
     find_with_events_matching = Keyword.fetch!(opts, :find_with_events_matching)
     reject_with_events_matching = Keyword.fetch!(opts, :reject_with_events_matching)
     idle_timeout_ms = Keyword.get(opts, :idle_timeout_ms, 5_000)
-    :timer.send_interval(1000, self(), :poll)
+    :timer.send_interval(poll_interval(), self(), :poll)
 
     {:producer,
      new(
@@ -65,14 +65,21 @@ defmodule NYSETL.Engines.E3.IndexCaseProducer do
     {:noreply, test_results, state}
   end
 
-  @batch_size 10
   def handle_info(:poll, state) do
     state.most_recent_demand_at
     |> DateTime.compare(DateTime.utc_now() |> DateTime.add(-state.idle_timeout_ms, :millisecond))
     |> case do
-      :lt -> handle_demand(@batch_size, %{state | last_seen_id: 0})
+      :lt -> handle_demand(batch_size(), %{state | last_seen_id: 0})
       _ -> {:noreply, [], state}
     end
+  end
+
+  def batch_size() do
+    Application.get_env(:nys_etl, :e3_producer_batch_size)
+  end
+
+  def poll_interval() do
+    Application.get_env(:nys_etl, :e3_producer_poll_interval)
   end
 
   @update_id_sql """

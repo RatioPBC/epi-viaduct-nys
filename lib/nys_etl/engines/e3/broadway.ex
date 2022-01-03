@@ -41,7 +41,11 @@ defmodule NYSETL.Engines.E3.Broadway do
         transformer: {__MODULE__, :transform, []}
       ],
       processors: [
-        default: [concurrency: 1]
+        default: [
+          concurrency: 1,
+          min_demand: min_demand(),
+          max_demand: max_demand()
+        ]
       ]
     )
   end
@@ -66,5 +70,13 @@ defmodule NYSETL.Engines.E3.Broadway do
     :telemetry.execute([:loader, :commcare, :enqueued], %{count: 1})
 
     message
+  end
+
+  def min_demand do
+    Application.get_env(:nys_etl, :e3_consumer_min_demand)
+  end
+
+  def max_demand do
+    Application.get_env(:nys_etl, :e3_consumer_max_demand)
   end
 end
