@@ -16,7 +16,7 @@ defmodule NYSETL.MixProject do
       start_permanent: [:prod, :dry_run] |> Enum.member?(Mix.env()),
       version: @version,
       test_coverage: [
-        summary: [ threshold: 0 ]
+        summary: [threshold: 0]
       ]
     ]
   end
@@ -96,7 +96,6 @@ defmodule NYSETL.MixProject do
     [
       output: "docs",
       api_reference: false,
-      main: "overview",
       assets: "guides/assets",
       extra_section: "GUIDES",
       extras: extras(),
