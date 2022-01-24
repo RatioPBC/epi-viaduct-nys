@@ -448,7 +448,7 @@ defmodule NYSETL.ECLRSTest do
       context.test_result
       |> Repo.preload(:events)
       |> Map.get(:events)
-      |> Extra.Enum.pluck(:type)
+      |> Euclid.Enum.pluck(:type)
       |> assert_eq(["processed"])
     end
 
@@ -460,7 +460,7 @@ defmodule NYSETL.ECLRSTest do
       context.test_result
       |> Repo.preload(:events)
       |> Map.get(:events)
-      |> Extra.Enum.pluck(:data)
+      |> Euclid.Enum.pluck(:data)
       |> assert_eq([%{"reason" => "ugly"}])
     end
   end

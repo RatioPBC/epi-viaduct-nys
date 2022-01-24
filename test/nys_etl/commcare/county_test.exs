@@ -131,7 +131,7 @@ defmodule NYSETL.Commcare.CountyTest do
   describe "participating_counties" do
     test "returns list of counties where is_participating=yes" do
       County.participating_counties()
-      |> Extra.Enum.pluck(:domain)
+      |> Euclid.Enum.pluck(:domain)
       |> assert_eq(~w{
         uk-statewide-cdcms
         sw-yggdrasil-cdcms
@@ -140,7 +140,7 @@ defmodule NYSETL.Commcare.CountyTest do
 
       domains =
         County.participating_counties(from_api: true)
-        |> Extra.Enum.pluck(:domain)
+        |> Euclid.Enum.pluck(:domain)
 
       assert Enum.member?(domains, "ny-rensselaer-cdcms")
     end

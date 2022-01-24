@@ -6,7 +6,6 @@ defmodule NYSETL.Engines.E1.Broadway do
   use Broadway
 
   alias Broadway.Message
-  alias Euclid.Extra
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E1
   require Logger
@@ -95,7 +94,7 @@ defmodule NYSETL.Engines.E1.Broadway do
 
   def handle_batch(:update, messages, _batch_info, %{file: file}) do
     messages
-    |> Extra.Enum.pluck(:data)
+    |> Euclid.Enum.pluck(:data)
     |> ECLRS.update_last_seen_file(file)
 
     messages

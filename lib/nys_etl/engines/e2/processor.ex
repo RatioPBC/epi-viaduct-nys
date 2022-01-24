@@ -92,8 +92,8 @@ defmodule NYSETL.Engines.E2.Processor do
 
   def diff(a, b, opts) do
     prefer_right = opts |> Keyword.get(:prefer_right, [])
-    a = Euclid.Extra.Map.stringify_keys(a)
-    b = Euclid.Extra.Map.stringify_keys(b)
+    a = Euclid.Map.stringify_keys(a)
+    b = Euclid.Map.stringify_keys(b)
     a_set = MapSet.new(a)
     b_set = MapSet.new(b)
 
@@ -265,7 +265,7 @@ defmodule NYSETL.Engines.E2.Processor do
         _ ->
           to_index_case_data(test_result, person, commcare_county)
       end
-      |> Euclid.Extra.Map.stringify_keys()
+      |> Euclid.Map.stringify_keys()
 
     prefer_right_fields =
       if repeat_type == :reactivation do
@@ -324,7 +324,7 @@ defmodule NYSETL.Engines.E2.Processor do
 
   defp create_index_case(person, test_result, commcare_county, reinfection_cases \\ []) do
     %{
-      data: to_index_case_data(test_result, person, commcare_county, reinfection_cases) |> Euclid.Extra.Map.stringify_keys(),
+      data: to_index_case_data(test_result, person, commcare_county, reinfection_cases) |> Euclid.Map.stringify_keys(),
       county_id: commcare_county.fips,
       person_id: person.id
     }
@@ -382,7 +382,7 @@ defmodule NYSETL.Engines.E2.Processor do
   end
 
   defp update_lab_result(lab_result, index_case, test_result, commcare_county) do
-    new_data = to_lab_result_data(index_case, test_result, commcare_county) |> Euclid.Extra.Map.stringify_keys()
+    new_data = to_lab_result_data(index_case, test_result, commcare_county) |> Euclid.Map.stringify_keys()
     merged = new_data |> NYSETL.Extra.Map.merge_empty_fields(lab_result.data)
     {additions, updates} = lab_result.data |> diff(merged)
     data = lab_result.data |> Map.merge(additions)
@@ -437,7 +437,7 @@ defmodule NYSETL.Engines.E2.Processor do
 
   defp address(%{patient_address_1: patient_address_1, patient_city: patient_city, patient_zip: patient_zip}, state) do
     [patient_address_1, patient_city, state, patient_zip]
-    |> Euclid.Extra.Enum.compact()
+    |> Euclid.Enum.compact()
     |> Enum.join(", ")
   end
 
@@ -476,7 +476,7 @@ defmodule NYSETL.Engines.E2.Processor do
 
   defp full_name(%{patient_name_first: first, patient_name_last: last}) do
     [first, last]
-    |> Euclid.Extra.Enum.compact()
+    |> Euclid.Enum.compact()
     |> Enum.join(" ")
   end
 
@@ -518,7 +518,7 @@ defmodule NYSETL.Engines.E2.Processor do
     fields_to_copy =
       most_recent_case.data
       |> Map.take(@reinfection_fields)
-      |> Euclid.Extra.Map.atomize_keys()
+      |> Euclid.Map.atomize_keys()
 
     fields_to_copy
     |> NYSETL.Extra.Map.merge_empty_fields(data)
@@ -651,9 +651,9 @@ defmodule NYSETL.Engines.E2.Processor do
 
   def compact_join(list, joiner) do
     list
-    |> Euclid.Extra.Enum.compact()
+    |> Euclid.Enum.compact()
     |> Enum.join(joiner)
-    |> Euclid.Exists.presence()
+    |> Euclid.Term.presence()
   end
 
   def initials(<<a::binary-size(1), _::binary>>, <<b::binary-size(1), _::binary>>), do: a <> b

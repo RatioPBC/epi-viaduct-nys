@@ -10,8 +10,7 @@ defmodule NYSETL.Engines.E5.Processor do
     * create a Person, IndexCase and LabResult record(s)
   """
 
-  alias Euclid.Exists
-  alias Euclid.Extra
+  alias Euclid.Term
   alias NYSETL.Commcare
 
   require Logger
@@ -218,9 +217,9 @@ defmodule NYSETL.Engines.E5.Processor do
 
   def patient_key_from_lab_result(lab_results) do
     lab_results
-    |> Extra.Enum.pluck("properties")
-    |> Extra.Enum.pluck("external_id")
-    |> Extra.Enum.compact()
+    |> Euclid.Enum.pluck("properties")
+    |> Euclid.Enum.pluck("external_id")
+    |> Euclid.Enum.compact()
     |> List.first()
     |> case do
       nil ->
@@ -248,7 +247,7 @@ defmodule NYSETL.Engines.E5.Processor do
     |> Map.values()
     |> Enum.filter(fn child_cases ->
       child_cases["properties"]["case_type"] == "lab_result" &&
-        Exists.present?(child_cases["properties"]["accession_number"])
+        Term.present?(child_cases["properties"]["accession_number"])
     end)
   end
 

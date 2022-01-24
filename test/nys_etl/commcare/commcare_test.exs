@@ -315,7 +315,7 @@ defmodule NYSETL.CommcareTest do
       assert {:ok, index_cases} = Commcare.get_index_cases(person, county_id: 71)
 
       index_cases
-      |> Euclid.Extra.Enum.tids()
+      |> Euclid.Enum.tids()
       |> assert_eq(~w(first second))
     end
   end

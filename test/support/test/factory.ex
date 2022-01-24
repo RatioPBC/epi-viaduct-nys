@@ -1,9 +1,7 @@
 defmodule NYSETL.Test.Factory do
-  alias Euclid.Extra
-
   def lab_result(index_case, attrs \\ []) do
-    defaults = %{accession_number: Euclid.Extra.Integer.rand() |> to_string(), data: %{}, index_case_id: index_case.id}
-    defaults |> Extra.Map.merge(attrs)
+    defaults = %{accession_number: Euclid.Random.integer() |> to_string(), data: %{}, index_case_id: index_case.id}
+    defaults |> Euclid.Map.merge(attrs)
   end
 
   def person(attrs \\ []),

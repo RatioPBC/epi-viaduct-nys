@@ -7,7 +7,7 @@ defmodule NYSETL.Engines.E4.CaseTransferChain do
 
   import Ecto.Query, only: [from: 1, where: 3]
 
-  alias Euclid.Exists
+  alias Euclid.Term
   alias NYSETL.Commcare.{Api, County}
   alias NYSETL.Engines.E4.{CaseIdentifier, PatientCaseData}
   alias NYSETL.Monitoring.Oban.ErrorReporter
@@ -189,7 +189,7 @@ defmodule NYSETL.Engines.E4.CaseTransferChain do
   end
 
   def get_transfer_destination_county(patient_case_data, current_domain, transfer_chain) do
-    if Exists.present?(patient_case_data.transfer_destination_county_id) do
+    if Term.present?(patient_case_data.transfer_destination_county_id) do
       case County.get(fips: patient_case_data.transfer_destination_county_id) do
         {:ok, %{domain: new_target_county_domain} = county} ->
           cond do

@@ -1,6 +1,5 @@
 defmodule NYSETL.Engines.E4.Data do
   alias NYSETL.Commcare
-  alias Euclid.Extra
 
   @keys_to_drop ~w{
     assigned_to_primary_checkin_case_id
@@ -13,7 +12,7 @@ defmodule NYSETL.Engines.E4.Data do
 
   def from_index_case(index_case, county_location_id, date_modified) do
     lab_results = Commcare.get_lab_results(index_case)
-    date_modified_as_iso8601 = date_modified |> Extra.DateTime.to_iso8601(:rounded)
+    date_modified_as_iso8601 = date_modified |> Euclid.DateTime.to_iso8601(:rounded)
 
     data =
       index_case.data

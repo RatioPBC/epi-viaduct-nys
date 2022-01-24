@@ -158,7 +158,7 @@ defmodule NYSETL.Engines.E3.IndexCaseProducerTest do
 
       IndexCaseProducer.unprocessed_index_cases(10, ~w{index_case_created index_case_updated lab_result_created lab_result_updated}, [])
       |> Repo.all()
-      |> Euclid.Extra.Enum.tids()
+      |> Euclid.Enum.tids()
       |> assert_eq(~w{ic-created ic-updated lr-created lr-updated})
     end
 
@@ -196,7 +196,7 @@ defmodule NYSETL.Engines.E3.IndexCaseProducerTest do
         send_to_commcare_succeeded
       })
       |> Repo.all()
-      |> Euclid.Extra.Enum.tids()
+      |> Euclid.Enum.tids()
       |> assert_eq(~w{lr-updated})
     end
 
@@ -218,7 +218,7 @@ defmodule NYSETL.Engines.E3.IndexCaseProducerTest do
         send_to_commcare_succeeded
       })
       |> Repo.all()
-      |> Euclid.Extra.Enum.tids()
+      |> Euclid.Enum.tids()
       |> assert_eq(~w{updated})
     end
   end

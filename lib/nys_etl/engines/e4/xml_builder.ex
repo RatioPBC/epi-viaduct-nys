@@ -34,7 +34,7 @@ defmodule NYSETL.Engines.E4.XmlBuilder do
         lab_results |> Enum.map(fn l -> lab_result(index_case.case_id, l) end),
         meta(index_case.date_modified, envelope_id)
       ]
-      |> Enum.filter(&Euclid.Exists.present?/1)
+      |> Enum.filter(&Euclid.Term.present?/1)
     )
     |> document()
     |> generate()
@@ -42,7 +42,7 @@ defmodule NYSETL.Engines.E4.XmlBuilder do
 
   defp build_fields(map) do
     map
-    |> Enum.filter(fn {_field_name, value} -> Euclid.Exists.present?(value) end)
+    |> Enum.filter(fn {_field_name, value} -> Euclid.Term.present?(value) end)
     |> Enum.map(fn {field_name, value} -> element(:"n0:#{field_name}", value) end)
     |> Enum.sort()
   end

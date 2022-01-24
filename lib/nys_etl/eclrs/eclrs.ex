@@ -4,7 +4,6 @@ defmodule NYSETL.ECLRS do
   """
 
   import Ecto.Query
-  alias Euclid.Extra
   alias NYSETL.ECLRS
   alias NYSETL.Repo
 
@@ -142,7 +141,7 @@ defmodule NYSETL.ECLRS do
   end
 
   def update_last_seen_file(abouts, file) do
-    ids = abouts |> Extra.Enum.pluck(:id)
+    ids = abouts |> Euclid.Enum.pluck(:id)
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     from(about in ECLRS.About, where: about.id in ^ids)

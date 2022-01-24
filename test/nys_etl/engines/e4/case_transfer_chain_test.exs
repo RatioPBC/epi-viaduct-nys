@@ -6,7 +6,7 @@ defmodule NYSETL.Engines.E4.CaseTransferChainTest do
   import Mox
   setup :verify_on_exit!
 
-  alias Euclid.Exists
+  alias Euclid.Term
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E4.{CaseIdentifier, CaseTransferChain, PatientCaseData}
@@ -219,14 +219,14 @@ defmodule NYSETL.Engines.E4.CaseTransferChainTest do
         }
 
         result =
-          if Exists.presence(case[:transfer_destination_county_id]) do
+          if Term.presence(case[:transfer_destination_county_id]) do
             put_in(result, ["properties", "transfer_destination_county_id"], case[:transfer_destination_county_id])
           else
             result
           end
 
         result =
-          if Exists.presence(case[:transfer_source_case_id]) do
+          if Term.presence(case[:transfer_source_case_id]) do
             put_in(result, ["properties", "transfer_source_case_id"], case[:transfer_source_case_id])
           else
             result

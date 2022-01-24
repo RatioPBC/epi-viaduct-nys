@@ -100,8 +100,8 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
 
           assert %{type: "updated_from_commcare"} = updated_from_commcare
 
-          assert Euclid.Exists.present?(update_event.data["response"])
-          assert Euclid.Exists.present?(update_event.data["timestamp"])
+          assert Euclid.Term.present?(update_event.data["response"])
+          assert Euclid.Term.present?(update_event.data["timestamp"])
           assert update_event.data["action"] == "update"
           assert update_event.stash == xml
       after
@@ -168,8 +168,8 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
         {:xml, xml} ->
           %Commcare.IndexCase{events: [event]} = Repo.preload(index_case, :events)
 
-          assert Euclid.Exists.present?(event.data["response"])
-          assert Euclid.Exists.present?(event.data["timestamp"])
+          assert Euclid.Term.present?(event.data["response"])
+          assert Euclid.Term.present?(event.data["timestamp"])
           assert event.data["action"] == "create"
           assert event.stash == xml
       after

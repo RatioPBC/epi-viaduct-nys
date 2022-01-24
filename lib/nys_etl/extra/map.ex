@@ -3,7 +3,7 @@ defmodule NYSETL.Extra.Map do
   Extra shared functions for interacting with `Map` data structures.
   """
 
-  alias Euclid.Exists
+  alias Euclid.Term
 
   @doc """
   Merge map b into map a, where only values in map a that are not
@@ -26,7 +26,7 @@ defmodule NYSETL.Extra.Map do
   def merge_empty_fields(a, b) when is_map(a) and is_map(b) do
     a
     |> Map.merge(b, fn _, left, right ->
-      (Exists.present?(left) && left) || right
+      (Term.present?(left) && left) || right
     end)
   end
 end

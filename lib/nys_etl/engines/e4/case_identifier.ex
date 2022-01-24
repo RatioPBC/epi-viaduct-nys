@@ -1,7 +1,7 @@
 defmodule NYSETL.Engines.E4.CaseIdentifier do
   defstruct ~w{case_id county_domain county_id external_id transfer_source_case_id}a
 
-  alias Euclid.Exists
+  alias Euclid.Term
   alias NYSETL.Commcare
   alias NYSETL.Repo
 
@@ -9,7 +9,7 @@ defmodule NYSETL.Engines.E4.CaseIdentifier do
     map_without_empty_values =
       data
       |> Enum.into(%{})
-      |> Enum.map(fn {k, v} -> {k, Exists.presence(v)} end)
+      |> Enum.map(fn {k, v} -> {k, Term.presence(v)} end)
       |> Map.new()
 
     struct!(__MODULE__, map_without_empty_values)

@@ -167,7 +167,7 @@ defmodule NYSETL.EndToEndTest do
     assert NYSETL.Commcare.Person
            |> Ecto.Query.order_by(asc: :name_last)
            |> Repo.all()
-           |> Extra.Enum.pluck([:dob, :name_last, :name_first, :patient_keys]) == people_attrs
+           |> Euclid.Enum.pluck([:dob, :name_last, :name_first, :patient_keys]) == people_attrs
   end
 
   def index_cases_created() do

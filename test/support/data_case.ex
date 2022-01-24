@@ -24,7 +24,7 @@ defmodule NYSETL.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Euclid.Test.Extra.Assertions
+      import Euclid.Assertions
       import NYSETL.DataCase
       import NYSETL.Test.Extra.Assertions
       import NYSETL.Test.Macros

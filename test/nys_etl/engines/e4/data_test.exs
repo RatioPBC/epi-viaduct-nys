@@ -36,7 +36,7 @@ defmodule NYSETL.Engines.E4.DataTest do
         |> Commcare.create_lab_result()
 
       now = DateTime.utc_now()
-      now_as_string = now |> Extra.DateTime.to_iso8601(:rounded)
+      now_as_string = now |> Euclid.DateTime.to_iso8601(:rounded)
       today_as_string = now |> DateTime.to_date() |> Date.to_iso8601()
 
       Data.from_index_case(index_case, "county-location-id", now)
