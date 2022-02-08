@@ -63,7 +63,6 @@ from
 
 ## Uploading to CommCare
 
-`NYSETL.Engines.E3.Broadway` identifies any cases that need to be uploaded to CommCare. `NYSETL.Engines.E4.CommcareCaseLoader.perform/1` uploads changed index case data.
 
 **Average time to upload**: 3.5 seconds (109 seconds standard deviation)
 

@@ -20,12 +20,11 @@ Make sure there's a county record that has the ID corresponding to the county co
 
 ## Partial automation
 
-It is probably easiest to manually import index cases from CommCare, extract an ECLRS file, and then let Viaduct handle the rest. This means running Oban and E3:
+It is probably easiest to manually import index cases from CommCare, extract an ECLRS file, and then let Viaduct handle the rest. This means running Oban:
 
 ```elixir
 Oban.start_link(Application.get_env(:nys_etl, Oban))
 NYSETL.Engines.E2.TestResultProducer.start_link()
-NYSETL.Engines.E3.Supervisor.start_link()
 ```
 
 ## Import index cases from CommCare

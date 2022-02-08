@@ -5,8 +5,9 @@ defmodule NYSETL.Engines.E2.Test do
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E2.{TestResultProducer, TestResultProcessor}
 
+  setup :start_supervised_oban
+
   setup do
-    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
     {:ok, _} = start_supervised(TestResultProducer)
     {:ok, _county} = ECLRS.find_or_create_county(42)
     :ok

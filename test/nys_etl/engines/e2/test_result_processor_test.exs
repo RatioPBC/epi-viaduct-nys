@@ -7,10 +7,9 @@ defmodule NYSETL.Engines.E2.TestResultProcessorTest do
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E2.TestResultProcessor
 
-  setup :mock_county_list
+  setup [:mock_county_list, :start_supervised_oban]
 
   setup do
-    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
     ECLRS.find_or_create_county(1111)
     {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
     %{eclrs_file: file}
@@ -27,7 +26,7 @@ defmodule NYSETL.Engines.E2.TestResultProcessorTest do
            ] = all_enqueued(worker: TestResultProcessor)
   end
 
-  test "creates a processed event for a successful test result", context do
+  test "creates a processed event, enqueued event, and CommcareCaseLoader for a successful test result", context do
     {:ok, test_result} = test_result_attrs(county_id: 1111, file_id: context.eclrs_file.id, tid: "no-events") |> ECLRS.create_test_result()
     assert :ok = perform_job(TestResultProcessor, %{"test_result_id" => test_result.id})
 

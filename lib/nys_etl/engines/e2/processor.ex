@@ -17,6 +17,7 @@ defmodule NYSETL.Engines.E2.Processor do
 
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
+  alias NYSETL.Engines.E4.CommcareCaseLoader
   alias NYSETL.Format
 
   require Logger
@@ -30,7 +31,7 @@ defmodule NYSETL.Engines.E2.Processor do
       person
       |> find_or_create_index_cases(test_result, county)
       |> Enum.map(&process_one(&1, test_result, county))
-      |> maybe_register_summary_event(test_result)
+      |> register_summary_event(test_result)
 
       :ok
     else
@@ -68,14 +69,25 @@ defmodule NYSETL.Engines.E2.Processor do
 
   defp process_one({ic_creation_status, index_case}, test_result, county) do
     {:ok, lr_creation_status} = create_or_update_lab_result(index_case, test_result, county)
-    {ic_creation_status, lr_creation_status}
+    {ic_creation_status, lr_creation_status, index_case, county}
   end
 
-  defp maybe_register_summary_event(list, test_result) do
-    if Enum.all?(list, &(&1 == {:untouched, :untouched})) do
-      {:ok, _} = ECLRS.save_event(test_result, "no_new_information")
+  defp register_summary_event(list, test_result) do
+    list
+    |> Enum.filter(&touched?/1)
+    |> case do
+      [] ->
+        {:ok, _} = ECLRS.save_event(test_result, "no_new_information")
+
+      touched ->
+        Enum.each(touched, fn {_, _, index_case, county} ->
+          CommcareCaseLoader.enqueue(index_case, county)
+        end)
     end
   end
+
+  defp touched?({:untouched, :untouched, _index_case, _county}), do: false
+  defp touched?({_, _, _index_case, _county}), do: true
 
   @doc """
   Returns a tuple where the first element is a map of additions and the second element is a map of updated values.

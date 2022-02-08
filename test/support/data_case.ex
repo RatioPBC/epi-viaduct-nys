@@ -36,6 +36,11 @@ defmodule NYSETL.DataCase do
       require Logger
 
       setup :verify_on_exit!
+
+      def start_supervised_oban(_context) do
+        {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
+        :ok
+      end
     end
   end
 

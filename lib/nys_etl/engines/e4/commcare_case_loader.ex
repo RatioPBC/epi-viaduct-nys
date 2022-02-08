@@ -3,7 +3,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   Runs in Oban to put data about an IndexCase record into CommCare.
   """
 
-  use Oban.Worker, queue: :commcare
+  use Oban.Worker, queue: :commcare, unique: [period: :infinity, states: [:available, :scheduled, :executing, :retryable]]
 
   require Logger
 
@@ -11,6 +11,15 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   alias NYSETL.Commcare.County
   alias NYSETL.Engines.E4.{CaseIdentifier, CaseTransferChain, Data, Diff, Transfer, XmlBuilder}
   alias NYSETL.Monitoring.Oban.ErrorReporter
+
+  def enqueue(index_case, county) do
+    Commcare.save_event(index_case, "send_to_commcare_enqueued")
+
+    new(%{"case_id" => index_case.case_id, "county_id" => county.fips})
+    |> Oban.insert!()
+
+    :telemetry.execute([:loader, :commcare, :enqueued], %{count: 1})
+  end
 
   @impl Oban.Worker
   def timeout(_job), do: :timer.seconds(30)
@@ -88,17 +97,13 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
       :telemetry.execute([:loader, :commcare, :transfer, :created_locally], %{count: 1})
 
       Logger.info(
-        "[#{__MODULE__}] case_id=#{index_case.case_id} in commcare domain=#{source_domain} was transferred to case_id=#{
-          destination_index_case.case_id
-        } in commcare domain=#{destination_domain}. Creating new index_case."
+        "[#{__MODULE__}] case_id=#{index_case.case_id} in commcare domain=#{source_domain} was transferred to case_id=#{destination_index_case.case_id} in commcare domain=#{destination_domain}. Creating new index_case."
       )
     else
       :telemetry.execute([:loader, :commcare, :transfer, :already_exists_locally], %{count: 1})
 
       Logger.info(
-        "[#{__MODULE__}] case_id=#{index_case.case_id} in commcare domain=#{source_domain} was transferred to case_id=#{
-          destination_index_case.case_id
-        } in commcare domain=#{destination_domain}. Updating index_case."
+        "[#{__MODULE__}] case_id=#{index_case.case_id} in commcare domain=#{source_domain} was transferred to case_id=#{destination_index_case.case_id} in commcare domain=#{destination_domain}. Updating index_case."
       )
     end
 

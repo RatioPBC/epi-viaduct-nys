@@ -1,15 +1,17 @@
 defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
   use NYSETL.DataCase, async: true
+  use Oban.Testing, repo: NYSETL.Repo
 
   import NYSETL.Test.TestHelpers
   import ExUnit.CaptureLog
   import Mox
-  setup :verify_on_exit!
 
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E4.CommcareCaseLoader
   alias NYSETL.Test
+
+  setup [:verify_on_exit!, :start_supervised_oban]
 
   def event_data(schema, name) do
     schema
@@ -17,6 +19,26 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
     |> Map.get(:events)
     |> Enum.find(fn e -> e.type == name end)
     |> Map.get(:data)
+  end
+
+  test "is unique across case_id and county_id" do
+    county_1_fips = Test.Fixtures.test_county_1_fips()
+    county_2_fips = Test.Fixtures.test_county_2_fips()
+
+    Enum.each(["abc", "def", "abc", "def"], fn case_id ->
+      Enum.each([county_1_fips, county_2_fips], fn county_id ->
+        %{"case_id" => case_id, "county_id" => county_id}
+        |> CommcareCaseLoader.new()
+        |> Oban.insert!()
+      end)
+    end)
+
+    assert [
+             %Oban.Job{args: %{"case_id" => "def", "county_id" => county_2_fips}},
+             %Oban.Job{args: %{"case_id" => "def", "county_id" => county_1_fips}},
+             %Oban.Job{args: %{"case_id" => "abc", "county_id" => county_2_fips}},
+             %Oban.Job{args: %{"case_id" => "abc", "county_id" => county_1_fips}}
+           ] = all_enqueued(worker: CommcareCaseLoader)
   end
 
   describe "perform" do

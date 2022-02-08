@@ -56,11 +56,7 @@ config :nys_etl,
   oban_error_reporter_attempt_threshold: 4,
   start_viaduct_workers: true,
   use_commcare_county_list: false,
-  sqs_queue_url: System.get_env("VIADUCT_SQS_QUEUE_URL"),
-  e3_producer_poll_interval: 30_000,
-  e3_producer_batch_size: 10,
-  e3_consumer_min_demand: 5,
-  e3_consumer_max_demand: 100
+  sqs_queue_url: System.get_env("VIADUCT_SQS_QUEUE_URL")
 
 # Configures the endpoint
 config :nys_etl, NYSETLWeb.Endpoint,

@@ -2,11 +2,14 @@ defmodule NYSETL.BackfillersTest do
   use NYSETL.DataCase, async: false
   use Oban.Testing, repo: NYSETL.Repo
 
+  require Ecto.Query
+
   alias NYSETL.Backfillers
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E1
   alias NYSETL.Engines.E1.ECLRSFileExtractor
-  require Ecto.Query
+
+  setup :start_supervised_oban
 
   setup do
     E1.Cache.clear()
@@ -15,7 +18,6 @@ defmodule NYSETL.BackfillersTest do
       E1.Cache.clear()
     end)
 
-    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
     :ok
   end
 

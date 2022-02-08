@@ -7,10 +7,10 @@ defmodule NYSETL.Engines.E1.ECLRSFileExtractorTest do
   alias NYSETL.Engines.E1.ECLRSFileExtractor
   alias NYSETL.Engines.E2
 
+  setup :start_supervised_oban
+
   setup do
     E1.Cache.clear()
-
-    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
 
     on_exit(fn ->
       E1.Cache.clear()

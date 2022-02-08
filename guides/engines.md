@@ -73,18 +73,6 @@ Notes:
 * For historical reasons, Engine 2 borrows the `NYSETL.Engines.E1.Cache` library from Engine 1.
 * First names are split on spaces, and the first part gets used. e.g. a first name of "Mary Ann" would match on "Mary".
 
-## E3: CommCare Enqueuer
-
-`NYSETL.Engines.E3.*`: _A Broadway pipeline that runs continuously._
-
-`NYSETL.Engines.E3.IndexCaseProducer` queries the database for index cases that have not been enqueued since they were last
-updated.  All such index cases are enqueued in Oban for processing by `NYSETL.Engines.E4.CommcareCaseLoader`.
-
-Notes:
-
-* While idling, the producer polls the database every 5 seconds for enqueueable index cases.  While processing, it
-  polls every second or when requested by Broadway.
-
 ## E4: CommCare Case Loader
 
 `NYSETL.Engines.E4.*`: _An Oban Worker that is retried up to 20 times over a number of days._

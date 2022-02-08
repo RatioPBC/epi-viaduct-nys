@@ -1,17 +1,21 @@
 defmodule NYSETL.Engines.E2.ProcessorTest do
   use NYSETL.DataCase, async: false
+  use Oban.Testing, repo: NYSETL.Repo
 
   import ExUnit.CaptureLog
   import NYSETL.Test.TestHelpers
   import Mox
+
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
+  alias NYSETL.Engines.E2
+  alias NYSETL.Engines.E4.CommcareCaseLoader
   alias NYSETL.Format
   alias NYSETL.Test.Fixtures
-  alias NYSETL.Engines.E2
 
   setup :verify_on_exit!
   setup :mock_county_list
+  setup :start_supervised_oban
 
   describe "process" do
     setup :setup_defaults
@@ -101,7 +105,14 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       donny = donny |> Repo.preload(index_cases: [:lab_results])
 
       [index_case] = donny.index_cases
-      assert_events(index_case, ["index_case_created", "lab_result_created"])
+
+      assert_events(index_case, ["index_case_created", "lab_result_created", "send_to_commcare_enqueued"])
+
+      index_case_id = index_case.case_id
+
+      assert [
+               %Oban.Job{args: %{"case_id" => ^index_case_id, "county_id" => "1111"}}
+             ] = all_enqueued(worker: CommcareCaseLoader)
 
       index_case
       |> Map.get(:data)
@@ -259,9 +270,20 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert_events(early_test_result, ~w(person_matched
         index_case_updated index_case_updated index_case_updated
         lab_result_created lab_result_created lab_result_created))
-      assert_events(index_case_1, ~w(index_case_updated lab_result_created))
-      assert_events(index_case_2, ~w(index_case_updated lab_result_created))
-      assert_events(index_case_3, ~w(index_case_updated lab_result_created))
+
+      assert_events(index_case_1, ~w(index_case_updated lab_result_created send_to_commcare_enqueued))
+      assert_events(index_case_2, ~w(index_case_updated lab_result_created send_to_commcare_enqueued))
+      assert_events(index_case_3, ~w(index_case_updated lab_result_created send_to_commcare_enqueued))
+
+      index_case_1_case_id = index_case_1.case_id
+      index_case_2_case_id = index_case_2.case_id
+      index_case_3_case_id = index_case_3.case_id
+
+      assert [
+               %Oban.Job{args: %{"case_id" => ^index_case_3_case_id, "county_id" => "1111"}},
+               %Oban.Job{args: %{"case_id" => ^index_case_2_case_id, "county_id" => "1111"}},
+               %Oban.Job{args: %{"case_id" => ^index_case_1_case_id, "county_id" => "1111"}}
+             ] = all_enqueued(worker: CommcareCaseLoader)
     end
 
     """
@@ -789,7 +811,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         "test_type" => nil
       })
 
-      assert_events(index_case, ~w(index_case_updated lab_result_updated))
+      assert_events(index_case, ~w(index_case_updated lab_result_updated send_to_commcare_enqueued))
       assert_events(test_result, ~w(person_matched index_case_updated lab_result_updated))
     end
 
@@ -854,7 +876,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert_eq(lab_result1.data["laboratory"], "Some Hospital")
       assert_eq(lab_result2.data["laboratory"], "Some Hospital")
 
-      assert_events(index_case, ["index_case_updated", "lab_result_updated", "lab_result_updated"])
+      assert_events(index_case, ["index_case_updated", "lab_result_updated", "lab_result_updated", "send_to_commcare_enqueued"])
       assert_events(test_result, ["person_matched", "index_case_updated", "lab_result_updated", "lab_result_updated"])
     end
 
@@ -1042,7 +1064,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         only: ~w{source_type source_id dropped_changes}s
       )
 
-      assert_events(index_case, ~w(index_case_updated lab_result_created))
+      assert_events(index_case, ~w(index_case_updated lab_result_created send_to_commcare_enqueued))
     end
 
     test "sets external_id and doh_mpi_id if none is set", context do
@@ -1266,6 +1288,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
       assert_events(index_case, ["retrieved_from_commcare", "index_case_untouched", "lab_result_untouched"])
       assert_events(test_result, ["person_matched", "index_case_untouched", "lab_result_untouched", "no_new_information"])
+      assert [] = all_enqueued(worker: CommcareCaseLoader)
     end
 
     test "creates a new index case when existing index case has closed=true", context do
