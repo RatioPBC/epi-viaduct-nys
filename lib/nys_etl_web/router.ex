@@ -41,9 +41,9 @@ defmodule NYSETLWeb.Router do
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
 
-  scope "/dashboard" do
+  scope "/admin" do
     pipe_through [:browser, :protected]
-    live_dashboard("/", metrics: NYSETLWeb.Telemetry)
+    live_dashboard("/dashboard", metrics: NYSETLWeb.Telemetry)
     oban_dashboard("/oban")
   end
 
