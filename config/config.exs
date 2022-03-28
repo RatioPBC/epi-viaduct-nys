@@ -38,6 +38,13 @@ config :ex_aws,
   region: AwsConfig.region(),
   secret_access_key: AwsConfig.config("AWS_SECRET_ACCESS_KEY")
 
+config :fun_with_flags, :persistence,
+  adapter: FunWithFlags.Store.Persistent.Ecto,
+  repo: NYSETL.Repo
+
+# disable cache_bust_notifications since this runs on a single node
+config :fun_with_flags, :cache_bust_notifications, enabled: false
+
 config :nys_etl,
   cloudwatch_metrics_enabled: true,
   commcare_api_key_credentials: System.get_env("COMMCARE_API_KEY_CREDENTIALS"),
@@ -48,6 +55,7 @@ config :nys_etl,
   commcare_user_id: System.get_env("COMMCARE_USER_ID"),
   county_list: [],
   county_list_cache_enabled: true,
+  e5_producer_module: NYSETL.Engines.E5.Producer,
   eclrs_ignore_before_timestamp: ~U[2020-06-28 00:00:00Z],
   ecto_repos: [NYSETL.Repo],
   environment_name: String.to_atom(System.get_env("ENVIRONMENT", "dev") |> String.downcase()),

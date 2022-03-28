@@ -6,9 +6,10 @@ defmodule NYSETL.Engines.E5.Broadway do
 
   use Broadway
 
-  alias Broadway.Message
-  alias NYSETL.Engines.E5
   require Logger
+
+  alias Broadway.Message
+  alias NYSETL.Commcare.CaseImporter
 
   def start_link(county_list: county_list),
     do: start_link(county_list: county_list, start_date: two_days_ago())
@@ -16,11 +17,13 @@ defmodule NYSETL.Engines.E5.Broadway do
   def start_link(county_list: county_list, start_date: start_date) do
     Logger.info("[#{__MODULE__}] starting")
 
+    producer_module = Application.fetch_env!(:nys_etl, :e5_producer_module)
+
     Broadway.start_link(__MODULE__,
       name: :"broadway.engines.e5",
       producer: [
         module: {
-          E5.Producer,
+          producer_module,
           county_list: county_list, idle_timeout_ms: 300_000, start_date: start_date
         },
         concurrency: 1,
@@ -44,7 +47,7 @@ defmodule NYSETL.Engines.E5.Broadway do
     Logger.info("[#{__MODULE__}] starting processing of index_case case_id=#{case["case_id"]} county=#{county.domain}")
 
     message.data
-    |> E5.Processor.process()
+    |> CaseImporter.import_case()
 
     message
   end

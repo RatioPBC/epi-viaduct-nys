@@ -20,8 +20,10 @@ defmodule NYSETLWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
+      import Euclid.Assertions
       import Plug.Conn
       import Phoenix.ConnTest
+      import NYSETL.DataCase
       import NYSETLWeb.ConnCase
 
       alias NYSETLWeb.Router.Helpers, as: Routes

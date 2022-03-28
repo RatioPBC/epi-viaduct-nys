@@ -10,6 +10,12 @@ defmodule NYSETL.Engines.E5.ProducerTest do
   alias NYSETL.Engines.E5
   alias NYSETL.Test
 
+  setup do
+    {:ok, _} = start_supervised(E5.PollingConfig)
+    {:ok, true} = FunWithFlags.enable(:commcare_case_forwarder)
+    :ok
+  end
+
   defmodule Forwarder do
     use Broadway
     alias Broadway.Message
@@ -145,6 +151,20 @@ defmodule NYSETL.Engines.E5.ProducerTest do
 
       refute_receive({:message_handled, "commcare_case_id_ms_new", _}, 50)
       refute_receive({:message_handled, "commcare_case_id_ygg_new", _}, 50)
+
+      stop_broadway(pid)
+    end
+
+    test "dynamically includes and excludes counties" do
+      assert :ok = E5.PollingConfig.disable("uk-midsomer-cdcms")
+
+      {:ok, pid} = start_broadway()
+
+      refute_receive({:message_handled, "commcare_case_id_ms_1", _}, 50)
+      assert_receive({:message_handled, "commcare_case_id_ygg_1", %{domain: "sw-yggdrasil-cdcms"}})
+
+      assert :ok = E5.PollingConfig.enable("uk-midsomer-cdcms")
+      assert_receive({:message_handled, "commcare_case_id_ms_new", %{domain: "uk-midsomer-cdcms"}}, 2000)
 
       stop_broadway(pid)
     end

@@ -58,6 +58,7 @@ defmodule NYSETL.MixProject do
       {:faker, "~> 0.13", only: [:dev, :test]},
       {:floki, "~> 0.29", only: :test},
       {:flow, "~> 1.0"},
+      {:fun_with_flags, "~> 1.8"},
       {:gestalt, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.7"},

@@ -3,6 +3,8 @@ defmodule NYSETL.Engines.E5.Producer do
 
   require Logger
 
+  alias NYSETL.Engines.E5.PollingConfig
+
   @status_running :running
   @status_halted :halted
   @enforce_keys ~w{full_county_list idle_timeout_ms current_county_list}a
@@ -128,6 +130,7 @@ defmodule NYSETL.Engines.E5.Producer do
 
   defp next_county(%__MODULE__{} = state) do
     state.current_county_list
+    |> Enum.filter(&PollingConfig.enabled?(&1.domain))
     |> case do
       [next | rest] ->
         Logger.info("[#{__MODULE__}] extracting domain=#{next.domain}")

@@ -1,10 +1,12 @@
-defmodule NYSETL.Engines.E5.ProcessorTest do
-  use NYSETL.DataCase, async: true
+defmodule NYSETL.Commcare.CaseImporterTest do
+  use NYSETL.DataCase, async: false
+  use Oban.Testing, repo: NYSETL.Repo
 
   import NYSETL.Test.TestHelpers
+
   alias NYSETL.Commcare
+  alias NYSETL.Commcare.CaseImporter
   alias NYSETL.ECLRS
-  alias NYSETL.Engines.E5.Processor
 
   @user_id "2753ce1d42654b9897a3f88493838e34"
 
@@ -58,6 +60,27 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
   end
 
   describe "process" do
+    setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
+
+    test "fetch current case state and import", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{patient_case["case_id"]}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 200,
+           body: Jason.encode!(patient_case)
+         }}
+      end)
+
+      assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
+      assert :ok = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
+      assert {:ok, _} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
+    end
+  end
+
+  describe "import_case" do
     test "returns {:ok, case, :new_person} when no Person exists that matches case", context do
       {first_name, last_name, dob} = {"Glen", "Livet", "2001-01-02"}
       assert {:error, :not_found} = Commcare.get_person(dob: dob, name_first: "GLEN", name_last: "LIVET")
@@ -71,7 +94,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:new_person)
 
       assert {:ok, person} = Commcare.get_person(dob: dob, name_first: "GLEN", name_last: "LIVET")
@@ -102,7 +125,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: 12})
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(existing_index_case.id)
@@ -136,7 +159,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
 
       {:ok, index_case} = Commcare.create_index_case(%{case_id: case_id, data: case_properties, person_id: person.id, county_id: 12})
 
-      Processor.process(case: case, county: context.county)
+      CaseImporter.import_case(case: case, county: context.county)
       |> assert_ok(:already_exists)
 
       index_case |> assert_events([])
@@ -153,7 +176,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:patient_key)
 
       index_case.case_id |> assert_eq(case_id)
@@ -182,7 +205,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:dob)
 
       index_case.case_id |> assert_eq(case_id)
@@ -209,7 +232,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:full_name)
 
       index_case.case_id |> assert_eq(case_id)
@@ -246,7 +269,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:patient_key)
 
       [lab_result] = index_case |> Repo.preload(:lab_results) |> Map.get(:lab_results)
@@ -295,7 +318,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:new_person)
 
       [lab_result] = index_case |> Repo.preload(:lab_results) |> Map.get(:lab_results)
@@ -346,7 +369,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
         })
 
       index_case =
-        Processor.process(case: case, county: context.county)
+        CaseImporter.import_case(case: case, county: context.county)
         |> assert_ok(:patient_key)
 
       index_case
@@ -366,7 +389,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "final_disposition" => "registered_in_error"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :final_disposition})
 
       {_case_id, patient_case} =
@@ -377,7 +400,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "final_disposition" => "duplicate"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :final_disposition})
 
       {_case_id, patient_case} =
@@ -388,7 +411,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "final_disposition" => "not_a_case"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :final_disposition})
     end
 
@@ -403,7 +426,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "final_disposition" => "registered_in_error"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :final_disposition})
     end
 
@@ -416,7 +439,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "final_disposition" => "something_else"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -429,7 +452,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "stub" => "yes"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :stub})
     end
 
@@ -442,7 +465,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "stub" => "no"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -456,7 +479,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
 
       patient_case = Map.put(patient_case, "closed", true)
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :closed})
     end
 
@@ -470,7 +493,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
 
       patient_case = Map.put(patient_case, "closed", nil)
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -484,7 +507,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "patient_type" => "pui"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :closed})
     end
 
@@ -498,7 +521,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "patient_type" => "pui"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -512,7 +535,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "patient_type" => "confirmed"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -525,7 +548,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "transfer_status" => "pending"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :transfer_status})
 
       {_case_id, patient_case} =
@@ -536,7 +559,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "transfer_status" => "sent"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_eq({:error, :transfer_status})
     end
 
@@ -549,7 +572,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "transfer_status" => "something_else"
         })
 
-      Processor.process(case: patient_case, county: context.county)
+      CaseImporter.import_case(case: patient_case, county: context.county)
       |> assert_ok(:new_person)
     end
 
@@ -561,7 +584,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "dob" => "2000-01-02"
         })
 
-      assert {:error, _reason} = Processor.process(case: patient_case, county: context.county)
+      assert {:error, _reason} = CaseImporter.import_case(case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though patient_key is set - should not happen)", context do
@@ -571,7 +594,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "external_id" => "foobar#abc123"
         })
 
-      assert {:error, _reason} = Processor.process(case: patient_case, county: context.county)
+      assert {:error, _reason} = CaseImporter.import_case(case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though name_and_id is set - should not happen)", context do
@@ -581,7 +604,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "name_and_id" => "Glen Livet (foobar#12345)"
         })
 
-      assert {:error, _reason} = Processor.process(case: patient_case, county: context.county)
+      assert {:error, _reason} = CaseImporter.import_case(case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though lab result's external_id is set - should not happen)", context do
@@ -605,7 +628,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
           "test_type" => "SARS coronavirus 2 RNA [Presence] in Unspecified s"
         })
 
-      assert {:error, _reason} = Processor.process(case: patient_case, county: context.county)
+      assert {:error, _reason} = CaseImporter.import_case(case: patient_case, county: context.county)
     end
   end
 
@@ -632,7 +655,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -658,7 +681,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -684,7 +707,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -712,7 +735,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -739,7 +762,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = patient_case |> Map.put("case_id", context.case_id) |> Map.put("closed", true)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -761,7 +784,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -790,7 +813,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -816,7 +839,7 @@ defmodule NYSETL.Engines.E5.ProcessorTest do
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
       index_case =
-        Processor.process(case: patient_case, county: context.county)
+        CaseImporter.import_case(case: patient_case, county: context.county)
         |> assert_ok(:already_exists)
 
       index_case.id |> assert_eq(context.existing_index_case.id)

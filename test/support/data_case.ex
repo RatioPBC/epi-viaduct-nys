@@ -15,7 +15,12 @@ defmodule NYSETL.DataCase do
   """
 
   use ExUnit.CaseTemplate
+
   import Mox
+
+  alias NYSETL.Commcare.County
+  alias NYSETL.ECLRS
+  alias NYSETL.Test
 
   using do
     quote do
@@ -36,11 +41,6 @@ defmodule NYSETL.DataCase do
       require Logger
 
       setup :verify_on_exit!
-
-      def start_supervised_oban(_context) do
-        {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
-        :ok
-      end
     end
   end
 
@@ -77,6 +77,27 @@ defmodule NYSETL.DataCase do
       {:ok, %{status_code: 200, body: NYSETL.Test.Fixtures.county_list_response()}}
     end)
 
+    :ok
+  end
+
+  def midsomer_county(_) do
+    {:ok, midsomer} = County.get(name: "midsomer")
+    {:ok, _county} = ECLRS.find_or_create_county(midsomer.fips)
+    %{midsomer_county: midsomer}
+  end
+
+  def midsomer_patient_case(_) do
+    patient_case =
+      Test.Fixtures.cases_response("uk-midsomer-cdcms", "patient", 0)
+      |> Jason.decode!()
+      |> Map.fetch!("objects")
+      |> hd()
+
+    %{midsomer_patient_case: patient_case}
+  end
+
+  def start_supervised_oban(_context) do
+    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
     :ok
   end
 end

@@ -29,9 +29,11 @@ defmodule NYSETLWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", NYSETLWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", NYSETLWeb do
+    pipe_through :api
+
+    post "/commcare_cases", CommcareCasesController, :create
+  end
 
   # Enables LiveDashboard only for development
   #

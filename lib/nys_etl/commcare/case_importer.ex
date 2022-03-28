@@ -1,6 +1,6 @@
-defmodule NYSETL.Engines.E5.Processor do
+defmodule NYSETL.Commcare.CaseImporter do
   @moduledoc """
-  Run for each patient case extracted from CommCare.
+  Run for a patient case extracted or forwarded from CommCare.
 
   * case_id already present in our DB:
     * update it with changes from CommCare (but ignore any new lab results)
@@ -9,13 +9,24 @@ defmodule NYSETL.Engines.E5.Processor do
   * case_id does not exist, Person cannot be matched:
     * create a Person, IndexCase and LabResult record(s)
   """
-
-  alias Euclid.Term
-  alias NYSETL.Commcare
+  use Oban.Worker, queue: :commcare, unique: [period: :infinity, states: [:available, :scheduled, :retryable]]
 
   require Logger
 
-  def process(case: patient_case, county: county) do
+  alias Euclid.Term
+  alias NYSETL.Commcare
+  alias NYSETL.Commcare.Api
+  alias NYSETL.Commcare.County
+
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"commcare_case_id" => commcare_case_id, "domain" => domain}}) do
+    {:ok, patient_case} = Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain)
+    {:ok, county} = County.get(domain: domain)
+    {:ok, _index_case, _finder} = import_case(case: patient_case, county: county)
+    :ok
+  end
+
+  def import_case(case: patient_case, county: county) do
     with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
          {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
          {:ok, person, finder} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do

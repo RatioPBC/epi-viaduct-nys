@@ -13,6 +13,7 @@ defmodule NYSETL.Engines.E5.Supervisor do
     counties = NYSETL.Commcare.County.participating_counties()
 
     children = [
+      NYSETL.Engines.E5.PollingConfig,
       Supervisor.child_spec(
         {
           NYSETL.Engines.E5.Broadway,
