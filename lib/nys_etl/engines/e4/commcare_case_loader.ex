@@ -10,6 +10,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   alias NYSETL.Commcare
   alias NYSETL.Commcare.County
   alias NYSETL.Engines.E4.{CaseIdentifier, CaseTransferChain, Data, Diff, Transfer, XmlBuilder}
+  alias NYSETL.Engines.E5.PollingConfig
   alias NYSETL.Monitoring.Oban.ErrorReporter
 
   def enqueue(index_case, county) do
@@ -135,17 +136,22 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   end
 
   defp maybe_update_index_case(index_case, :found, patient_case_data, domain) do
-    Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.data)
-    |> case do
-      {:ok, ^index_case} ->
-        Logger.info("[#{__MODULE__}] not modified case_id=#{index_case.case_id} in commcare domain=#{domain}")
-        {:update, index_case}
+    if PollingConfig.enabled?(domain) do
+      Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.data)
+      |> case do
+        {:ok, ^index_case} ->
+          Logger.info("[#{__MODULE__}] not modified case_id=#{index_case.case_id} in commcare domain=#{domain}")
+          {:update, index_case}
 
-      {:ok, index_case} ->
-        :telemetry.execute([:loader, :commcare, :updated_from_commcare], %{count: 1})
-        Logger.info("[#{__MODULE__}] updating case_id=#{index_case.case_id} in commcare domain=#{domain}")
-        index_case |> Commcare.save_event("updated_from_commcare")
-        {:update, index_case}
+        {:ok, index_case} ->
+          :telemetry.execute([:loader, :commcare, :updated_from_commcare], %{count: 1})
+          Logger.info("[#{__MODULE__}] updating case_id=#{index_case.case_id} in commcare domain=#{domain}")
+          index_case |> Commcare.save_event("updated_from_commcare")
+          {:update, index_case}
+      end
+    else
+      Logger.info("[#{__MODULE__}] not updating case_id=#{index_case.case_id} (polling disabled in commcare domain=#{domain})")
+      {:update, index_case}
     end
   end
 

@@ -3,10 +3,14 @@ defmodule NYSETLWeb.CommcareCasesController do
 
   alias NYSETL.Commcare.CaseImporter
 
-  def create(conn, %{"commcare_case" => %{"case_id" => case_id, "domain" => domain}}) do
+  @viaduct_commcare_user_ids Application.compile_env(:nys_etl, :viaduct_commcare_user_ids) |> MapSet.new()
+
+  def create(conn, %{"commcare_case" => %{"case_id" => case_id, "domain" => domain, "user_id" => user_id}}) do
     if FunWithFlags.enabled?(:commcare_case_forwarder) do
-      CaseImporter.new(%{commcare_case_id: case_id, domain: domain})
-      |> Oban.insert!()
+      unless MapSet.member?(@viaduct_commcare_user_ids, user_id) do
+        CaseImporter.new(%{commcare_case_id: case_id, domain: domain})
+        |> Oban.insert!()
+      end
 
       conn
       |> put_status(202)

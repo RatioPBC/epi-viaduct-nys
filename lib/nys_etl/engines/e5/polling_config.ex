@@ -6,7 +6,7 @@ defmodule NYSETL.Engines.E5.PollingConfig do
     # to read application config. But this whole thing is intended to be
     # temporary and removed after we switch to case forwarder
     domains_to_exclude =
-      Application.get_env(:nys_etl, :e5_domains_to_exclude, [])
+      Application.fetch_env!(:nys_etl, :e5_domains_to_exclude)
       |> MapSet.new()
 
     Agent.start_link(fn -> domains_to_exclude end, name: __MODULE__)

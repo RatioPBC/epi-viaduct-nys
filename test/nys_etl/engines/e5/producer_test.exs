@@ -10,11 +10,7 @@ defmodule NYSETL.Engines.E5.ProducerTest do
   alias NYSETL.Engines.E5
   alias NYSETL.Test
 
-  setup do
-    {:ok, _} = start_supervised(E5.PollingConfig)
-    {:ok, true} = FunWithFlags.enable(:commcare_case_forwarder)
-    :ok
-  end
+  setup :fwf_case_forwarder
 
   defmodule Forwarder do
     use Broadway
