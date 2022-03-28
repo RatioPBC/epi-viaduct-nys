@@ -98,7 +98,7 @@ defmodule NYSETL.DataCase do
   end
 
   def start_supervised_oban(_context) do
-    {:ok, _oban} = start_supervised({Oban, queues: false, repo: NYSETL.Repo})
+    {:ok, _oban} = start_supervised({Oban, queues: false, plugins: false, repo: NYSETL.Repo})
     :ok
   end
 

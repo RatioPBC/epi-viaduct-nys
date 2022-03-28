@@ -10,7 +10,7 @@ defmodule NYSETL.Backfillers.FilesECLRSVersion do
     backfill_in_batches(batch_size: batch_size, last_processed_id: 0)
   end
 
-  @impl Oban.Pro.Workers.Batch
+  @impl true
   def process(%Oban.Job{args: %{"file_id" => file_id}}) do
     with {:ok, test_result} <- get_test_result(file_id),
          version when not is_nil(version) <- test_result_version(test_result),

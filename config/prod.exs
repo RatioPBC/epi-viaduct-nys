@@ -54,7 +54,7 @@ config :nys_etl, Oban,
   plugins: [
     Oban.Plugins.Gossip,
     Oban.Pro.Plugins.BatchManager,
-    Oban.Pro.Plugins.Lifeline,
+    Oban.Pro.Plugins.DynamicLifeline,
     Oban.Web.Plugins.Stats
   ]
 
