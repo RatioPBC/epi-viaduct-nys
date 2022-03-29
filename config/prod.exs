@@ -40,7 +40,7 @@ config :nys_etl,
   county_list: [],
   start_viaduct_workers: start_viaduct_workers,
   use_commcare_county_list: true,
-  viaduct_commcare_user_ids: []
+  viaduct_commcare_user_ids: ["17e44102e2cbcd35a99bfe8c3272b490"]
 
 config :logger, level: System.get_env("LOG_LEVEL", "info") |> String.to_existing_atom()
 
