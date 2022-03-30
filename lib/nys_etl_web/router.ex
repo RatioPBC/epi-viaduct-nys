@@ -2,6 +2,7 @@ defmodule NYSETLWeb.Router do
   use NYSETLWeb, :router
 
   import Phoenix.LiveDashboard.Router
+  import Plug.BasicAuth, only: [basic_auth: 2]
   import Oban.Web.Router
 
   pipeline :browser do
@@ -15,6 +16,7 @@ defmodule NYSETLWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :basic_auth, username: "commcare", password: Application.compile_env(:nys_etl, :commcare_case_forwarder_password)
   end
 
   pipeline :protected do

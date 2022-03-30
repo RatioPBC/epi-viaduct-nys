@@ -27,6 +27,8 @@ config :nys_etl, :basic_auth,
   dashboard_username: System.get_env("DASHBOARD_USERNAME"),
   dashboard_password: System.get_env("DASHBOARD_PASSWORD")
 
+config :nys_etl, :commcare_case_forwarder_password, System.fetch_env!("COMMCARE_CASE_FORWARDER_PASSWORD")
+
 config :nys_etl, NYSETL.Repo,
   show_sensitive_data_on_connection_error: false,
   pool_size: 100,
