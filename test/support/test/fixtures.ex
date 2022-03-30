@@ -1,6 +1,8 @@
 defmodule NYSETL.Test.Fixtures do
   @moduledoc false
 
+  alias NYSETL.Format
+
   def read(partial_path, opts \\ []) do
     contents = "test/fixtures/" |> Path.join(partial_path) |> File.read!()
 
@@ -69,6 +71,8 @@ defmodule NYSETL.Test.Fixtures do
         "address_state" => "NY",
         "address_street" => nil,
         "address_zip" => "12301",
+        "age" => Format.age(~D[1991-05-30]),
+        "age_range" => Format.age_range(~D[1991-05-30]),
         "analysis_date" => "2020-05-30",
         "case_import_date" => "2020-05-31",
         "contact_phone_number" => "",

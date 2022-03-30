@@ -26,4 +26,26 @@ defmodule NYSETL.Format do
   end
 
   def us_phone_number(phone_number), do: phone_number
+
+  def age(birthdate), do: age(birthdate, Date.utc_today())
+
+  def age(%Date{} = birthdate, as_of) do
+    Timex.diff(as_of, birthdate, :years)
+    |> to_string()
+  end
+
+  def age(nil, _), do: ""
+
+  def age_range(birthdate), do: age_range(birthdate, Date.utc_today())
+
+  def age_range(%Date{} = birthdate, as_of) do
+    Timex.diff(as_of, birthdate, :years)
+    |> case do
+      age when age >= 0 and age <= 17 -> "0 - 17"
+      age when age >= 18 and age <= 59 -> "18 - 59"
+      age when age >= 60 -> "60+"
+    end
+  end
+
+  def age_range(nil, _), do: ""
 end

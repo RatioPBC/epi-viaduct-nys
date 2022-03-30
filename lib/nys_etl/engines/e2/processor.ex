@@ -335,8 +335,14 @@ defmodule NYSETL.Engines.E2.Processor do
   end
 
   defp create_index_case(person, test_result, commcare_county, reinfection_cases \\ []) do
+    data =
+      to_index_case_data(test_result, person, commcare_county, reinfection_cases)
+      |> Map.put(:age, Format.age(test_result.patient_dob, test_result.eclrs_create_date))
+      |> Map.put(:age_range, Format.age_range(test_result.patient_dob, test_result.eclrs_create_date))
+      |> Euclid.Map.stringify_keys()
+
     %{
-      data: to_index_case_data(test_result, person, commcare_county, reinfection_cases) |> Euclid.Map.stringify_keys(),
+      data: data,
       county_id: commcare_county.fips,
       person_id: person.id
     }

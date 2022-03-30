@@ -119,6 +119,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       |> assert_eq(
         Fixtures.index_case_data(%{
           "address_street" => "123 Somewhere St",
+          "age" => "60",
+          "age_range" => "60+",
           "contact_phone_number" => "12131234567",
           "dob" => "1960-01-01",
           "doh_mpi_id" => "P#{donny.id}",
@@ -382,6 +384,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           "address_state" => "",
           "address_street" => "",
           "address_zip" => "",
+          "age" => "50",
+          "age_range" => "18 - 59",
           "analysis_date" => "",
           "case_import_date" => nil,
           "contact_phone_number" => "",
@@ -487,6 +491,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           "address_state" => "",
           "address_street" => "",
           "address_zip" => "",
+          "age" => "50",
+          "age_range" => "18 - 59",
           "analysis_date" => "",
           "case_import_date" => nil,
           "contact_phone_number" => "",
@@ -920,7 +926,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "merges new data into existing index case", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -936,6 +942,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
         Fixtures.index_case_data(%{
           "aaa" => "AAA",
           "a_nil_value" => nil,
+          "age" => "pre-calculated age",
+          "age_range" => "pre-calculated age_range",
           "dob" => Format.format(dob),
           "fips" => to_string(context.county.id),
           "first_name" => first_name,
@@ -984,6 +992,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert home_phone_number == data["contact_phone_number"], "Expected to update downstream empty strings"
       assert "yes" == data["has_phone_number"], "Interpolated values can change from no to yes"
       assert initial_case_data["gender"] == data["gender"], "Expected not to change previously assigned values"
+      assert initial_case_data["age"] == data["age"], "Expected not to change age"
+      assert initial_case_data["age_range"] == data["age_range"], "Expected not to change age_range"
 
       changelog =
         NYSETL.ChangeLog
@@ -1004,6 +1014,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
           "a_nil_value" => nil,
           "aaa" => "AAA",
           "dob" => Format.format(dob),
+          "age" => "pre-calculated age",
+          "age_range" => "pre-calculated age_range",
           "first_name" => first_name,
           "full_name" => name,
           "last_name" => last_name,
@@ -1069,7 +1081,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "sets external_id and doh_mpi_id if none is set", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
       accession_number = Faker.format("###???")
@@ -1120,7 +1132,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "marks test_result as noop when no updates are made", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1133,6 +1145,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       initial_data =
         Fixtures.index_case_data(%{
           "address_street" => street_address,
+          "age" => "29",
+          "age_range" => "18 - 60",
           "contact_phone_number" => home_phone_number,
           "dob" => Format.format(dob),
           "doh_mpi_id" => "8000",
@@ -1248,6 +1262,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       |> assert_eq(
         Fixtures.index_case_data(%{
           "address_street" => street_address,
+          "age" => "29",
+          "age_range" => "18 - 60",
           "contact_phone_number" => home_phone_number,
           "dob" => Format.format(dob),
           "doh_mpi_id" => "8000",
@@ -1293,7 +1309,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "creates a new index case when existing index case has closed=true", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1357,7 +1373,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "only update open cases with new test results", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1426,7 +1442,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "creates a new index case when existing index case has data[final_disposition] in (registered_in_error, duplicate, not_a_case)", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1500,7 +1516,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "updates index case when existing index case has other data[final_disposition]", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1562,7 +1578,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "creates a new index case when existing index case has data[stub]=yes", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1626,7 +1642,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "updates index case when existing index case has data[stub]=no", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1688,7 +1704,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "creates a new index case when existing index case has data[current_status]=closed and data[patient_type]=pui", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1753,7 +1769,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "updates index case when existing index case has data[current_status]=closed and data[patient_type] != pui", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1816,7 +1832,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "updates index case when existing index case has data[current_status] != closed and data[patient_type]=pui", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1879,7 +1895,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "creates a new index case when existing index case has data[transfer_status] in (pending, sent)", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -1948,7 +1964,7 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
     test "updates index case when existing index case has other data[transfer_status]", context do
       lab_name = Faker.format("???????")
-      dob = Faker.Date.backward(20)
+      dob = ~D[1990-08-03]
       patient_key = Faker.format("########")
       first_name = Faker.Person.first_name()
       last_name = Faker.Person.last_name()
@@ -2088,7 +2104,9 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
             "all_activity_complete_date" => "2021-02-01",
             "first_name" => nil,
             "last_name" => "",
-            "some_custom_value" => "this should not be set on reinfection case"
+            "some_custom_value" => "this should not be set on reinfection case",
+            "age" => "this will get overwritten",
+            "age_range" => "this will get overwritten"
           },
           person_id: person.id,
           county_id: context.county.id
@@ -2113,6 +2131,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert reinfection_index_case.data["patient_type"] == "confirmed"
       assert reinfection_index_case.data["first_name"] == "DONNY"
       assert reinfection_index_case.data["archived_case_id"] && reinfection_index_case.data["archived_case_id"] == updated_index_case.case_id
+      assert reinfection_index_case.data["age"] == Format.age(context.test_result_attrs[:patient_dob], context.now)
+      assert reinfection_index_case.data["age_range"] == Format.age_range(context.test_result_attrs[:patient_dob], context.now)
       refute reinfection_index_case.data["some_custom_value"]
       assert reinfection_index_case |> Commcare.get_lab_results() |> length() == 1
     end

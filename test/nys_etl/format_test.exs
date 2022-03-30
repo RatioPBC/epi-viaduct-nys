@@ -43,4 +43,46 @@ defmodule NYSETL.FormatTest do
       assert Format.us_phone_number("131234567") == "131234567"
     end
   end
+
+  describe "age" do
+    test "0" do
+      assert Format.age(~D[2022-01-01], ~D[2022-12-31]) == "0"
+    end
+
+    test "1" do
+      assert Format.age(~D[2022-01-01], ~D[2023-01-01]) == "1"
+    end
+
+    test "0 (leap year)" do
+      assert Format.age(~D[2020-01-01], ~D[2020-12-31]) == "0"
+    end
+
+    test "99 (middle of year as comparison)" do
+      assert Format.age(~D[1900-06-23], ~D[2000-06-22]) == "99"
+    end
+
+    test "nil" do
+      assert Format.age(nil, ~D[2022-01-01]) == ""
+    end
+  end
+
+  describe "age_range" do
+    test "0 - 17" do
+      assert Format.age_range(~D[2022-01-01], ~D[2022-12-31]) == "0 - 17"
+      assert Format.age_range(~D[2022-01-01], ~D[2039-12-31]) == "0 - 17"
+    end
+
+    test "18 - 59" do
+      assert Format.age_range(~D[2022-01-01], ~D[2040-01-01]) == "18 - 59"
+      assert Format.age_range(~D[2022-01-01], ~D[2081-12-31]) == "18 - 59"
+    end
+
+    test "60+" do
+      assert Format.age_range(~D[2022-01-01], ~D[2082-01-01]) == "60+"
+    end
+
+    test "nil" do
+      assert Format.age_range(nil, ~D[2022-01-01]) == ""
+    end
+  end
 end
