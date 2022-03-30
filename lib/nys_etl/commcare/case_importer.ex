@@ -26,7 +26,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     :ok
   end
 
-  def import_case(case: patient_case, county: county) do
+  def import_case(case: %{"properties" => %{"case_type" => "patient"}} = patient_case, county: county) do
     with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
          {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
          {:ok, person, finder} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
@@ -45,21 +45,25 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def extract_case_data(%{"closed" => true}), do: {:error, :closed}
+  def import_case(case: %{"case_id" => case_id, "properties" => %{"case_type" => case_type}}, county: _county) do
+    raise "Can only import `patient` cases. #{case_id} is a `#{case_type}`."
+  end
 
-  def extract_case_data(%{"properties" => %{"final_disposition" => final_disposition}})
+  defp extract_case_data(%{"closed" => true}), do: {:error, :closed}
+
+  defp extract_case_data(%{"properties" => %{"final_disposition" => final_disposition}})
       when final_disposition in ["registered_in_error", "duplicate", "not_a_case"],
       do: {:error, :final_disposition}
 
-  def extract_case_data(%{"properties" => %{"patient_type" => "pui", "current_status" => "closed"}}), do: {:error, :closed}
+  defp extract_case_data(%{"properties" => %{"patient_type" => "pui", "current_status" => "closed"}}), do: {:error, :closed}
 
-  def extract_case_data(%{"properties" => %{"stub" => "yes"}}), do: {:error, :stub}
+  defp extract_case_data(%{"properties" => %{"stub" => "yes"}}), do: {:error, :stub}
 
-  def extract_case_data(%{"properties" => %{"transfer_status" => transfer_status}})
+  defp extract_case_data(%{"properties" => %{"transfer_status" => transfer_status}})
       when transfer_status in ["pending", "sent"],
       do: {:error, :transfer_status}
 
-  def extract_case_data(patient_case) do
+  defp extract_case_data(patient_case) do
     case_id = patient_case["case_id"]
     lab_results = lab_results(patient_case)
     patient_key = find_patient_key(patient_case, lab_results)
@@ -68,7 +72,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     {case_id, patient_key, dob, lab_results}
   end
 
-  def create_person(%{"properties" => properties} = patient_case) do
+  defp create_person(%{"properties" => properties} = patient_case) do
     Logger.debug("[#{__MODULE__}] trying to create a person matching index_case case_id=#{patient_case.case_id}")
 
     first_name = properties["first_name"] && String.upcase(properties["first_name"])
@@ -89,7 +93,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def create_index_case(case, %Commcare.Person{} = person, county) do
+  defp create_index_case(case, %Commcare.Person{} = person, county) do
     case_id = case["case_id"]
 
     {:ok, index_case} =
@@ -107,9 +111,9 @@ defmodule NYSETL.Commcare.CaseImporter do
     {:ok, index_case}
   end
 
-  def create_lab_results(%Commcare.IndexCase{} = index_case, [], _county), do: index_case
+  defp create_lab_results(%Commcare.IndexCase{} = index_case, [], _county), do: index_case
 
-  def create_lab_results(%Commcare.IndexCase{} = index_case, lab_results, county) do
+  defp create_lab_results(%Commcare.IndexCase{} = index_case, lab_results, county) do
     lab_results
     |> Enum.each(fn commcare_lab_result ->
       %{
@@ -133,7 +137,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     end)
   end
 
-  def find_and_update_index_case(patient_case, county) do
+  defp find_and_update_index_case(patient_case, county) do
     Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
     |> case do
       {:error, :not_found} ->
@@ -163,13 +167,13 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def find_person(patient_case, dob, patient_key) do
+  defp find_person(patient_case, dob, patient_key) do
     Logger.debug("[#{__MODULE__}] trying to find a person matching index_case case_id=#{patient_case.case_id}")
 
     find_person(patient_key: patient_key) || find_person(patient_case, dob: dob)
   end
 
-  def find_person(patient_key: patient_key) do
+  defp find_person(patient_key: patient_key) do
     Commcare.get_person(patient_key: patient_key)
     |> case do
       {:ok, person} -> {:ok, person, :patient_key}
@@ -177,9 +181,9 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def find_person(_case, dob: nil), do: nil
+  defp find_person(_case, dob: nil), do: nil
 
-  def find_person(%{"properties" => %{"first_name" => first_name, "last_name" => last_name}}, dob: dob)
+  defp find_person(%{"properties" => %{"first_name" => first_name, "last_name" => last_name}}, dob: dob)
       when is_binary(first_name) and is_binary(last_name) do
     Commcare.get_person(
       dob: dob,
@@ -192,7 +196,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def find_person(%{"properties" => %{"full_name" => full_name}}, dob: dob)
+  defp find_person(%{"properties" => %{"full_name" => full_name}}, dob: dob)
       when is_binary(full_name) do
     Commcare.get_person(
       dob: dob,
@@ -204,29 +208,29 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def find_patient_key(case, lab_results) do
+  defp find_patient_key(case, lab_results) do
     patient_key_from_external_id(case["properties"]["external_id"]) ||
       patient_key_from_name_and_id(case["properties"]["name_and_id"]) ||
       patient_key_from_lab_result(lab_results)
   end
 
-  def parse_dob(%{"properties" => %{"dob" => <<year::binary-size(4), "-", month::binary-size(2), "-", day::binary-size(2)>>}}),
+  defp parse_dob(%{"properties" => %{"dob" => <<year::binary-size(4), "-", month::binary-size(2), "-", day::binary-size(2)>>}}),
     do: Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
 
-  def parse_dob(_), do: nil
+  defp parse_dob(_), do: nil
 
-  def patient_key_from_external_id(nil), do: nil
-  def patient_key_from_external_id(""), do: nil
+  defp patient_key_from_external_id(nil), do: nil
+  defp patient_key_from_external_id(""), do: nil
 
-  def patient_key_from_external_id(binary) when is_binary(binary) do
+  defp patient_key_from_external_id(binary) when is_binary(binary) do
     binary
     |> String.split("#")
     |> Enum.at(1)
   end
 
-  def patient_key_from_lab_result([]), do: nil
+  defp patient_key_from_lab_result([]), do: nil
 
-  def patient_key_from_lab_result(lab_results) do
+  defp patient_key_from_lab_result(lab_results) do
     lab_results
     |> Euclid.Enum.pluck("properties")
     |> Euclid.Enum.pluck("external_id")
@@ -243,9 +247,9 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  def patient_key_from_name_and_id(nil), do: nil
+  defp patient_key_from_name_and_id(nil), do: nil
 
-  def patient_key_from_name_and_id(binary) when is_binary(binary) do
+  defp patient_key_from_name_and_id(binary) when is_binary(binary) do
     Regex.named_captures(~r|.+\(.+#(?<patient_key>\d+)\)|, binary)
     |> case do
       %{"patient_key" => patient_key} -> patient_key
@@ -261,15 +265,4 @@ defmodule NYSETL.Commcare.CaseImporter do
         Term.present?(child_cases["properties"]["accession_number"])
     end)
   end
-
-  def case_is_a_stub?(%{"properties" => %{"stub" => "yes"}}), do: true
-  def case_is_a_stub?(_), do: false
-
-  def case_has_lab_result?(%{"child_cases" => child_cases}),
-    do: child_cases |> Map.values() |> Enum.any?(&case_is_a_lab_result?/1)
-
-  def case_has_lab_result?(_), do: false
-
-  def case_is_a_lab_result?(%{"properties" => %{"case_type" => "lab_result"}}), do: true
-  def case_is_a_lab_result?(_), do: false
 end

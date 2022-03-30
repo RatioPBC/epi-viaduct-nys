@@ -24,7 +24,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       "indexed_on" => "2020-06-04T13:43:10.907506",
       "indices" => %{},
       "opened_by" => "b08d0661a6fd40a3b2be2cc0d2760a8a",
-      "properties" => properties,
+      "properties" => Map.merge(%{"case_type" => "patient"}, properties),
       "resource_uri" => "",
       "server_date_modified" => "2020-06-04T13:43:10.465497Z",
       "server_date_opened" => "2020-06-01T18:55:09.622249Z",
@@ -81,6 +81,21 @@ defmodule NYSETL.Commcare.CaseImporterTest do
   end
 
   describe "import_case" do
+    test "errors when case is not a patient case", context do
+      {case_id, patient_case} =
+        fixture(%{
+          "first_name" => "Glen",
+          "last_name" => "Livet",
+          "dob" => "2001-01-02",
+          "some" => "value",
+          "case_type" => "lab_result"
+        })
+
+      assert_raise(RuntimeError, ~r/Can only import `patient` cases. #{case_id} is a `lab_result`/, fn ->
+        CaseImporter.import_case(case: patient_case, county: context.county)
+      end)
+    end
+
     test "returns {:ok, case, :new_person} when no Person exists that matches case", context do
       {first_name, last_name, dob} = {"Glen", "Livet", "2001-01-02"}
       assert {:error, :not_found} = Commcare.get_person(dob: dob, name_first: "GLEN", name_last: "LIVET")
@@ -104,7 +119,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => dob,
-        "some" => "value"
+        "some" => "value",
+        "case_type" => "patient"
       })
 
       assert_eq([], person.patient_keys)
@@ -139,7 +155,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "some" => "value",
-        "other" => "thing"
+        "other" => "thing",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare"])
@@ -150,7 +167,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "external_id" => "9999#150000000",
         "first_name" => "Glen",
         "last_name" => "Livet",
-        "other" => "thing"
+        "other" => "thing",
+        "case_type" => "patient"
       }
 
       {case_id, case} = fixture(case_properties)
@@ -665,7 +683,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "final_disposition" => "registered_in_error"
+        "final_disposition" => "registered_in_error",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare"])
@@ -691,7 +710,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "final_disposition" => "duplicate"
+        "final_disposition" => "duplicate",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare", "updated_from_commcare"])
@@ -717,7 +737,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "final_disposition" => "not_a_case"
+        "final_disposition" => "not_a_case",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare", "updated_from_commcare", "updated_from_commcare"])
@@ -745,7 +766,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "stub" => "yes"
+        "stub" => "yes",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare"])
@@ -795,7 +817,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "last_name" => "Livet",
         "dob" => "2000-01-02",
         "current_status" => "closed",
-        "patient_type" => "pui"
+        "patient_type" => "pui",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare"])
@@ -823,7 +846,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "transfer_status" => "pending"
+        "transfer_status" => "pending",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare"])
@@ -849,7 +873,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         "first_name" => "Glen",
         "last_name" => "Livet",
         "dob" => "2000-01-02",
-        "transfer_status" => "sent"
+        "transfer_status" => "sent",
+        "case_type" => "patient"
       })
 
       index_case |> assert_events(["updated_from_commcare", "updated_from_commcare"])
