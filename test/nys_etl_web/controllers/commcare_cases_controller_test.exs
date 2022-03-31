@@ -21,7 +21,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
   describe "create" do
     test "501 when feature flag is off", %{conn: conn, midsomer_patient_case: patient_case} do
       {:ok, false} = FunWithFlags.disable(:commcare_case_forwarder)
-      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert response(conn, 501) =~ "Not Implemented"
       refute_enqueued(worker: CaseImporter)
@@ -31,7 +31,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
       conn =
         conn
         |> put_commcare_auth("bad-password")
-        |> post(Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+        |> post(Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert response(conn, 401) =~ "Unauthorized"
       refute_enqueued(worker: CaseImporter)
@@ -40,7 +40,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
     test "400 when request isn't formatted correctly", %{conn: conn, midsomer_patient_case: patient_case} do
       patient_case = Map.delete(patient_case, "case_id")
 
-      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert response(conn, 400) =~ "Bad Request"
       refute_enqueued(worker: CaseImporter)
@@ -50,7 +50,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
       refute_enqueued(worker: CaseImporter)
 
-      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert response(conn, 202) =~ "Accepted"
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
@@ -60,7 +60,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
     test "don't create an oban job when user_id belongs to viaduct", %{conn: conn, midsomer_patient_case: patient_case} do
       patient_case = Map.put(patient_case, "user_id", "viaduct-test-commcare-user-id")
 
-      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert response(conn, 202) =~ "Accepted"
       refute_enqueued(worker: CaseImporter)
@@ -72,7 +72,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
       conn =
         conn
         |> put_req_header("content-type", "application/json")
-        |> post(Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+        |> post(Routes.commcare_cases_path(@endpoint, :create), patient_case)
 
       assert text_response(conn, 422) =~ "Unprocessable Entity. Can only import `patient` cases. #{patient_case["case_id"]} is a `lab_result`"
       refute_enqueued(worker: CaseImporter)

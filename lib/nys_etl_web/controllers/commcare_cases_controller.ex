@@ -6,10 +6,7 @@ defmodule NYSETLWeb.CommcareCasesController do
   @viaduct_commcare_user_ids Application.compile_env(:nys_etl, :viaduct_commcare_user_ids) |> MapSet.new()
 
   def create(conn, params) do
-    commcare_case = params["commcare_case"]
-
-    {status, message} =
-      require_case_forwarder_enabled() || require_params(params) || require_patient_case_type(commcare_case) || accept_case(commcare_case)
+    {status, message} = require_case_forwarder_enabled() || require_params(params) || require_patient_case_type(params) || accept_case(params)
 
     conn
     |> put_status(status)
@@ -22,7 +19,7 @@ defmodule NYSETLWeb.CommcareCasesController do
     end
   end
 
-  defp require_params(%{"commcare_case" => %{"case_id" => _, "domain" => _, "user_id" => _, "properties" => %{"case_type" => _}}}), do: nil
+  defp require_params(%{"case_id" => _, "domain" => _, "user_id" => _, "properties" => %{"case_type" => _}}), do: nil
 
   defp require_params(_) do
     {400, "Bad Request"}
