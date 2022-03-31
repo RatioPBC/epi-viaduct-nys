@@ -18,7 +18,8 @@ defmodule NYSETL.Application do
         NYSETLWeb.Telemetry,
         {Phoenix.PubSub, name: NYSETL.PubSub},
         NYSETLWeb.Endpoint,
-        NYSETL.Engines.E1.Cache
+        NYSETL.Engines.E1.Cache,
+        {Mutex, name: NYSETL.Commcare.PersonMutex}
       ] ++
         viaduct_supervisor() ++
         cloudwatch_monitoring_worker()

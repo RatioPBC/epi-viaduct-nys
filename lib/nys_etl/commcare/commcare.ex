@@ -5,6 +5,7 @@ defmodule NYSETL.Commcare do
 
   import Ecto.Query, only: [from: 1, from: 2, where: 3, join: 5, order_by: 2]
   alias NYSETL.Commcare
+  alias NYSETL.Commcare.PersonMutex
   alias NYSETL.Repo
 
   def add_patient_key(person, patient_key) do
@@ -124,6 +125,10 @@ defmodule NYSETL.Commcare do
       nil -> {:error, :not_found}
       person -> {:ok, person}
     end
+  end
+
+  def update_person(%Commcare.Person{id: id}, fun) do
+    Mutex.under(PersonMutex, id, fun)
   end
 
   def save_event(%Commcare.IndexCase{} = index_case, event_name) when is_binary(event_name) do

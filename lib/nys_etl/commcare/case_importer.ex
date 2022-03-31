@@ -30,9 +30,11 @@ defmodule NYSETL.Commcare.CaseImporter do
     with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
          {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
          {:ok, person, finder} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
-      {:ok, index_case} = create_index_case(patient_case, person, county)
-      index_case |> create_lab_results(lab_results, county)
-      {:ok, index_case, finder}
+      Commcare.update_person(person, fn ->
+        {:ok, index_case} = create_index_case(patient_case, person, county)
+        index_case |> create_lab_results(lab_results, county)
+        {:ok, index_case, finder}
+      end)
     else
       {:ok, %Commcare.IndexCase{} = index_case} ->
         {:ok, index_case, :already_exists}

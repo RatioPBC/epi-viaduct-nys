@@ -4,6 +4,7 @@ defmodule NYSETL.CommcareTest do
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
   alias NYSETL.Test
+  alias NYSETL.Test.MessageCollector
 
   defp set_up_person(_context) do
     {:ok, _county} = ECLRS.find_or_create_county(111)
@@ -501,6 +502,64 @@ defmodule NYSETL.CommcareTest do
 
       Commcare.get_person(dob: ~D[1990-03-15], full_name: "Different Person")
       |> assert_eq({:error, :not_found})
+    end
+  end
+
+  describe "update_person" do
+    setup do
+      start_supervised!(MessageCollector)
+      :ok
+    end
+
+    test "serializes access to a single person" do
+      # make two different structs so resource lock is only on id, not entire struct
+      {:ok, person_v1} = Commcare.create_person(%{name_first: "Person", name_last: "V1", dob: ~D[2021-08-03], patient_keys: [], data: %{}})
+      person_v2 = %Commcare.Person{id: person_v1.id, name_first: "Person", name_last: "V2"}
+
+      v1_update =
+        Task.async(fn ->
+          Commcare.update_person(person_v1, fn ->
+            Process.sleep(5)
+            MessageCollector.add(:person_v1)
+          end)
+        end)
+
+      v2_update =
+        Task.async(fn ->
+          Commcare.update_person(person_v2, fn ->
+            MessageCollector.add(:person_v2)
+          end)
+        end)
+
+      Task.await(v1_update)
+      Task.await(v2_update)
+
+      assert MessageCollector.messages() == [:person_v1, :person_v2]
+    end
+
+    test "parallelizes access to multiple people" do
+      {:ok, person_1} = Commcare.create_person(%{name_first: "Will", name_last: "Smith", dob: ~D[1968-09-25], patient_keys: [], data: %{}})
+      {:ok, person_2} = Commcare.create_person(%{name_first: "Chris", name_last: "Rock", dob: ~D[1965-02-07], patient_keys: [], data: %{}})
+
+      person_1_update =
+        Task.async(fn ->
+          Commcare.update_person(person_1, fn ->
+            Process.sleep(5)
+            MessageCollector.add(:person_1)
+          end)
+        end)
+
+      person_2_update =
+        Task.async(fn ->
+          Commcare.update_person(person_2, fn ->
+            MessageCollector.add(:person_2)
+          end)
+        end)
+
+      Task.await(person_1_update)
+      Task.await(person_2_update)
+
+      assert MessageCollector.messages() == [:person_2, :person_1]
     end
   end
 

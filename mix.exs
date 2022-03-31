@@ -68,6 +68,7 @@ defmodule NYSETL.MixProject do
       {:magritte, "~> 0.1.2"},
       {:mix_audit, "~> 1.0"},
       {:mox, "~> 1.0", only: :test},
+      {:mutex, "~> 1.3"},
       {:nimble_csv, "~> 1.1"},
       {:oban, "~> 2.11"},
       {:oban_pro, "~> 0.10", repo: "oban"},

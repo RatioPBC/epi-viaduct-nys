@@ -28,12 +28,14 @@ defmodule NYSETL.Engines.E2.Processor do
     with :ok <- processable?(test_result, ignore_before),
          {:ok, county} <- get_county(test_result.county_id),
          {:ok, person} <- find_or_create_person(test_result) do
-      person
-      |> find_or_create_index_cases(test_result, county)
-      |> Enum.map(&process_one(&1, test_result, county))
-      |> register_summary_event(test_result)
+      Commcare.update_person(person, fn ->
+        person
+        |> find_or_create_index_cases(test_result, county)
+        |> Enum.map(&process_one(&1, test_result, county))
+        |> register_summary_event(test_result)
 
-      :ok
+        :ok
+      end)
     else
       {:non_participating_county, county} ->
         ECLRS.save_event(test_result,
