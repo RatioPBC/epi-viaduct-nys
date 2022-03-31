@@ -37,6 +37,15 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
       refute_enqueued(worker: CaseImporter)
     end
 
+    test "400 when request isn't formatted correctly", %{conn: conn, midsomer_patient_case: patient_case} do
+      patient_case = Map.delete(patient_case, "case_id")
+
+      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), %{"commcare_case" => patient_case})
+
+      assert response(conn, 400) =~ "Bad Request"
+      refute_enqueued(worker: CaseImporter)
+    end
+
     test "create an oban job and nothing else", %{conn: conn, midsomer_county: midsomer, midsomer_patient_case: patient_case} do
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
       refute_enqueued(worker: CaseImporter)
