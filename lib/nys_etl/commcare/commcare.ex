@@ -127,6 +127,20 @@ defmodule NYSETL.Commcare do
     end
   end
 
+  def get_person(case_id: case_id) do
+    query =
+      from person in Commcare.Person,
+        join: ic in Commcare.IndexCase,
+        on: person.id == ic.person_id,
+        where: ic.case_id == ^case_id
+
+    Repo.one(query)
+    |> case do
+      nil -> {:error, :not_found}
+      person -> {:ok, person}
+    end
+  end
+
   def update_person(%Commcare.Person{id: id}, fun) do
     Mutex.under(PersonMutex, id, fun)
   end

@@ -145,32 +145,38 @@ defmodule NYSETL.Commcare.CaseImporter do
   end
 
   defp find_and_update_index_case(patient_case, county) do
-    Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
-    |> case do
-      {:error, :not_found} ->
-        {:error, :not_found}
-
-      {:ok, index_case} ->
-        Commcare.update_index_case_from_commcare_data(index_case, patient_case)
+    with {:ok, person} <- Commcare.get_person(case_id: patient_case["case_id"]) do
+      Commcare.update_person(person, fn ->
+        Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
         |> case do
-          {:ok, ^index_case} ->
-            Logger.info(
-              "[#{__MODULE__}] not modified index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
-            )
-
-            {:ok, index_case}
+          {:error, :not_found} ->
+            {:error, :not_found}
 
           {:ok, index_case} ->
-            :telemetry.execute([:extractor, :commcare, :index_case, :already_exists], %{count: 1})
+            Commcare.update_index_case_from_commcare_data(index_case, patient_case)
+            |> case do
+              {:ok, ^index_case} ->
+                Logger.info(
+                  "[#{__MODULE__}] not modified index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
+                )
 
-            Logger.info(
-              "[#{__MODULE__}] updated index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
-            )
+                {:ok, index_case}
 
-            index_case |> Commcare.save_event("updated_from_commcare")
+              {:ok, index_case} ->
+                :telemetry.execute([:extractor, :commcare, :index_case, :already_exists], %{count: 1})
 
-            {:ok, index_case}
+                Logger.info(
+                  "[#{__MODULE__}] updated index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
+                )
+
+                index_case |> Commcare.save_event("updated_from_commcare")
+
+                {:ok, index_case}
+            end
         end
+      end)
+    else
+      {:error, :not_found} -> {:error, :not_found}
     end
   end
 

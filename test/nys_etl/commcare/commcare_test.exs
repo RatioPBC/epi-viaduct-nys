@@ -495,6 +495,22 @@ defmodule NYSETL.CommcareTest do
       assert {:error, :not_found} = Commcare.get_person(patient_key: "456")
     end
 
+    test "is {:ok, person} when there is a matching case id" do
+      person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
+
+      {:ok, _county} = ECLRS.find_or_create_county(111)
+
+      {:ok, index_case} =
+        %{data: %{a: 1}, person_id: person.id, county_id: 111}
+        |> Commcare.create_index_case()
+
+      assert {:ok, ^person} = Commcare.get_person(case_id: index_case.case_id)
+    end
+
+    test "is {:error, :not_found} when there is no matching case id" do
+      assert {:error, :not_found} = Commcare.get_person(case_id: "does-not-exist")
+    end
+
     test "doesn't crash when a person in the DB has a last name that looks like a function" do
       %{data: %{}, patient_keys: ["123", "456"], dob: ~D[1990-03-15], name_last: "Smith(Smath)", name_first: "Smyth"}
       |> Commcare.Person.changeset()
