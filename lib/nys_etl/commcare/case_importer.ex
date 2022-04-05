@@ -22,48 +22,53 @@ defmodule NYSETL.Commcare.CaseImporter do
   def perform(%Oban.Job{args: %{"commcare_case_id" => commcare_case_id, "domain" => domain}}) do
     {:ok, patient_case} = Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain)
     {:ok, county} = County.get(domain: domain)
-    {:ok, _index_case, _finder} = import_case(case: patient_case, county: county)
-    :ok
+
+    import_case(case: patient_case, county: county)
   end
 
   def import_case(case: %{"properties" => %{"case_type" => "patient"}} = patient_case, county: county) do
     with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
          {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
-         {:ok, person, finder} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
+         {:ok, person} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
       Commcare.update_person(person, fn ->
         {:ok, index_case} = create_index_case(patient_case, person, county)
         index_case |> create_lab_results(lab_results, county)
-        {:ok, index_case, finder}
+        :ok
       end)
     else
-      {:ok, %Commcare.IndexCase{} = index_case} ->
-        {:ok, index_case, :already_exists}
+      {:ok, %Commcare.IndexCase{}} ->
+        :ok
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:error, changeset.errors}
+      {:error, %Ecto.Changeset{errors: errors}} ->
+        {:discard, errors}
 
       {:error, reason} ->
         {:error, reason}
+
+      {:discard, reason} ->
+        {:discard, reason}
     end
   end
 
   def import_case(case: %{"case_id" => case_id, "properties" => %{"case_type" => case_type}}, county: _county) do
-    raise "Can only import `patient` cases. #{case_id} is a `#{case_type}`."
+    message = "#{__MODULE__}: Can only import `patient` cases. #{case_id} is a `#{case_type}`."
+    Sentry.capture_message(message)
+    {:discard, message}
   end
 
-  defp extract_case_data(%{"closed" => true}), do: {:error, :closed}
+  defp extract_case_data(%{"closed" => true}), do: {:discard, :closed}
 
   defp extract_case_data(%{"properties" => %{"final_disposition" => final_disposition}})
-      when final_disposition in ["registered_in_error", "duplicate", "not_a_case"],
-      do: {:error, :final_disposition}
+       when final_disposition in ["registered_in_error", "duplicate", "not_a_case"],
+       do: {:discard, :final_disposition}
 
-  defp extract_case_data(%{"properties" => %{"patient_type" => "pui", "current_status" => "closed"}}), do: {:error, :closed}
+  defp extract_case_data(%{"properties" => %{"patient_type" => "pui", "current_status" => "closed"}}), do: {:discard, :closed}
 
-  defp extract_case_data(%{"properties" => %{"stub" => "yes"}}), do: {:error, :stub}
+  defp extract_case_data(%{"properties" => %{"stub" => "yes"}}), do: {:discard, :stub}
 
   defp extract_case_data(%{"properties" => %{"transfer_status" => transfer_status}})
-      when transfer_status in ["pending", "sent"],
-      do: {:error, :transfer_status}
+       when transfer_status in ["pending", "sent"],
+       do: {:discard, :transfer_status}
 
   defp extract_case_data(patient_case) do
     case_id = patient_case["case_id"]
@@ -90,7 +95,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     }
     |> Commcare.create_person()
     |> case do
-      {:ok, person} -> {:ok, person, :new_person}
+      {:ok, person} -> {:ok, person}
       other -> other
     end
   end
@@ -178,7 +183,7 @@ defmodule NYSETL.Commcare.CaseImporter do
   defp find_person(patient_key: patient_key) do
     Commcare.get_person(patient_key: patient_key)
     |> case do
-      {:ok, person} -> {:ok, person, :patient_key}
+      {:ok, person} -> {:ok, person}
       {:error, :not_found} -> nil
     end
   end
@@ -186,26 +191,26 @@ defmodule NYSETL.Commcare.CaseImporter do
   defp find_person(_case, dob: nil), do: nil
 
   defp find_person(%{"properties" => %{"first_name" => first_name, "last_name" => last_name}}, dob: dob)
-      when is_binary(first_name) and is_binary(last_name) do
+       when is_binary(first_name) and is_binary(last_name) do
     Commcare.get_person(
       dob: dob,
       name_first: first_name |> String.upcase(),
       name_last: last_name |> String.upcase()
     )
     |> case do
-      {:ok, person} -> {:ok, person, :dob}
+      {:ok, person} -> {:ok, person}
       {:error, :not_found} -> nil
     end
   end
 
   defp find_person(%{"properties" => %{"full_name" => full_name}}, dob: dob)
-      when is_binary(full_name) do
+       when is_binary(full_name) do
     Commcare.get_person(
       dob: dob,
       full_name: full_name
     )
     |> case do
-      {:ok, person} -> {:ok, person, :full_name}
+      {:ok, person} -> {:ok, person}
       {:error, :not_found} -> nil
     end
   end
