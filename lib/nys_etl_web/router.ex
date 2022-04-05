@@ -34,6 +34,7 @@ defmodule NYSETLWeb.Router do
   scope "/api", NYSETLWeb do
     pipe_through :api
 
+    get "/commcare_cases", CommcareCasesController, :index
     post "/commcare_cases", CommcareCasesController, :create
   end
 

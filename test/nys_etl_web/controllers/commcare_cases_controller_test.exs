@@ -18,6 +18,30 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
     %{context | conn: conn}
   end
 
+  describe "index" do
+    test "200", %{conn: conn} do
+      conn = get(conn, Routes.commcare_cases_path(@endpoint, :index))
+
+      assert response(conn, 200) =~ "OK"
+    end
+
+    test "501 when feature flag is off", %{conn: conn} do
+      {:ok, false} = FunWithFlags.disable(:commcare_case_forwarder)
+      conn = get(conn, Routes.commcare_cases_path(@endpoint, :index))
+
+      assert response(conn, 501) =~ "Not Implemented"
+    end
+
+    test "401 when credentials are wrong", %{conn: conn} do
+      conn =
+        conn
+        |> put_commcare_auth("bad-password")
+        |> get(Routes.commcare_cases_path(@endpoint, :index))
+
+      assert response(conn, 401) =~ "Unauthorized"
+    end
+  end
+
   describe "create" do
     test "501 when feature flag is off", %{conn: conn, midsomer_patient_case: patient_case} do
       {:ok, false} = FunWithFlags.disable(:commcare_case_forwarder)
