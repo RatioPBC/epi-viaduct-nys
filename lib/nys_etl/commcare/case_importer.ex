@@ -20,10 +20,14 @@ defmodule NYSETL.Commcare.CaseImporter do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"commcare_case_id" => commcare_case_id, "domain" => domain}}) do
-    {:ok, patient_case} = Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain)
-    {:ok, county} = County.get(domain: domain)
+    with {:ok, patient_case} <- Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain) do
+      {:ok, county} = County.get(domain: domain)
 
-    import_case(case: patient_case, county: county)
+      import_case(case: patient_case, county: county)
+    else
+      {:error, :rate_limited} -> {:snooze, 15}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def import_case(case: %{"properties" => %{"case_type" => "patient"}} = patient_case, county: county) do
@@ -149,8 +153,8 @@ defmodule NYSETL.Commcare.CaseImporter do
       Commcare.update_person(person, fn ->
         Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
         |> case do
-          {:error, :not_found} ->
-            {:error, :not_found}
+          {:error, reason} ->
+            {:error, reason}
 
           {:ok, index_case} ->
             Commcare.update_index_case_from_commcare_data(index_case, patient_case)
@@ -176,7 +180,7 @@ defmodule NYSETL.Commcare.CaseImporter do
         end
       end)
     else
-      {:error, :not_found} -> {:error, :not_found}
+      {:error, reason} -> {:error, reason}
     end
   end
 

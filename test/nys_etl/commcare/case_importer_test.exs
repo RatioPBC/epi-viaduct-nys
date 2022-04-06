@@ -7,6 +7,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
   alias NYSETL.Commcare
   alias NYSETL.Commcare.CaseImporter
   alias NYSETL.ECLRS
+  alias NYSETL.Test
 
   @user_id "2753ce1d42654b9897a3f88493838e34"
 
@@ -77,6 +78,21 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
       assert :ok = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
       assert {:ok, _} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
+    end
+
+    test "snooze when fetching fails", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{patient_case["case_id"]}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 429,
+           body: Test.Fixtures.commcare_submit_response(:error)
+         }}
+      end)
+
+      assert {:snooze, 15} = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
     end
   end
 
