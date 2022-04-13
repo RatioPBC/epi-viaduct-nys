@@ -7,7 +7,7 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
   alias NYSETL.Commcare
   alias NYSETL.Commcare.CaseImporter
 
-  setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case, :fwf_case_forwarder]
+  setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
 
   setup context do
     conn =
@@ -25,13 +25,6 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
       assert response(conn, 200) =~ "OK"
     end
 
-    test "501 when feature flag is off", %{conn: conn} do
-      {:ok, false} = FunWithFlags.disable(:commcare_case_forwarder)
-      conn = get(conn, Routes.commcare_cases_path(@endpoint, :index))
-
-      assert response(conn, 501) =~ "Not Implemented"
-    end
-
     test "401 when credentials are wrong", %{conn: conn} do
       conn =
         conn
@@ -43,14 +36,6 @@ defmodule NYSETLWeb.CommcareCasesControllerTest do
   end
 
   describe "create" do
-    test "501 when feature flag is off", %{conn: conn, midsomer_patient_case: patient_case} do
-      {:ok, false} = FunWithFlags.disable(:commcare_case_forwarder)
-      conn = post(conn, Routes.commcare_cases_path(@endpoint, :create), patient_case)
-
-      assert response(conn, 501) =~ "Not Implemented"
-      refute_enqueued(worker: CaseImporter)
-    end
-
     test "401 when credentials are wrong", %{conn: conn, midsomer_patient_case: patient_case} do
       conn =
         conn

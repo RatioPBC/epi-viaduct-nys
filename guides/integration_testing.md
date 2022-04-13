@@ -44,7 +44,7 @@ county =
 )
 
 # Import the case data
-NYSETL.Engines.E5.Processor.process(case: cc, county: county)
+NYSETL.Commcare.CaseImporter.import_case(case: cc, county: county)
 ```
 
 ## Create an ECLRS file

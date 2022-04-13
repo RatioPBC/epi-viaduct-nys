@@ -9,7 +9,6 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E4.CommcareCaseLoader
-  alias NYSETL.Engines.E5.PollingConfig
   alias NYSETL.Test
 
   setup [:verify_on_exit!, :start_supervised_oban]
@@ -43,8 +42,6 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
   end
 
   describe "perform" do
-    setup :fwf_case_forwarder
-
     test "checks commcare for the case, and when it is not in commcare yet, XML built from just eclrs data is POSTed to CommCare" do
       case_id = "case-id-abcd1234"
       {:ok, county} = ECLRS.find_or_create_county(Test.Fixtures.test_county_1_fips())
@@ -74,78 +71,9 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
     end
 
     """
-    checks commcare for the case, and when it is present in CommCare,
-    it builds XML from a merge of the ECLRS data and CommCare data
-    and POSTs it to CommCare
+    Does not update data from CommCare
     """
     |> test do
-      case_id = "case-id-abcd1234"
-      {:ok, county} = ECLRS.find_or_create_county(Test.Fixtures.test_county_1_fips())
-      {:ok, person} = %{data: %{}, patient_keys: ["123"]} |> Test.Factory.person() |> Commcare.create_person()
-
-      {:ok, index_case} =
-        %{case_id: case_id, data: %{full_name: "Original Full Name"}, person_id: person.id, county_id: county.id}
-        |> Commcare.create_index_case()
-
-      me = self()
-
-      NYSETL.HTTPoisonMock
-      |> expect(:get, fn url, _headers, _opts ->
-        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/case-id-abcd1234/"
-
-        {:ok,
-         %{
-           status_code: 200,
-           body:
-             %{
-               "case_id" => case_id,
-               "properties" => %{
-                 "full_name" => "Updated Full Name",
-                 "owner_id" => Test.Fixtures.test_county_1_location_id()
-               }
-             }
-             |> Jason.encode!()
-         }}
-      end)
-      |> expect(:post, fn url, xml, _headers ->
-        send(me, {:xml, xml})
-        doc = xml |> Floki.parse_document!()
-        assert url =~ "/a/uk-midsomer-cdcms/receiver/"
-        assert Test.Xml.attr(doc, "case:nth-of-type(1)", "case_id") == case_id
-        assert Test.Xml.text(doc, "case:nth-of-type(1) update full_name") == "Updated Full Name"
-        {:ok, %{status_code: 201, body: Test.Fixtures.commcare_submit_response(:success)}}
-      end)
-
-      worker_result = CommcareCaseLoader.perform(%{attempt: 1, args: %{"case_id" => case_id, "county_id" => Test.Fixtures.test_county_1_fips()}})
-      assert worker_result == :ok
-
-      receive do
-        {:xml, xml} ->
-          %Commcare.IndexCase{events: [updated_from_commcare, update_event]} = Repo.preload(index_case, :events)
-
-          assert %{type: "updated_from_commcare"} = updated_from_commcare
-
-          assert Euclid.Term.present?(update_event.data["response"])
-          assert Euclid.Term.present?(update_event.data["timestamp"])
-          assert update_event.data["action"] == "update"
-          assert update_event.stash == xml
-      after
-        250 ->
-          flunk("Never got the XML to assert against")
-      end
-
-      {:ok, reloaded_index_case} = Commcare.get_index_case(case_id: case_id, county_id: county.id)
-      assert reloaded_index_case.data["full_name"] == "Updated Full Name"
-
-      reloaded_index_case |> assert_events(["updated_from_commcare", "send_to_commcare_succeeded"])
-    end
-
-    """
-    Does not update data from CommCare when polling is disabled for the domain.
-    """
-    |> test do
-      :ok = PollingConfig.disable("uk-midsomer-cdcms")
-
       case_id = "case-id-abcd1234"
       {:ok, county} = ECLRS.find_or_create_county(Test.Fixtures.test_county_1_fips())
       {:ok, person} = %{data: %{}, patient_keys: ["123"]} |> Test.Factory.person() |> Commcare.create_person()
@@ -384,9 +312,7 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoaderTest do
              end) =~ "recording case case_id=#{index_case.case_id} as failed to send to commcare"
 
       {:ok, reloaded_index_case} = Commcare.get_index_case(case_id: index_case.case_id, county_id: county.id)
-      assert reloaded_index_case.data["full_name"] == "Updated Full Name"
-
-      reloaded_index_case |> assert_events(["updated_from_commcare", "send_to_commcare_failed"])
+      reloaded_index_case |> assert_events(["send_to_commcare_failed"])
     end
 
     """

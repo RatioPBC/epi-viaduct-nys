@@ -20,7 +20,6 @@ defmodule NYSETL.DataCase do
 
   alias NYSETL.Commcare.County
   alias NYSETL.ECLRS
-  alias NYSETL.Engines.E5.PollingConfig
   alias NYSETL.Test
 
   using do
@@ -99,12 +98,6 @@ defmodule NYSETL.DataCase do
 
   def start_supervised_oban(_context) do
     {:ok, _oban} = start_supervised({Oban, queues: false, plugins: false, repo: NYSETL.Repo})
-    :ok
-  end
-
-  def fwf_case_forwarder(_context) do
-    {:ok, true} = FunWithFlags.enable(:commcare_case_forwarder)
-    {:ok, _} = start_supervised(PollingConfig)
     :ok
   end
 end

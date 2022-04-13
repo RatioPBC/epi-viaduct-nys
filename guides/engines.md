@@ -93,25 +93,3 @@ Notes:
 * If a final-destination index case cannot be found, it is always the case that the same lab result that Viaduct is
     trying to publish can also be found on another index case, often in the right county.  For that reason, broken
     transfer chains are rarely a problem.
-
-## E5: CommCare Extractor
-
-`NYSETL.Engines.E5.*`: _A Broadway pipeline that runs continuously._
-
-`NYSETL.Engines.E5.Producer` wakes up every five minutes and polls CommCare for all changes to index cases since midnight.  It
-works its way through the counties list (in reverse alphabetical order), downloading index cases and their lab
-results. `NYSETL.Engines.E5.Processor` processes the cases according to the first rule that matches:
-
-* An index case with this `case_id` exists in our DB:
-    * Update the case with changes from CommCare, but ignore any new lab results.
-* A person exists that can be matched by dob + last_name + first_name:
-    * Create an index case linked to the person and lab results linked to the index case.
-* If no matching case or person exists:
-    * Create a person, index case, and lab result record(s).
-
-Notes:
-
-* We're polling for changes since midnight since that is what we thought the API allowed.  We've since found how
-  to express a timestamp that would allow us to fetch changes since any time, and we should fix that at some point.
-* The data we sync down is used when merging records in Engine 3.  It is not (yet) used to figure out transfer
-  chains for Engine 4.

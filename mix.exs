@@ -111,7 +111,6 @@ defmodule NYSETL.MixProject do
         NYSETL.Engines.E1,
         NYSETL.Engines.E2,
         NYSETL.Engines.E4,
-        NYSETL.Engines.E5,
         NYSETL.Extra,
         NYSETL.Monitoring,
         NYSETL.Tasks,

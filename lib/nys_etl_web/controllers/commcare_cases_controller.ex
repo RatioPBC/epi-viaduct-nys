@@ -5,17 +5,10 @@ defmodule NYSETLWeb.CommcareCasesController do
 
   @viaduct_commcare_user_ids Application.compile_env(:nys_etl, :viaduct_commcare_user_ids) |> MapSet.new()
 
-  def index(conn, _params) do
-    case require_case_forwarder_enabled() do
-      :ok -> {200, "OK"}
-      response -> response
-    end
-    |> respond_with(conn)
-  end
+  def index(conn, _params), do: respond_with({200, "OK"}, conn)
 
   def create(conn, params) do
-    with :ok <- require_case_forwarder_enabled(),
-         :ok <- require_params(params),
+    with :ok <- require_params(params),
          :ok <- require_patient_case_type(params) do
       unless MapSet.member?(@viaduct_commcare_user_ids, params["user_id"]) do
         CaseImporter.new(%{commcare_case_id: params["case_id"], domain: params["domain"]})
@@ -33,14 +26,6 @@ defmodule NYSETLWeb.CommcareCasesController do
     conn
     |> put_status(status)
     |> text(message)
-  end
-
-  defp require_case_forwarder_enabled() do
-    if FunWithFlags.enabled?(:commcare_case_forwarder) do
-      :ok
-    else
-      {501, "Not Implemented"}
-    end
   end
 
   defp require_params(%{"case_id" => _, "domain" => _, "user_id" => _, "properties" => %{"case_type" => _}}), do: :ok

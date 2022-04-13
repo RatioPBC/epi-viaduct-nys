@@ -10,7 +10,6 @@ defmodule NYSETL.ViaductSupervisor do
       NYSETL.Commcare.Api.cache_spec(),
       {Oban, Application.get_env(:nys_etl, Oban)},
       NYSETL.Engines.E2.TestResultProducer,
-      NYSETL.Engines.E5.Supervisor,
       NYSETL.Engines.E1.SQSTask
     ]
 

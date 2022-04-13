@@ -4,7 +4,7 @@ These stats are generated using data from 2021-10-19 to 2021-11-29 and encompass
 
 Viaduct processes ECLRS files much faster than ECLRS can send them. ECLRS sends files every 30 minutes, and Viaduct processes an ECLRS file in ~15 seconds.
 
-`NYSETL.Engines.E4.CommcareCaseLoader` and `NYSETL.Engines.E5.Broadway` make API calls to CommCare, and so are subject to network connectivity and CommCare API's responsiveness.
+`NYSETL.Engines.E4.CommcareCaseLoader` and `NYSETL.Commcare.CaseImporter` make API calls to CommCare, and so are subject to network connectivity and CommCare API's responsiveness.
 
 ## Processing ECLRS files
 
@@ -90,8 +90,6 @@ from
 
 ## Importing from CommCare
 
-`NYSETL.Engines.E5.Producer.handle_demand/2` continually polls CommCare domains for any cases that have changed since they were previously polled. It doesn't record data to the database, so we can't produce statistics with a SQL query.
+CommCare uses its [case forwarder](https://confluence.dimagi.com/pages/viewpage.action?pageId=12224128) to send updates to Viaduct.
 
-It does log the times at which it makes API requests, and includes the text e.g. `extracting domain=ny-monroe-cdcms`. We produced these statistic by grepping a single day's log file for those lines, and then calculating the time differences in a spreadsheet.
-
-**Average time to process a CommCare domain**: 29 seconds (1 minute, 7 seconds standard deviation)
+`NYSETL.Commcare.CaseImporter.perform/1` typically takes less than a second to complete.

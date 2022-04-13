@@ -10,7 +10,6 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
   alias NYSETL.Commcare
   alias NYSETL.Commcare.County
   alias NYSETL.Engines.E4.{CaseIdentifier, CaseTransferChain, Data, Diff, Transfer, XmlBuilder}
-  alias NYSETL.Engines.E5.PollingConfig
   alias NYSETL.Monitoring.Oban.ErrorReporter
 
   def enqueue(index_case, county) do
@@ -46,28 +45,26 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
 
     {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: county_id)
     diff_summary = Diff.case_diff_summary(index_case, nil)
-    {action, updated_index_case} = maybe_update_index_case(index_case, :not_found, nil, domain)
     now = DateTime.utc_now()
 
-    updated_index_case
+    index_case
     |> Data.from_index_case(location_id, now)
     |> XmlBuilder.build()
     |> post_case(domain, case_id)
-    |> record_commcare_response(updated_index_case, now, action, diff_summary, job)
+    |> record_commcare_response(index_case, now, :create, diff_summary, job)
   end
 
   def perform2({{:ok, case_data}, :no_transfer}, %{args: %{"case_id" => case_id, "county_id" => county_id}} = job) do
     {:ok, %{location_id: location_id, domain: domain}} = County.get(fips: county_id)
     {:ok, index_case} = Commcare.get_index_case(case_id: case_data.case_id, county_id: county_id)
     diff_summary = Diff.case_diff_summary(index_case, case_data)
-    {action, updated_index_case} = maybe_update_index_case(index_case, :found, case_data, domain)
     now = DateTime.utc_now()
 
-    updated_index_case
+    index_case
     |> Data.from_index_case(location_id, now)
     |> XmlBuilder.build()
     |> post_case(domain, case_id)
-    |> record_commcare_response(updated_index_case, now, action, diff_summary, job)
+    |> record_commcare_response(index_case, now, :update, diff_summary, job)
   end
 
   def perform2({:not_found, :transfer}, %{args: %{"case_id" => case_id, "county_id" => county_id}} = _job) do
@@ -109,14 +106,14 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
     end
 
     diff_summary = Diff.case_diff_summary(destination_index_case, case_data)
-    {action, updated_destination_index_case} = maybe_update_index_case(destination_index_case, :found, case_data, destination_domain)
+    updated_destination_index_case = maybe_update_index_case(destination_index_case, case_data, destination_domain)
     now = DateTime.utc_now()
 
     updated_destination_index_case
     |> Data.from_index_case(destination_county_location_id, now)
     |> XmlBuilder.build()
     |> post_case(destination_domain, destination_index_case.case_id)
-    |> record_commcare_response(updated_destination_index_case, now, action, diff_summary, job)
+    |> record_commcare_response(updated_destination_index_case, now, :updated, diff_summary, job)
   end
 
   def perform2({:cycle_detected, _transfer?}, %{args: %{"case_id" => case_id, "county_id" => county_id}} = _job) do
@@ -135,29 +132,19 @@ defmodule NYSETL.Engines.E4.CommcareCaseLoader do
     {:error, error}
   end
 
-  defp maybe_update_index_case(index_case, :found, patient_case_data, domain) do
-    if PollingConfig.enabled?(domain) do
-      Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.data)
-      |> case do
-        {:ok, ^index_case} ->
-          Logger.info("[#{__MODULE__}] not modified case_id=#{index_case.case_id} in commcare domain=#{domain}")
-          {:update, index_case}
+  defp maybe_update_index_case(index_case, patient_case_data, domain) do
+    Commcare.update_index_case_from_commcare_data(index_case, patient_case_data.data)
+    |> case do
+      {:ok, ^index_case} ->
+        Logger.info("[#{__MODULE__}] not modified case_id=#{index_case.case_id} in commcare domain=#{domain}")
+        index_case
 
-        {:ok, index_case} ->
-          :telemetry.execute([:loader, :commcare, :updated_from_commcare], %{count: 1})
-          Logger.info("[#{__MODULE__}] updating case_id=#{index_case.case_id} in commcare domain=#{domain}")
-          index_case |> Commcare.save_event("updated_from_commcare")
-          {:update, index_case}
-      end
-    else
-      Logger.info("[#{__MODULE__}] not updating case_id=#{index_case.case_id} (polling disabled in commcare domain=#{domain})")
-      {:update, index_case}
+      {:ok, index_case} ->
+        :telemetry.execute([:loader, :commcare, :updated_from_commcare], %{count: 1})
+        Logger.info("[#{__MODULE__}] updating case_id=#{index_case.case_id} in commcare domain=#{domain}")
+        index_case |> Commcare.save_event("updated_from_commcare")
+        index_case
     end
-  end
-
-  defp maybe_update_index_case(index_case, :not_found, _, domain) do
-    Logger.info("[#{__MODULE__}] creating case case_id=#{index_case.case_id} in commcare domain=#{domain}")
-    {:create, index_case}
   end
 
   defp post_case(xml, domain, case_id) do
