@@ -9,6 +9,7 @@ defmodule NYSETL.Commcare.IndexCase do
     field :closed, :boolean, default: false
     field :data, :map
     field :tid, :string
+    field :commcare_date_modified, :utc_datetime_usec
 
     belongs_to :county, ECLRS.County
     belongs_to :person, Commcare.Person

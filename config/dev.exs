@@ -72,7 +72,8 @@ config :nys_etl,
       "participating" => "yes"
     }
   ],
-  start_viaduct_workers: false
+  start_viaduct_workers: false,
+  viaduct_commcare_user_ids: []
 
 # ## SSL Support
 #

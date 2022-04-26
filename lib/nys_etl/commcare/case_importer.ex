@@ -19,18 +19,29 @@ defmodule NYSETL.Commcare.CaseImporter do
   alias NYSETL.Commcare.County
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"commcare_case_id" => commcare_case_id, "domain" => domain}}) do
-    with {:ok, patient_case} <- Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain) do
-      {:ok, county} = County.get(domain: domain)
+  def perform(%Oban.Job{args: %{"commcare_case" => %{"case_id" => case_id, "domain" => domain} = patient_case}}) do
+    {:ok, county} = County.get(domain: domain)
 
-      import_case(case: patient_case, county: county)
-    else
-      {:error, :rate_limited} -> {:snooze, 15}
-      {:error, reason} -> {:error, reason}
+    case Commcare.get_index_case(case_id: case_id, county_id: county.fips) do
+      {:ok, index_case} ->
+        {:ok, modified_time, 0} = DateTime.from_iso8601(patient_case["date_modified"])
+
+        if !index_case.commcare_date_modified || :gt == DateTime.compare(modified_time, index_case.commcare_date_modified) do
+          import_case(case: patient_case, county: county)
+        else
+          {:discard, :stale_data}
+        end
+
+      {:error, :not_found} ->
+        case Api.get_case(commcare_case_id: case_id, county_domain: domain) do
+          {:ok, patient_case} -> import_case(case: patient_case, county: county)
+          {:error, :rate_limited} -> {:snooze, 15}
+          {:error, reason} -> {:error, reason}
+        end
     end
   end
 
-  def import_case(case: %{"properties" => %{"case_type" => "patient"}} = patient_case, county: county) do
+  def import_case(case: patient_case, county: county) do
     with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
          {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
          {:ok, person} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
@@ -52,12 +63,6 @@ defmodule NYSETL.Commcare.CaseImporter do
       {:discard, reason} ->
         {:discard, reason}
     end
-  end
-
-  def import_case(case: %{"case_id" => case_id, "properties" => %{"case_type" => case_type}}, county: _county) do
-    message = "#{__MODULE__}: Can only import `patient` cases. #{case_id} is a `#{case_type}`."
-    Sentry.capture_message(message)
-    {:discard, message}
   end
 
   defp extract_case_data(%{"closed" => true}), do: {:discard, :closed}
@@ -104,15 +109,16 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  defp create_index_case(case, %Commcare.Person{} = person, county) do
-    case_id = case["case_id"]
+  defp create_index_case(patient_case, %Commcare.Person{} = person, county) do
+    case_id = patient_case["case_id"]
 
     {:ok, index_case} =
       %{
         case_id: case_id,
-        data: case["properties"],
+        data: patient_case["properties"],
         county_id: county.fips,
-        person_id: person.id
+        person_id: person.id,
+        commcare_date_modified: patient_case["date_modified"]
       }
       |> Commcare.create_index_case()
 

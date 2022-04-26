@@ -9,11 +9,11 @@ defmodule NYSETLWeb.CommcareCasesController do
 
   def create(conn, params) do
     with :ok <- require_params(params),
-         :ok <- require_patient_case_type(params) do
-      unless MapSet.member?(@viaduct_commcare_user_ids, params["user_id"]) do
-        CaseImporter.new(%{commcare_case_id: params["case_id"], domain: params["domain"]})
-        |> Oban.insert!()
-      end
+         :ok <- require_patient_case_type(params),
+         :ok <- require_non_viaduct_user_id(params) do
+      %{commcare_case: params}
+      |> CaseImporter.new()
+      |> Oban.insert!()
 
       {202, "Accepted"}
     else
@@ -36,5 +36,13 @@ defmodule NYSETLWeb.CommcareCasesController do
 
   defp require_patient_case_type(%{"case_id" => case_id, "properties" => %{"case_type" => case_type}}) do
     {422, "Unprocessable Entity. Can only import `patient` cases. #{case_id} is a `#{case_type}`."}
+  end
+
+  defp require_non_viaduct_user_id(params) do
+    if MapSet.member?(@viaduct_commcare_user_ids, params["user_id"]) do
+      {202, "Accepted"}
+    else
+      :ok
+    end
   end
 end

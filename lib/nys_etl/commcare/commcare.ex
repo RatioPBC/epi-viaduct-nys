@@ -177,7 +177,10 @@ defmodule NYSETL.Commcare do
 
   def update_index_case_from_commcare_data(%Commcare.IndexCase{} = index_case, %{"properties" => properties} = patient_case) do
     data = properties |> NYSETL.Extra.Map.merge_empty_fields(index_case.data)
-    Commcare.update_index_case(index_case, %{closed: patient_case["closed"], data: data}, %{fetched_from_commcare: properties})
+
+    Commcare.update_index_case(index_case, %{closed: patient_case["closed"], commcare_date_modified: patient_case["date_modified"], data: data}, %{
+      fetched_from_commcare: properties
+    })
   end
 
   defp update_with_paper_trail(model, make_changeset, attrs, meta) do
