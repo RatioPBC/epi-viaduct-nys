@@ -19,49 +19,91 @@ defmodule NYSETL.Commcare.CaseImporter do
   alias NYSETL.Commcare.County
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"commcare_case" => %{"case_id" => case_id, "domain" => domain} = patient_case}}) do
-    {:ok, county} = County.get(domain: domain)
+  def perform(%Oban.Job{args: %{"action" => "create", "commcare_case_id" => commcare_case_id, "domain" => domain}}) do
+    case Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain) do
+      {:ok, patient_case} ->
+        {:ok, county} = County.get(domain: domain)
+        import_case(:create, case: patient_case, county: county)
 
-    case Commcare.get_index_case(case_id: case_id, county_id: county.fips) do
-      {:ok, index_case} ->
-        {:ok, modified_time, 0} = DateTime.from_iso8601(patient_case["date_modified"])
+      {:error, :rate_limited} ->
+        {:snooze, 15}
 
-        if !index_case.commcare_date_modified || :gt == DateTime.compare(modified_time, index_case.commcare_date_modified) do
-          import_case(case: patient_case, county: county)
-        else
-          {:discard, :stale_data}
-        end
-
-      {:error, :not_found} ->
-        case Api.get_case(commcare_case_id: case_id, county_domain: domain) do
-          {:ok, patient_case} -> import_case(case: patient_case, county: county)
-          {:error, :rate_limited} -> {:snooze, 15}
-          {:error, reason} -> {:error, reason}
-        end
+      {:error, _} = error ->
+        error
     end
   end
 
-  def import_case(case: patient_case, county: county) do
-    with {:error, :not_found} <- find_and_update_index_case(patient_case, county),
-         {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"action" => "update", "commcare_case" => %{"domain" => domain} = patient_case}}) do
+    {:ok, county} = County.get(domain: domain)
+    import_case(:update, case: patient_case, county: county)
+  end
+
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"commcare_case_id" => commcare_case_id, "domain" => domain}}) do
+    case Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain) do
+      {:ok, patient_case} ->
+        {:ok, county} = County.get(domain: domain)
+
+        case import_case(:update, case: patient_case, county: county) do
+          :ok -> :ok
+          {:error, :not_found} -> import_case(:create, case: patient_case, county: county)
+          {:discard, _} = discard -> discard
+        end
+
+      {:error, :rate_limited} ->
+        {:snooze, 15}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  def import_case(:create, case: patient_case, county: county) do
+    with {_case_id, patient_key, dob, lab_results} <- extract_case_data(patient_case),
          {:ok, person} <- find_person(patient_case, dob, patient_key) || create_person(patient_case) do
       Commcare.update_person(person, fn ->
-        {:ok, index_case} = create_index_case(patient_case, person, county)
-        index_case |> create_lab_results(lab_results, county)
-        :ok
+        with {:ok, index_case} <- create_index_case(patient_case, person, county) do
+          :telemetry.execute([:extractor, :commcare, :index_case, :created], %{count: 1})
+          Logger.info("[#{__MODULE__}] created index_case case_id=#{patient_case["case_id"]} for person_id=#{person.id}, county=#{county.domain}")
+          index_case |> Commcare.save_event("retrieved_from_commcare")
+          index_case |> create_lab_results(lab_results, county)
+          :ok
+        else
+          {:error, %Ecto.Changeset{errors: errors}} -> {:discard, errors}
+        end
       end)
     else
-      {:ok, %Commcare.IndexCase{}} ->
-        :ok
+      {:error, %Ecto.Changeset{errors: errors}} -> {:discard, errors}
+      {:discard, _} = discard -> discard
+    end
+  end
 
-      {:error, %Ecto.Changeset{errors: errors}} ->
-        {:discard, errors}
+  def import_case(:update, case: patient_case, county: county) do
+    with {:ok, person} <- Commcare.get_person(case_id: patient_case["case_id"]) do
+      Commcare.update_person(person, fn ->
+        {:ok, index_case} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
+        {:ok, modified_time, 0} = DateTime.from_iso8601(patient_case["date_modified"])
 
-      {:error, reason} ->
-        {:error, reason}
+        if !index_case.commcare_date_modified || :gt == DateTime.compare(modified_time, index_case.commcare_date_modified) do
+          {:ok, index_case} = Commcare.update_index_case_from_commcare_data(index_case, patient_case)
+          :telemetry.execute([:extractor, :commcare, :index_case, :already_exists], %{count: 1})
 
-      {:discard, reason} ->
-        {:discard, reason}
+          Logger.info(
+            "[#{__MODULE__}] updated index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
+          )
+
+          index_case |> Commcare.save_event("updated_from_commcare")
+
+          :ok
+        else
+          Logger.info(
+            "[#{__MODULE__}] not modified index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
+          )
+
+          {:discard, :stale_data}
+        end
+      end)
     end
   end
 
@@ -110,22 +152,14 @@ defmodule NYSETL.Commcare.CaseImporter do
   end
 
   defp create_index_case(patient_case, %Commcare.Person{} = person, county) do
-    case_id = patient_case["case_id"]
-
-    {:ok, index_case} =
-      %{
-        case_id: case_id,
-        data: patient_case["properties"],
-        county_id: county.fips,
-        person_id: person.id,
-        commcare_date_modified: patient_case["date_modified"]
-      }
-      |> Commcare.create_index_case()
-
-    :telemetry.execute([:extractor, :commcare, :index_case, :created], %{count: 1})
-    Logger.info("[#{__MODULE__}] created index_case case_id=#{case_id} for person_id=#{person.id}, county=#{county.domain}")
-    index_case |> Commcare.save_event("retrieved_from_commcare")
-    {:ok, index_case}
+    %{
+      case_id: patient_case["case_id"],
+      data: patient_case["properties"],
+      county_id: county.fips,
+      person_id: person.id,
+      commcare_date_modified: patient_case["date_modified"]
+    }
+    |> Commcare.create_index_case()
   end
 
   defp create_lab_results(%Commcare.IndexCase{} = index_case, [], _county), do: index_case
@@ -152,42 +186,6 @@ defmodule NYSETL.Commcare.CaseImporter do
           throw(error)
       end
     end)
-  end
-
-  defp find_and_update_index_case(patient_case, county) do
-    with {:ok, person} <- Commcare.get_person(case_id: patient_case["case_id"]) do
-      Commcare.update_person(person, fn ->
-        Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
-        |> case do
-          {:error, reason} ->
-            {:error, reason}
-
-          {:ok, index_case} ->
-            Commcare.update_index_case_from_commcare_data(index_case, patient_case)
-            |> case do
-              {:ok, ^index_case} ->
-                Logger.info(
-                  "[#{__MODULE__}] not modified index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
-                )
-
-                {:ok, index_case}
-
-              {:ok, index_case} ->
-                :telemetry.execute([:extractor, :commcare, :index_case, :already_exists], %{count: 1})
-
-                Logger.info(
-                  "[#{__MODULE__}] updated index_case case_id=#{index_case.case_id} for person_id=#{index_case.person_id}, county=#{county.domain}"
-                )
-
-                index_case |> Commcare.save_event("updated_from_commcare")
-
-                {:ok, index_case}
-            end
-        end
-      end)
-    else
-      {:error, reason} -> {:error, reason}
-    end
   end
 
   defp find_person(patient_case, dob, patient_key) do

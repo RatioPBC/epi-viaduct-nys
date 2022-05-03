@@ -5,13 +5,28 @@ defmodule NYSETLWeb.CommcareCasesController do
 
   @viaduct_commcare_user_ids Application.compile_env(:nys_etl, :viaduct_commcare_user_ids) |> MapSet.new()
 
-  def index(conn, _params), do: respond_with({200, "OK"}, conn)
+  def check(conn, _params), do: respond_with({200, "OK"}, conn)
+
+  def create_or_update(conn, params) do
+    %{commcare_case_id: params["case_id"], domain: params["domain"]}
+    |> process_case_forward(conn, params)
+  end
 
   def create(conn, params) do
+    %{action: "create", commcare_case_id: params["case_id"], domain: params["domain"]}
+    |> process_case_forward(conn, params)
+  end
+
+  def update(conn, params) do
+    %{action: "update", commcare_case: params}
+    |> process_case_forward(conn, params)
+  end
+
+  defp process_case_forward(job_params, conn, params) do
     with :ok <- require_params(params),
          :ok <- require_patient_case_type(params),
          :ok <- require_non_viaduct_user_id(params) do
-      %{commcare_case: params}
+      job_params
       |> CaseImporter.new()
       |> Oban.insert!()
 

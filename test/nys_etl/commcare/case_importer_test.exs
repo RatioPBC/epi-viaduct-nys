@@ -60,7 +60,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
     [county: county]
   end
 
-  describe "perform" do
+  describe "perform (no create or update action)" do
     setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
 
     test "new cases fetch current case state and import", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
@@ -77,20 +77,12 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
 
-      assert :ok =
-               perform_job(CaseImporter, %{
-                 commcare_case: %{
-                   case_id: patient_case["case_id"],
-                   domain: midsomer.domain,
-                   properties: %{"some" => "updated value", "another" => "new value", "case_type" => "patient"}
-                 }
-               })
-
+      assert :ok = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
       assert {:ok, index_case} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
       assert index_case.commcare_date_modified == ~U[2020-06-05T00:56:45.753000Z]
     end
 
-    test "snooze when fetching fails", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+    test "snooze when fetching fails because of rate limit", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
       NYSETL.HTTPoisonMock
       |> expect(:get, fn url, _headers, _opts ->
         assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{patient_case["case_id"]}/?format=json&child_cases__full=true"
@@ -102,15 +94,132 @@ defmodule NYSETL.Commcare.CaseImporterTest do
          }}
       end)
 
-      assert {:snooze, 15} =
-               perform_job(CaseImporter, %{
-                 commcare_case: %{
-                   case_id: patient_case["case_id"],
-                   domain: midsomer.domain,
-                   properties: %{"some" => "updated value", "another" => "new value", "case_type" => "patient"}
-                 }
-               })
+      assert {:snooze, 15} = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
     end
+
+    test "update existing case using case data", %{midsomer_county: midsomer} do
+      {case_id, commcare_case} =
+        fixture(%{
+          "some" => "updated value",
+          "another" => "new value"
+        })
+
+      commcare_case = Map.put(commcare_case, "domain", midsomer.domain)
+
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{case_id}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 200,
+           body: Jason.encode!(commcare_case)
+         }}
+      end)
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, existing_index_case} =
+        Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: midsomer.fips})
+
+      refute existing_index_case.commcare_date_modified
+
+      assert :ok =
+               perform_job(CaseImporter, %{
+                 commcare_case_id: case_id,
+                 domain: midsomer.domain
+               })
+
+      updated_index_case = Repo.reload(existing_index_case)
+      assert updated_index_case.data == %{"some" => "updated value", "other" => "stuff", "another" => "new value", "case_type" => "patient"}
+      assert updated_index_case.commcare_date_modified == ~U[2020-06-04T13:43:10.375000Z]
+    end
+
+    test "doesn't update index case using old case data", %{midsomer_county: midsomer} do
+      {case_id, commcare_case} =
+        fixture(%{
+          "external_id" => "9999#150000000",
+          "first_name" => "Glen",
+          "last_name" => "Livet",
+          "other" => "thing"
+        })
+
+      commcare_case = Map.put(commcare_case, "domain", midsomer.domain)
+
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{case_id}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 200,
+           body: Jason.encode!(commcare_case)
+         }}
+      end)
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, existing_index_case} =
+        Commcare.create_index_case(%{
+          case_id: case_id,
+          data: %{"some" => "value", "other" => "stuff"},
+          person_id: person.id,
+          county_id: midsomer.fips,
+          commcare_date_modified: ~U[2020-06-04T13:43:10.375000Z]
+        })
+
+      assert {:discard, :stale_data} =
+               perform_job(CaseImporter, %{
+                 commcare_case_id: case_id,
+                 domain: midsomer.domain
+               })
+
+      updated_index_case = Repo.reload(existing_index_case)
+      updated_index_case |> assert_events([])
+      assert existing_index_case == updated_index_case
+    end
+  end
+
+  describe "perform (create)" do
+    setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
+
+    test "new cases fetch current case state and import", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{patient_case["case_id"]}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 200,
+           body: Jason.encode!(patient_case)
+         }}
+      end)
+
+      assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
+
+      assert :ok = perform_job(CaseImporter, %{action: "create", commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
+      assert {:ok, index_case} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
+      assert index_case.commcare_date_modified == ~U[2020-06-05T00:56:45.753000Z]
+    end
+
+    test "snooze when fetching fails because of rate limit", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{patient_case["case_id"]}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 429,
+           body: Test.Fixtures.commcare_submit_response(:error)
+         }}
+      end)
+
+      assert {:snooze, 15} = perform_job(CaseImporter, %{action: "create", commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
+    end
+  end
+
+  describe "perform (update)" do
+    setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
 
     test "update existing case using case data", %{midsomer_county: midsomer} do
       {case_id, _commcare_case} =
@@ -130,6 +239,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       assert :ok =
                perform_job(CaseImporter, %{
+                 action: "update",
                  commcare_case: %{
                    case_id: case_id,
                    domain: midsomer.domain,
@@ -143,7 +253,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       assert updated_index_case.commcare_date_modified == ~U[2020-06-04T13:43:10.375000Z]
     end
 
-    test "doesn't update index case using old case data", %{midsomer_county: midsomer} do
+    test "error when updating a case that doesn't exist yet (will retry)", %{midsomer_county: midsomer} do
       {case_id, _commcare_case} =
         fixture(%{
           "external_id" => "9999#150000000",
@@ -152,32 +262,23 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "other" => "thing"
         })
 
-      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+      assert {:error, :not_found} = Commcare.get_index_case(case_id: case_id, county_id: midsomer.fips)
 
-      {:ok, existing_index_case} =
-        Commcare.create_index_case(%{
-          case_id: case_id,
-          data: %{"some" => "value", "other" => "stuff"},
-          person_id: person.id,
-          county_id: midsomer.fips,
-          commcare_date_modified: ~U[2020-06-04T13:43:10.375000Z]
-        })
-
-      assert {:discard, :stale_data} =
+      assert {:error, :not_found} =
                perform_job(CaseImporter, %{
+                 action: "update",
                  commcare_case: %{
                    case_id: case_id,
                    domain: midsomer.domain,
-                   date_modified: "2020-06-04T13:43:10.375000Z",
                    properties: %{"some" => "updated value", "another" => "new value", "case_type" => "patient"}
                  }
                })
-
-      assert existing_index_case == Repo.reload(existing_index_case)
     end
   end
 
-  describe "import_case" do
+  describe "import_case(:create)" do
+    setup [:midsomer_county]
+
     test "returns :ok and creates a Person when no Person exists that matches case", context do
       {first_name, last_name, dob} = {"Glen", "Livet", "2001-01-02"}
 
@@ -192,7 +293,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       assert {:error, :not_found} = Commcare.get_person(dob: dob, name_first: "GLEN", name_last: "LIVET")
       assert {:error, :not_found} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
       assert {:ok, person} = Commcare.get_person(dob: dob, name_first: "GLEN", name_last: "LIVET")
@@ -209,68 +310,6 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       assert_eq([], person.patient_keys)
     end
 
-    test "returns :ok and updates the index case when one already exists for that case id and county", context do
-      {case_id, commcare_case} =
-        fixture(%{
-          "external_id" => "9999#150000000",
-          "first_name" => "Glen",
-          "last_name" => "Livet",
-          "other" => "thing"
-        })
-
-      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
-
-      {:ok, existing_index_case} =
-        Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: 12})
-
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
-      updated_index_case = Repo.reload(existing_index_case)
-
-      updated_index_case.case_id |> assert_eq(case_id)
-      updated_index_case.county_id |> assert_eq(12)
-      updated_index_case.person_id |> assert_eq(person.id)
-
-      updated_index_case.data
-      |> assert_eq(%{
-        "external_id" => "9999#150000000",
-        "first_name" => "Glen",
-        "last_name" => "Livet",
-        "some" => "value",
-        "other" => "thing",
-        "case_type" => "patient"
-      })
-
-      updated_index_case |> assert_events(["updated_from_commcare"])
-    end
-
-    test "it does not save an event when the index case information is current", context do
-      case_properties = %{
-        "external_id" => "9999#150000000",
-        "first_name" => "Glen",
-        "last_name" => "Livet",
-        "other" => "thing",
-        "case_type" => "patient"
-      }
-
-      {case_id, commcare_case} = fixture(case_properties)
-
-      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
-
-      {:ok, index_case} =
-        Commcare.create_index_case(%{
-          case_id: case_id,
-          data: case_properties,
-          person_id: person.id,
-          county_id: 12,
-          commcare_date_modified: ~U[2020-06-04T13:43:10.375000Z]
-        })
-
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
-
-      updated_index_case = Repo.reload(index_case)
-      updated_index_case |> assert_events([])
-    end
-
     test "returns :ok when a Person can by found by patient_key extracted from a case", context do
       {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
 
@@ -281,7 +320,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "last_name" => "Livet"
         })
 
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
@@ -310,7 +349,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "dob" => "2008-01-01"
         })
 
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
@@ -337,7 +376,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "dob" => "2008-01-02"
         })
 
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
@@ -374,7 +413,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "test_type" => "SARS coronavirus 2 RNA [Presence] in Unspecified s"
         })
 
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
@@ -423,7 +462,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "test_type" => "SARS coronavirus 2 RNA [Presence] in Unspecified s"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
       [lab_result] = index_case |> Repo.preload(:lab_results) |> Map.get(:lab_results)
@@ -473,7 +512,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "test_type" => "PCR"
         })
 
-      assert :ok = CaseImporter.import_case(case: commcare_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
 
       assert {:ok, index_case} = Commcare.get_index_case(case_id: case_id, county_id: context.county.fips)
 
@@ -481,6 +520,87 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       |> Repo.preload(:lab_results)
       |> Map.get(:lab_results)
       |> assert_eq([])
+    end
+
+    test "discard when index case already exists (possible if case forwarder sends multiple creates, or imported via transfer)", context do
+      {case_id, commcare_case} =
+        fixture(%{
+          "external_id" => "9999#150000000",
+          "first_name" => "Glen",
+          "last_name" => "Livet",
+          "other" => "thing"
+        })
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, _existing_index_case} =
+        Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: 12})
+
+      assert {:discard, _} = CaseImporter.import_case(:create, case: commcare_case, county: context.county)
+    end
+  end
+
+  describe "import_case(:update)" do
+    setup [:midsomer_county]
+
+    test "returns :ok and updates the index case when one already exists for that case id and county", context do
+      {case_id, commcare_case} =
+        fixture(%{
+          "external_id" => "9999#150000000",
+          "first_name" => "Glen",
+          "last_name" => "Livet",
+          "other" => "thing"
+        })
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, existing_index_case} =
+        Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: 12})
+
+      assert :ok = CaseImporter.import_case(:update, case: commcare_case, county: context.county)
+      updated_index_case = Repo.reload(existing_index_case)
+
+      updated_index_case.case_id |> assert_eq(case_id)
+      updated_index_case.county_id |> assert_eq(12)
+      updated_index_case.person_id |> assert_eq(person.id)
+
+      updated_index_case.data
+      |> assert_eq(%{
+        "external_id" => "9999#150000000",
+        "first_name" => "Glen",
+        "last_name" => "Livet",
+        "some" => "value",
+        "other" => "thing",
+        "case_type" => "patient"
+      })
+
+      updated_index_case |> assert_events(["updated_from_commcare"])
+    end
+
+    test "doesn't update index case using old case data", %{midsomer_county: midsomer} do
+      {case_id, commcare_case} =
+        fixture(%{
+          "external_id" => "9999#150000000",
+          "first_name" => "Glen",
+          "last_name" => "Livet",
+          "other" => "thing"
+        })
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, existing_index_case} =
+        Commcare.create_index_case(%{
+          case_id: case_id,
+          data: %{"some" => "value", "other" => "stuff"},
+          person_id: person.id,
+          county_id: midsomer.fips,
+          commcare_date_modified: ~U[2020-06-04T13:43:10.375000Z]
+        })
+
+      assert {:discard, :stale_data} = CaseImporter.import_case(:update, case: commcare_case, county: midsomer)
+      updated_index_case = Repo.reload(existing_index_case)
+      updated_index_case |> assert_events([])
+      assert existing_index_case == updated_index_case
     end
   end
 
@@ -494,7 +614,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "registered_in_error"
         })
 
-      assert {:discard, :final_disposition} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :final_disposition} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
 
       {_case_id, patient_case} =
         fixture(%{
@@ -504,7 +624,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "duplicate"
         })
 
-      assert {:discard, :final_disposition} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :final_disposition} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
 
       {_case_id, patient_case} =
         fixture(%{
@@ -514,7 +634,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "not_a_case"
         })
 
-      assert {:discard, :final_disposition} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :final_disposition} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips excluded index cases when the person is already known", context do
@@ -528,7 +648,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "registered_in_error"
         })
 
-      assert {:discard, :final_disposition} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :final_disposition} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "returns :ok for any other final_disposition", context do
@@ -540,7 +660,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "something_else"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases where properties[stub]=yes", context do
@@ -552,7 +672,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "stub" => "yes"
         })
 
-      assert {:discard, :stub} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :stub} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "returns :ok for any other stub", context do
@@ -564,7 +684,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "stub" => "no"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases where closed=true (at the top-level)", context do
@@ -577,7 +697,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "closed", true)
 
-      assert {:discard, :closed} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :closed} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "returns :ok for any other closed (at the top-level)", context do
@@ -590,7 +710,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "closed", nil)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases where current_status=closed and patient_type=pui", context do
@@ -603,7 +723,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "patient_type" => "pui"
         })
 
-      assert {:discard, :closed} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :closed} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "imports index cases where current_status=open and patient_type=pui", context do
@@ -616,7 +736,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "patient_type" => "pui"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "imports index cases where current_status=closed and patient_type=confirmed", context do
@@ -629,7 +749,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "patient_type" => "confirmed"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases where transfer_status IN (pending,sent)", context do
@@ -641,7 +761,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "transfer_status" => "pending"
         })
 
-      assert {:discard, :transfer_status} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :transfer_status} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
 
       {_case_id, patient_case} =
         fixture(%{
@@ -651,7 +771,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "transfer_status" => "sent"
         })
 
-      assert {:discard, :transfer_status} = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert {:discard, :transfer_status} = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "imports index cases where for any other transfer_status", context do
@@ -663,7 +783,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "transfer_status" => "something_else"
         })
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases where the person has incomplete (name, DOB) or patient_key information", context do
@@ -675,7 +795,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         })
 
       assert {:discard, [name_first: {"can't be blank", [validation: :required]}, name_last: {"can't be blank", [validation: :required]}]} =
-               CaseImporter.import_case(case: patient_case, county: context.county)
+               CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though patient_key is set - should not happen)", context do
@@ -686,7 +806,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         })
 
       assert {:discard, [name_last: {"can't be blank", [validation: :required]}, dob: {"can't be blank", [validation: :required]}]} =
-               CaseImporter.import_case(case: patient_case, county: context.county)
+               CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though name_and_id is set - should not happen)", context do
@@ -697,7 +817,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         })
 
       assert {:discard, [name_last: {"can't be blank", [validation: :required]}, dob: {"can't be blank", [validation: :required]}]} =
-               CaseImporter.import_case(case: patient_case, county: context.county)
+               CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
 
     test "skips index cases with missing identifier information (even though lab result's external_id is set - should not happen)", context do
@@ -722,7 +842,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
         })
 
       assert {:discard, [name_last: {"can't be blank", [validation: :required]}, dob: {"can't be blank", [validation: :required]}]} =
-               CaseImporter.import_case(case: patient_case, county: context.county)
+               CaseImporter.import_case(:create, case: patient_case, county: context.county)
     end
   end
 
@@ -748,7 +868,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -772,9 +892,12 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "duplicate"
         })
 
-      patient_case = Map.put(patient_case, "case_id", context.case_id)
+      patient_case =
+        patient_case
+        |> Map.put("case_id", context.case_id)
+        |> Map.put("date_modified", "2020-06-04T13:43:10.375001Z")
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -798,9 +921,12 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "final_disposition" => "not_a_case"
         })
 
-      patient_case = Map.put(patient_case, "case_id", context.case_id)
+      patient_case =
+        patient_case
+        |> Map.put("case_id", context.case_id)
+        |> Map.put("date_modified", "2020-06-04T13:43:10.375002Z")
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
 
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
@@ -829,7 +955,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -856,7 +982,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = patient_case |> Map.put("case_id", context.case_id) |> Map.put("closed", true)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -877,7 +1003,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -906,7 +1032,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
 
       patient_case = Map.put(patient_case, "case_id", context.case_id)
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
@@ -930,9 +1056,12 @@ defmodule NYSETL.Commcare.CaseImporterTest do
           "transfer_status" => "sent"
         })
 
-      patient_case = Map.put(patient_case, "case_id", context.case_id)
+      patient_case =
+        patient_case
+        |> Map.put("case_id", context.case_id)
+        |> Map.put("date_modified", "2020-06-04T13:43:10.375001Z")
 
-      assert :ok = CaseImporter.import_case(case: patient_case, county: context.county)
+      assert :ok = CaseImporter.import_case(:update, case: patient_case, county: context.county)
       {:ok, index_case} = Commcare.get_index_case(case_id: context.case_id, county_id: context.county.fips)
 
       index_case.id |> assert_eq(context.existing_index_case.id)
