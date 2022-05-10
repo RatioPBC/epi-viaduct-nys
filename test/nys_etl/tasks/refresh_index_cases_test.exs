@@ -48,17 +48,17 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
           county_id: camden_county.id
         })
 
-      RefreshIndexCases.with_invalid_all_activity_complete_date()
+      assert :ok = RefreshIndexCases.with_invalid_all_activity_complete_date()
 
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
         queue: :tasks,
-        args: %{commcare_case_id: "index-case-1", county_domain: "uk-midsomer-cdcms"}
+        args: %{commcare_case_id: "index-case-1", domain: "uk-midsomer-cdcms"}
       )
 
-      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"})
-      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-3", county_domain: "uk-camden-cdcms"})
+      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-2", domain: "uk-midsomer-cdcms"})
+      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-3", domain: "uk-camden-cdcms"})
     end
 
     test "doesn't blow up if county can't be found" do
@@ -87,13 +87,13 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
           county_id: midsomer_county.id
         })
 
-      RefreshIndexCases.with_invalid_all_activity_complete_date()
+      assert :ok = RefreshIndexCases.with_invalid_all_activity_complete_date()
 
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
         queue: :tasks,
-        args: %{commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"}
+        args: %{commcare_case_id: "index-case-2", domain: "uk-midsomer-cdcms"}
       )
     end
   end

@@ -18,12 +18,14 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
         |> Stream.each(&Oban.insert_all(&1))
         |> Stream.run()
       end)
+
+    :ok
   end
 
   defp case_importer_job(%{case_id: case_id, county_id: county_id}) do
     case County.get(fips: county_id) do
       {:ok, county} ->
-        %{commcare_case_id: case_id, county_domain: county.domain}
+        %{commcare_case_id: case_id, domain: county.domain}
         |> CaseImporter.new(priority: 3, queue: :tasks)
 
       _ ->
