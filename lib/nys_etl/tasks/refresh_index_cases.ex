@@ -23,8 +23,8 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
   defp case_importer_job(%{case_id: case_id, county_id: county_id}) do
     case County.get(fips: county_id) do
       {:ok, county} ->
-        %{action: "refresh", commcare_case_id: case_id, county_domain: county.domain}
-        |> CaseImporter.new(priority: 3)
+        %{commcare_case_id: case_id, county_domain: county.domain}
+        |> CaseImporter.new(priority: 3, queue: :tasks)
 
       _ ->
         :skip

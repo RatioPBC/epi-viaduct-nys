@@ -8,17 +8,7 @@ defmodule NYSETLWeb.CommcareCasesController do
   def check(conn, _params), do: respond_with({200, "OK"}, conn)
 
   def create_or_update(conn, params) do
-    %{commcare_case_id: params["case_id"], domain: params["domain"]}
-    |> process_case_forward(conn, params)
-  end
-
-  def create(conn, params) do
-    %{action: "create", commcare_case_id: params["case_id"], domain: params["domain"]}
-    |> process_case_forward(conn, params)
-  end
-
-  def update(conn, params) do
-    %{action: "update", commcare_case: params}
+    %{commcare_case: params}
     |> process_case_forward(conn, params)
   end
 

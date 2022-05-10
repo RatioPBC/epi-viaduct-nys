@@ -19,24 +19,38 @@ defmodule NYSETL.Commcare.CaseImporter do
   alias NYSETL.Commcare.County
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"action" => "create", "commcare_case_id" => commcare_case_id, "domain" => domain}}) do
-    case Api.get_case(commcare_case_id: commcare_case_id, county_domain: domain) do
-      {:ok, patient_case} ->
-        {:ok, county} = County.get(domain: domain)
-        import_case(:create, case: patient_case, county: county)
-
-      {:error, :rate_limited} ->
-        {:snooze, 15}
-
-      {:error, _} = error ->
-        error
-    end
-  end
-
-  @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"action" => "update", "commcare_case" => %{"domain" => domain} = patient_case}}) do
+  def perform(%Oban.Job{args: %{"commcare_case" => %{"case_id" => case_id, "domain" => domain} = patient_case}}) do
     {:ok, county} = County.get(domain: domain)
-    import_case(:update, case: patient_case, county: county)
+
+    case Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips) do
+      {:ok, _} ->
+        import_case(:update, case: patient_case, county: county)
+
+      {:error, :not_found} ->
+        case import_case(:create, case: patient_case, county: county) do
+          :ok ->
+            :ok
+
+          _ ->
+            case Api.get_case(commcare_case_id: case_id, county_domain: domain) do
+              {:ok, api_case} ->
+                case_modified_time = parse_time(patient_case["date_modified"])
+                api_modified_time = parse_time(api_case["date_modified"])
+
+                if :gt == DateTime.compare(case_modified_time, api_modified_time) do
+                  {:snooze, 180}
+                else
+                  import_case(:create, case: api_case, county: county)
+                end
+
+              {:error, :rate_limited} ->
+                {:snooze, 15}
+
+              result ->
+                result
+            end
+        end
+    end
   end
 
   @impl Oban.Worker
@@ -83,7 +97,7 @@ defmodule NYSETL.Commcare.CaseImporter do
     with {:ok, person} <- Commcare.get_person(case_id: patient_case["case_id"]) do
       Commcare.update_person(person, fn ->
         {:ok, index_case} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: county.fips)
-        {:ok, modified_time, 0} = DateTime.from_iso8601(patient_case["date_modified"])
+        modified_time = parse_time(patient_case["date_modified"])
 
         if !index_case.commcare_date_modified || :gt == DateTime.compare(modified_time, index_case.commcare_date_modified) do
           {:ok, index_case} = Commcare.update_index_case_from_commcare_data(index_case, patient_case)
@@ -285,5 +299,10 @@ defmodule NYSETL.Commcare.CaseImporter do
       child_cases["properties"]["case_type"] == "lab_result" &&
         Term.present?(child_cases["properties"]["accession_number"])
     end)
+  end
+
+  defp parse_time(string) do
+    {:ok, time, 0} = DateTime.from_iso8601(string)
+    time
   end
 end

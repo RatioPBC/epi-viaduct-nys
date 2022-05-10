@@ -53,11 +53,12 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
-        args: %{action: "refresh", commcare_case_id: "index-case-1", county_domain: "uk-midsomer-cdcms"}
+        queue: :tasks,
+        args: %{commcare_case_id: "index-case-1", county_domain: "uk-midsomer-cdcms"}
       )
 
-      refute_enqueued(worker: CaseImporter, args: %{action: "refresh", commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"})
-      refute_enqueued(worker: CaseImporter, args: %{action: "refresh", commcare_case_id: "index-case-3", county_domain: "uk-camden-cdcms"})
+      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"})
+      refute_enqueued(worker: CaseImporter, args: %{commcare_case_id: "index-case-3", county_domain: "uk-camden-cdcms"})
     end
 
     test "doesn't blow up if county can't be found" do
@@ -91,7 +92,8 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
-        args: %{action: "refresh", commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"}
+        queue: :tasks,
+        args: %{commcare_case_id: "index-case-2", county_domain: "uk-midsomer-cdcms"}
       )
     end
   end

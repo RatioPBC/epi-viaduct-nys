@@ -36,10 +36,6 @@ defmodule NYSETLWeb.Router do
 
     get "/commcare_cases", CommcareCasesController, :check
     post "/commcare_cases", CommcareCasesController, :create_or_update
-    get "/commcare_cases/create", CommcareCasesController, :check
-    post "/commcare_cases/create", CommcareCasesController, :create
-    get "/commcare_cases/update", CommcareCasesController, :check
-    post "/commcare_cases/update", CommcareCasesController, :update
   end
 
   # Enables LiveDashboard only for development
