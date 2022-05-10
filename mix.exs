@@ -105,7 +105,7 @@ defmodule NYSETL.MixProject do
       source_url: "https://github.com/RatioPBC/epi-viaduct-nys",
       main: "overview",
       nest_modules_by_prefix: [
-        NYSETL.Backfillers,
+        NYSETL.Batch,
         NYSETL.Commcare,
         NYSETL.ECLRS,
         NYSETL.Engines.E1,

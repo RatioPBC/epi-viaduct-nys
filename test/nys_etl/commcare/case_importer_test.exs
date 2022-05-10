@@ -97,7 +97,7 @@ defmodule NYSETL.Commcare.CaseImporterTest do
       assert {:snooze, 15} = perform_job(CaseImporter, %{commcare_case_id: patient_case["case_id"], domain: midsomer.domain})
     end
 
-    test "update existing case using case data", %{midsomer_county: midsomer} do
+    test "update existing case by fetching CommCare API data", %{midsomer_county: midsomer} do
       {case_id, commcare_case} =
         fixture(%{
           "some" => "updated value",
@@ -273,6 +273,83 @@ defmodule NYSETL.Commcare.CaseImporterTest do
                    properties: %{"some" => "updated value", "another" => "new value", "case_type" => "patient"}
                  }
                })
+    end
+  end
+
+  describe "perform (refresh)" do
+    setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
+
+    setup %{midsomer_county: midsomer} do
+      {case_id, commcare_case} =
+        fixture(%{
+          "some" => "updated value",
+          "another" => "new value"
+        })
+
+      commcare_case = Map.put(commcare_case, "domain", midsomer.domain)
+
+      {:ok, person} = Commcare.create_person(%{data: %{}, patient_keys: ["1234", "150000000"], name_first: nil, name_last: nil})
+
+      {:ok, existing_index_case} =
+        Commcare.create_index_case(%{case_id: case_id, data: %{"some" => "value", "other" => "stuff"}, person_id: person.id, county_id: midsomer.fips})
+
+      refute existing_index_case.commcare_date_modified
+
+      %{case_id: case_id, commcare_case: commcare_case, person: person, existing_index_case: existing_index_case}
+    end
+
+    test "update existing case by fetching CommCare API data", context do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{context.case_id}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 200,
+           body: Jason.encode!(context.commcare_case)
+         }}
+      end)
+
+      assert :ok =
+               perform_job(CaseImporter, %{
+                 action: "refresh",
+                 commcare_case_id: context.case_id,
+                 domain: context.midsomer_county.domain
+               })
+
+      updated_index_case = Repo.reload(context.existing_index_case)
+      assert updated_index_case.data == %{"some" => "updated value", "other" => "stuff", "another" => "new value", "case_type" => "patient"}
+      assert updated_index_case.commcare_date_modified == ~U[2020-06-04T13:43:10.375000Z]
+    end
+
+    test "snooze when fetching fails because of rate limit", %{case_id: case_id, midsomer_county: midsomer} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{case_id}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 429,
+           body: Test.Fixtures.commcare_submit_response(:error)
+         }}
+      end)
+
+      assert {:snooze, 15} = perform_job(CaseImporter, %{action: "refresh", commcare_case_id: case_id, domain: midsomer.domain})
+    end
+
+    test "error when fetching fails for 404", %{case_id: case_id, midsomer_county: midsomer} do
+      NYSETL.HTTPoisonMock
+      |> expect(:get, fn url, _headers, _opts ->
+        assert url =~ "/a/uk-midsomer-cdcms/api/v0.5/case/#{case_id}/?format=json&child_cases__full=true"
+
+        {:ok,
+         %{
+           status_code: 404,
+           body: Test.Fixtures.commcare_submit_response(:error)
+         }}
+      end)
+
+      assert {:error, :not_found} = perform_job(CaseImporter, %{action: "refresh", commcare_case_id: case_id, domain: midsomer.domain})
     end
   end
 

@@ -54,7 +54,7 @@ config :logger, level: System.get_env("LOG_LEVEL", "info") |> String.to_existing
 config :nys_etl, Oban,
   engine: Oban.Pro.Queue.SmartEngine,
   repo: NYSETL.Repo,
-  queues: [default: 10, commcare: 10, backfillers: 10, eclrs: 10],
+  queues: [default: 10, commcare: 10, tasks: 10, eclrs: 10],
   crontab: [
     {"* * * * *", NYSETL.Monitoring.Transformer.FailureReporter}
   ],

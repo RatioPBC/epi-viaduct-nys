@@ -46,13 +46,14 @@ defmodule NYSETL.EndToEndTest do
     Application.put_env(:nys_etl, Oban,
       engine: Oban.Pro.Queue.SmartEngine,
       repo: NYSETL.Repo,
-      queues: [default: 1, commcare: 1, backfillers: 1, eclrs: 1],
+      queues: [default: 1, commcare: 1, tasks: 1, eclrs: 1],
       plugins: [
         Oban.Plugins.Gossip,
         Oban.Pro.Plugins.BatchManager,
         Oban.Pro.Plugins.DynamicLifeline,
         Oban.Web.Plugins.Stats,
-        Oban.Plugins.Repeater # Repeater is only needed because of SQL Sandbox in test mode
+        # Repeater is only needed because of SQL Sandbox in test mode
+        Oban.Plugins.Repeater
       ]
     )
 

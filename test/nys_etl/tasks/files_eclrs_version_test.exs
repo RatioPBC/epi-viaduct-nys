@@ -1,10 +1,10 @@
-defmodule NYSETL.BackfillersTest do
+defmodule NYSETL.Tasks.FilesEclrsVersionTest do
   use NYSETL.DataCase, async: false
   use Oban.Testing, repo: NYSETL.Repo
 
   require Ecto.Query
 
-  alias NYSETL.Backfillers
+  alias NYSETL.Tasks.FilesEclrsVersion
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E1
   alias NYSETL.Engines.E1.ECLRSFileExtractor
@@ -31,8 +31,8 @@ defmodule NYSETL.BackfillersTest do
       {:ok, file} = ECLRS.get_file(filename: new_filename)
       refute file.eclrs_version
 
-      :ok = Backfillers.backfill_files_eclrs_version()
-      %{failure: 0, success: 1} = Oban.drain_queue(queue: :backfillers)
+      :ok = FilesEclrsVersion.backfill_all()
+      %{failure: 0, success: 1} = Oban.drain_queue(queue: :tasks)
 
       {:ok, file} = ECLRS.get_file(filename: new_filename)
       assert 1 == file.eclrs_version
@@ -47,8 +47,8 @@ defmodule NYSETL.BackfillersTest do
       {:ok, file} = ECLRS.get_file(filename: new_filename)
       refute file.eclrs_version
 
-      :ok = Backfillers.backfill_files_eclrs_version()
-      %{failure: 0, success: 1} = Oban.drain_queue(queue: :backfillers)
+      :ok = FilesEclrsVersion.backfill_all()
+      %{failure: 0, success: 1} = Oban.drain_queue(queue: :tasks)
 
       {:ok, file} = ECLRS.get_file(filename: new_filename)
       assert 2 == file.eclrs_version
@@ -63,16 +63,16 @@ defmodule NYSETL.BackfillersTest do
       {:ok, file} = ECLRS.get_file(filename: new_filename)
       assert 2 == file.eclrs_version
 
-      :ok = Backfillers.backfill_files_eclrs_version()
-      %{failure: 0, success: 0} = Oban.drain_queue(queue: :backfillers)
+      :ok = FilesEclrsVersion.backfill_all()
+      %{failure: 0, success: 0} = Oban.drain_queue(queue: :tasks)
     end
 
     test "succeeds on a file with no test results (which occurs when a file has no *new* test results)" do
       filename = "fake/file/with/no/new/records.txt"
       {:ok, _file} = ECLRS.create_file(%{filename: filename, processing_started_at: DateTime.utc_now()})
 
-      :ok = Backfillers.backfill_files_eclrs_version()
-      %{discard: 1, failure: 0, success: 0} = Oban.drain_queue(queue: :backfillers)
+      :ok = FilesEclrsVersion.backfill_all()
+      %{discard: 1, failure: 0, success: 0} = Oban.drain_queue(queue: :tasks)
 
       {:ok, file} = ECLRS.get_file(filename: filename)
       refute file.eclrs_version
