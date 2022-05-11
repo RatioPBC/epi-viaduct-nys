@@ -8,16 +8,19 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
 
   def with_invalid_all_activity_complete_date do
     {:ok, _} =
-      Repo.transaction(fn ->
-        IndexCase
-        |> where([ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
-        |> Repo.stream()
-        |> Stream.map(&case_importer_job/1)
-        |> Stream.reject(&(&1 == :skip))
-        |> Stream.chunk_every(500)
-        |> Stream.each(&Oban.insert_all(&1))
-        |> Stream.run()
-      end)
+      Repo.transaction(
+        fn ->
+          IndexCase
+          |> where([ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
+          |> Repo.stream()
+          |> Stream.map(&case_importer_job/1)
+          |> Stream.reject(&(&1 == :skip))
+          |> Stream.chunk_every(500)
+          |> Stream.each(&Oban.insert_all(&1))
+          |> Stream.run()
+        end,
+        timeout: :infinity
+      )
 
     :ok
   end
