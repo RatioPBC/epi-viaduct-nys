@@ -292,14 +292,16 @@ defmodule NYSETL.Commcare.CaseImporter do
     end
   end
 
-  defp lab_results(case) do
-    case["child_cases"]
+  defp lab_results(%{"child_cases" => child_cases}) when map_size(child_cases) > 0 do
+    child_cases
     |> Map.values()
     |> Enum.filter(fn child_cases ->
       child_cases["properties"]["case_type"] == "lab_result" &&
         Term.present?(child_cases["properties"]["accession_number"])
     end)
   end
+
+  defp lab_results(_), do: []
 
   defp parse_time(string) do
     {:ok, time, 0} = DateTime.from_iso8601(string)

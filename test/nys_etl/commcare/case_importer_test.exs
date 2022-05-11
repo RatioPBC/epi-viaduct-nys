@@ -216,6 +216,8 @@ defmodule NYSETL.Commcare.CaseImporterTest do
     setup [:start_supervised_oban, :midsomer_county, :midsomer_patient_case]
 
     test "import new cases from case forwarder data", %{midsomer_county: midsomer, midsomer_patient_case: patient_case} do
+      patient_case = Map.delete(patient_case, "child_cases")
+
       assert {:error, :not_found} = Commcare.get_index_case(case_id: patient_case["case_id"], county_id: midsomer.fips)
 
       assert :ok = perform_job(CaseImporter, %{commcare_case: patient_case})
