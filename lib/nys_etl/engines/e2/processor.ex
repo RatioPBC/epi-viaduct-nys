@@ -239,8 +239,8 @@ defmodule NYSETL.Engines.E2.Processor do
       )
       when is_binary(date_opened) and is_binary(activity_date) do
     with {:ok, all_activity_complete_date} <- data["all_activity_complete_date"] |> String.trim() |> Date.from_iso8601(),
-         {:ok, datetime_opened, 0} <- data["date_opened"] |> String.trim() |> DateTime.from_iso8601() do
-      date_opened = DateTime.to_date(datetime_opened)
+         {:ok, datetime_opened} <- data["date_opened"] |> String.trim() |> NaiveDateTime.from_iso8601() do
+      date_opened = NaiveDateTime.to_date(datetime_opened)
 
       eclrs_date =
         [test_result.request_collection_date, test_result.eclrs_create_date]

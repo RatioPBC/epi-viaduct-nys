@@ -2348,6 +2348,45 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
       assert E2.Processor.repeat_type(updated_index_case, test_result) == :reinfection
     end
+
+    test "work with no timezone specified", context do
+      new_data =
+        Map.merge(context.index_case.data, %{
+          "date_opened" => "2021-01-01T00:00:00",
+          "all_activity_complete_date" => "2021-02-01"
+        })
+
+      {:ok, updated_index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+      assert E2.Processor.repeat_type(updated_index_case, test_result) == :reinfection
+    end
+
+    test "work with microseconds", context do
+      new_data =
+        Map.merge(context.index_case.data, %{
+          "date_opened" => "2021-01-01T00:00:00.123Z",
+          "all_activity_complete_date" => "2021-02-01"
+        })
+
+      {:ok, updated_index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+      assert E2.Processor.repeat_type(updated_index_case, test_result) == :reinfection
+    end
+
+    test "work with microseconds (no timezone)", context do
+      new_data =
+        Map.merge(context.index_case.data, %{
+          "date_opened" => "2021-01-01T00:00:00.123",
+          "all_activity_complete_date" => "2021-02-01"
+        })
+
+      {:ok, updated_index_case} = Commcare.update_index_case(context.index_case, %{data: new_data})
+
+      {:ok, test_result} = ECLRS.create_test_result(context.test_result_attrs)
+      assert E2.Processor.repeat_type(updated_index_case, test_result) == :reinfection
+    end
   end
 
   describe "to_index_case_data" do
