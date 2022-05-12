@@ -30,8 +30,13 @@ defmodule NYSETL.Format do
   def age(birthdate), do: age(birthdate, Date.utc_today())
 
   def age(%Date{} = birthdate, as_of) do
-    Timex.diff(as_of, birthdate, :years)
-    |> to_string()
+    age = Timex.diff(as_of, birthdate, :years)
+
+    if age >= 0 do
+      to_string(age)
+    else
+      ""
+    end
   end
 
   def age(nil, _), do: ""
@@ -44,6 +49,7 @@ defmodule NYSETL.Format do
       age when age >= 0 and age <= 17 -> "0 - 17"
       age when age >= 18 and age <= 59 -> "18 - 59"
       age when age >= 60 -> "60+"
+      _ -> ""
     end
   end
 

@@ -61,6 +61,10 @@ defmodule NYSETL.FormatTest do
       assert Format.age(~D[1900-06-23], ~D[2000-06-22]) == "99"
     end
 
+    test "future is blank" do
+      assert Format.age(~D[2022-01-01], ~D[2020-12-31]) == ""
+    end
+
     test "nil" do
       assert Format.age(nil, ~D[2022-01-01]) == ""
     end
@@ -79,6 +83,10 @@ defmodule NYSETL.FormatTest do
 
     test "60+" do
       assert Format.age_range(~D[2022-01-01], ~D[2082-01-01]) == "60+"
+    end
+
+    test "future is blank" do
+      assert Format.age_range(~D[2022-01-01], ~D[2020-12-31]) == ""
     end
 
     test "nil" do
