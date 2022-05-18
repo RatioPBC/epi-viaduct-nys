@@ -7,11 +7,21 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
   alias NYSETL.Repo
 
   def with_invalid_all_activity_complete_date do
+    dynamic([_ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
+    |> refresh_all()
+  end
+
+  def without_commcare_date_modified do
+    dynamic([ic], is_nil(ic.commcare_date_modified))
+    |> refresh_all()
+  end
+
+  defp refresh_all(filter) do
     {:ok, _} =
       Repo.transaction(
         fn ->
           IndexCase
-          |> where([ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
+          |> where([ic], ^filter)
           |> Repo.stream()
           |> Stream.map(&case_importer_job/1)
           |> Stream.reject(&(&1 == :skip))
