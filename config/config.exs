@@ -110,8 +110,7 @@ config :nys_etl, Oban,
     Oban.Plugins.Gossip,
     Oban.Pro.Plugins.BatchManager,
     Oban.Pro.Plugins.DynamicLifeline,
-    Oban.Web.Plugins.Stats,
-    {Oban.Pro.Plugins.DynamicPruner, mode: {:max_age, {14, :days}}}
+    Oban.Web.Plugins.Stats
   ]
 
 # Use Jason for JSON parsing in Phoenix

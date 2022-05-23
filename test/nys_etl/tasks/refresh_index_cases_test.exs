@@ -50,7 +50,6 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
-        queue: :tasks,
         args: %{commcare_case_id: "index-case-1", domain: "uk-midsomer-cdcms"}
       )
 
@@ -89,7 +88,6 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
-        queue: :tasks,
         args: %{commcare_case_id: "index-case-2", domain: "uk-midsomer-cdcms"}
       )
     end
@@ -126,7 +124,6 @@ defmodule NYSETL.Tasks.RefreshIndexCasesTest do
       assert_enqueued(
         worker: CaseImporter,
         priority: 3,
-        queue: :tasks,
         args: %{commcare_case_id: "index-case-1", domain: "uk-midsomer-cdcms"}
       )
 

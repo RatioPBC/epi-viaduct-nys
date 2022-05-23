@@ -6,22 +6,25 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
   alias NYSETL.Commcare.IndexCase
   alias NYSETL.Repo
 
-  def with_invalid_all_activity_complete_date do
+  @default_limit 1_000
+
+  def with_invalid_all_activity_complete_date(limit \\ @default_limit) do
     dynamic([_ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
-    |> refresh_all()
+    |> refresh_all(limit)
   end
 
-  def without_commcare_date_modified do
+  def without_commcare_date_modified(limit \\ @default_limit) do
     dynamic([ic], is_nil(ic.commcare_date_modified))
-    |> refresh_all()
+    |> refresh_all(limit)
   end
 
-  defp refresh_all(filter) do
+  defp refresh_all(filter, limit) do
     {:ok, _} =
       Repo.transaction(
         fn ->
           IndexCase
           |> where([ic], ^filter)
+          |> limit(^limit)
           |> Repo.stream()
           |> Stream.map(&case_importer_job/1)
           |> Stream.reject(&(&1 == :skip))
@@ -39,7 +42,7 @@ defmodule NYSETL.Tasks.RefreshIndexCases do
     case County.get(fips: county_id) do
       {:ok, county} ->
         %{commcare_case_id: case_id, domain: county.domain}
-        |> CaseImporter.new(priority: 3, queue: :tasks)
+        |> CaseImporter.new(priority: 3)
 
       _ ->
         :skip

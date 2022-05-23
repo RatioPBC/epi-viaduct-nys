@@ -9,7 +9,7 @@ defmodule NYSETL.Commcare.CaseImporter do
   * case_id does not exist, Person cannot be matched:
     * create a Person, IndexCase and LabResult record(s)
   """
-  use Oban.Worker, queue: :commcare, unique: [period: :infinity, states: [:available, :scheduled, :retryable]]
+  use Oban.Worker, queue: :commcare
 
   require Logger
 
