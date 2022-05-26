@@ -97,9 +97,7 @@ config :nys_etl,
 config :logger, backends: [:console]
 config :logger, level: :warn
 
-config :nys_etl, Oban,
-  queues: false,
-  plugins: false
+config :nys_etl, Oban, testing: :manual
 
 config :nys_etl, :sql_sandbox, true
 

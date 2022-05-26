@@ -49,7 +49,6 @@ defmodule NYSETL.EndToEndTest do
       queues: [default: 1, commcare: 1, tasks: 1, eclrs: 1],
       plugins: [
         Oban.Plugins.Gossip,
-        Oban.Pro.Plugins.BatchManager,
         Oban.Pro.Plugins.DynamicLifeline,
         Oban.Web.Plugins.Stats,
         # Repeater is only needed because of SQL Sandbox in test mode

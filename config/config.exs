@@ -108,7 +108,6 @@ config :nys_etl, Oban,
   queues: [default: 10, commcare: 10, tasks: 10, eclrs: 10],
   plugins: [
     Oban.Plugins.Gossip,
-    Oban.Pro.Plugins.BatchManager,
     Oban.Pro.Plugins.DynamicLifeline,
     Oban.Web.Plugins.Stats
   ]
