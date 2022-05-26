@@ -577,6 +577,14 @@ defmodule NYSETL.CommcareTest do
 
       assert MessageCollector.messages() == [:person_2, :person_1]
     end
+
+    test "bubbles up errors" do
+      {:ok, person_1} = Commcare.create_person(%{name_first: "Notwill", name_last: "Smith", dob: ~D[1968-09-25], patient_keys: [], data: %{}})
+
+      assert_raise RuntimeError, "foo", fn ->
+        Commcare.update_person(person_1, fn -> raise "foo" end)
+      end
+    end
   end
 
   describe "save_event" do

@@ -2122,7 +2122,8 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
       updated_index_case = Repo.reload(index_case)
       assert updated_index_case.data["reinfected_case_created"] == "yes"
-      assert index_case |> Commcare.get_lab_results() |> length() == 0
+      assert_enqueued(worker: CommcareCaseLoader, args: %{case_id: updated_index_case.case_id, county_id: to_string(updated_index_case.county_id)})
+      assert updated_index_case |> Commcare.get_lab_results() |> length() == 0
 
       assert Repo.count(Commcare.IndexCase) == 2
 
@@ -2135,6 +2136,11 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
       assert reinfection_index_case.data["age_range"] == Format.age_range(context.test_result_attrs[:patient_dob], context.now)
       refute reinfection_index_case.data["some_custom_value"]
       assert reinfection_index_case |> Commcare.get_lab_results() |> length() == 1
+
+      assert_enqueued(
+        worker: CommcareCaseLoader,
+        args: %{case_id: reinfection_index_case.case_id, county_id: to_string(reinfection_index_case.county_id)}
+      )
     end
 
     test "copies original index case data to the reinfection case", context do
@@ -2178,6 +2184,105 @@ defmodule NYSETL.Engines.E2.ProcessorTest do
 
       assert reinfection_case.data["address_complete"] == "yes"
       assert reinfection_case.data["has_phone_number"] == "yes"
+    end
+  end
+
+  describe "process (reinfection - with a new case manually created in CommCare)" do
+    # create an old index case
+    # create a newer index case
+    # process a test result
+
+    setup :setup_defaults
+
+    setup context do
+      test_result_attrs = [
+        county_id: context.county.id,
+        file_id: context.eclrs_file.id,
+        request_collection_date: ~U[2021-04-01 00:00:00Z],
+        eclrs_create_date: context.now,
+        lab_name: "Some Hospital",
+        patient_dob: ~D[1960-01-01],
+        patient_key: "12345",
+        patient_name_first: "DONNY",
+        patient_name_last: "DOE",
+        request_accession_number: "ABC123",
+        raw_data: "some raw data"
+      ]
+
+      Map.merge(context, %{
+        test_result_attrs: test_result_attrs
+      })
+    end
+
+    test "updates the two existing index cases", context do
+      {:ok, person} = Commcare.create_person(%{patient_keys: ["12345"], data: %{}})
+
+      {:ok, closed_index_case} =
+        Commcare.create_index_case(%{
+          data: %{
+            "current_status" => "closed",
+            "date_opened" => ~U[2021-01-01 00:00:00Z] |> DateTime.to_iso8601(),
+            "all_activity_complete_date" => "2021-02-01",
+            "first_name" => nil,
+            "last_name" => "",
+            "some_custom_value" => "closed custom value",
+            "age" => "closed age",
+            "age_range" => "closed age_range"
+          },
+          person_id: person.id,
+          county_id: context.county.id
+        })
+
+      {:ok, open_index_case} =
+        Commcare.create_index_case(%{
+          data: %{
+            "date_opened" => DateTime.utc_now() |> DateTime.to_iso8601(),
+            "all_activity_complete_date" => Date.utc_today() |> Date.to_iso8601(),
+            "first_name" => nil,
+            "last_name" => "",
+            "some_custom_value" => "open custom value",
+            "age" => "age never gets updated",
+            "age_range" => "age_range never gets updated"
+          },
+          person_id: person.id,
+          county_id: context.county.id
+        })
+
+      {:ok, test_result} =
+        context.test_result_attrs
+        |> Keyword.merge(raw_data: "new data")
+        |> Factory.test_result_attrs()
+        |> ECLRS.create_test_result()
+
+      E2.Processor.process(test_result)
+      assert Repo.count(Commcare.IndexCase) == 2
+
+      updated_closed_index_case = Repo.reload(closed_index_case)
+      assert updated_closed_index_case.data["reinfected_case_created"] == "yes"
+      assert updated_closed_index_case.data["age"] == "closed age"
+      assert updated_closed_index_case.data["age_range"] == "closed age_range"
+
+      assert_enqueued(
+        worker: CommcareCaseLoader,
+        args: %{case_id: updated_closed_index_case.case_id, county_id: to_string(updated_closed_index_case.county_id)}
+      )
+
+      assert updated_closed_index_case |> Commcare.get_lab_results() |> length() == 0
+
+      updated_open_index_case = Repo.reload(open_index_case)
+      refute updated_open_index_case.data["reinfected_case"]
+      assert updated_open_index_case.data["patient_type"] == "confirmed"
+      assert updated_open_index_case.data["first_name"] == "DONNY"
+      refute updated_open_index_case.data["archived_case_id"]
+      assert updated_open_index_case.data["age"] == "age never gets updated"
+      assert updated_open_index_case.data["age_range"] == "age_range never gets updated"
+      assert updated_open_index_case.data["some_custom_value"] == "open custom value"
+      assert updated_open_index_case |> Commcare.get_lab_results() |> length() == 1
+
+      assert_enqueued(
+        worker: CommcareCaseLoader,
+        args: %{case_id: updated_open_index_case.case_id, county_id: to_string(updated_open_index_case.county_id)}
+      )
     end
   end
 

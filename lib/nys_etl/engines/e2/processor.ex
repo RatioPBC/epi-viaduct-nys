@@ -69,6 +69,10 @@ defmodule NYSETL.Engines.E2.Processor do
       else: {:unprocessable, ignore_before}
   end
 
+  defp process_one({ic_creation_status, %{data: %{"reinfected_case_created" => "yes"}} = index_case}, _test_result, county) do
+    {ic_creation_status, :untouched, index_case, county}
+  end
+
   defp process_one({ic_creation_status, index_case}, test_result, county) do
     {:ok, lr_creation_status} = create_or_update_lab_result(index_case, test_result, county)
     {ic_creation_status, lr_creation_status, index_case, county}
@@ -196,20 +200,20 @@ defmodule NYSETL.Engines.E2.Processor do
     with {:ok, index_cases} <-
            Commcare.get_index_cases(person, county_id: commcare_county.fips, accession_number: test_result.request_accession_number),
          open_cases when open_cases != [] <- Enum.filter(index_cases, &is_open_case?/1),
-         updated_cases = Enum.map(open_cases, &update_index_case(&1, person, test_result, commcare_county)),
-         {_reinfection_cases, current_infection_cases} when current_infection_cases != [] <-
-           Enum.split_with(updated_cases, &reinfected_case_created?/1) do
-      current_infection_cases
+         updated_cases = Enum.map(open_cases, &update_index_case(&1, person, test_result, commcare_county)) do
+      if Enum.all?(updated_cases, &reinfected_case_created?/1) do
+        most_recent_case = List.last(updated_cases) |> elem(1)
+        new_index_case = create_index_case(person, test_result, commcare_county, most_recent_case)
+        [{:created, new_index_case} | updated_cases]
+      else
+        updated_cases
+      end
     else
       {:error, :not_found} ->
         [{:created, create_index_case(person, test_result, commcare_county)}]
 
       [] ->
         [{:created, create_index_case(person, test_result, commcare_county)}]
-
-      {updated_reinfection_cases, []} ->
-        reinfection_cases = Enum.map(updated_reinfection_cases, fn {_status, rc} -> rc end)
-        [{:created, create_index_case(person, test_result, commcare_county, reinfection_cases)}]
     end
   end
 
@@ -336,9 +340,9 @@ defmodule NYSETL.Engines.E2.Processor do
     end
   end
 
-  defp create_index_case(person, test_result, commcare_county, reinfection_cases \\ []) do
+  defp create_index_case(person, test_result, commcare_county, most_recent_case \\ nil) do
     data =
-      to_index_case_data(test_result, person, commcare_county, reinfection_cases)
+      to_index_case_data(test_result, person, commcare_county, most_recent_case)
       |> Map.put(:age, Format.age(test_result.patient_dob, test_result.eclrs_create_date))
       |> Map.put(:age_range, Format.age_range(test_result.patient_dob, test_result.eclrs_create_date))
       |> Euclid.Map.stringify_keys()
@@ -513,7 +517,7 @@ defmodule NYSETL.Engines.E2.Processor do
     end
   end
 
-  def to_index_case_data(test_result, person, commcare_county, reinfection_cases \\ []) do
+  def to_index_case_data(test_result, person, commcare_county, most_recent_case \\ nil) do
     external_id = Commcare.external_id(person)
 
     %{
@@ -526,15 +530,13 @@ defmodule NYSETL.Engines.E2.Processor do
     |> Map.merge(to_index_case_data_county_block(commcare_county))
     |> Map.merge(to_index_case_data_person_block(test_result, external_id))
     |> Map.merge(to_index_case_data_rest(test_result))
-    |> with_reinfection_case_fields(reinfection_cases)
+    |> with_reinfection_case_fields(most_recent_case)
     |> with_index_case_data_complete_fields()
   end
 
-  defp with_reinfection_case_fields(data, []), do: data
+  defp with_reinfection_case_fields(data, nil), do: data
 
-  defp with_reinfection_case_fields(data, current_cases) do
-    most_recent_case = List.last(current_cases)
-
+  defp with_reinfection_case_fields(data, most_recent_case) do
     fields_to_copy =
       most_recent_case.data
       |> Map.take(@reinfection_fields)
