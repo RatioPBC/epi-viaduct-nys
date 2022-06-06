@@ -8,14 +8,14 @@ defmodule NYSETL.Engines.E2.TestResultProducer do
   alias NYSETL.ECLRS
   alias NYSETL.Engines.E2.TestResultProcessor
 
-  @event_filters ["processed", "processing_failed"]
-
   @impl Oban.Worker
   def perform(%Job{args: %{"file_id" => file_id}}) do
     {:ok, _} =
       Repo.transaction(
         fn ->
-          base_query()
+          ECLRS.get_unprocessed_test_results()
+          |> select([tr], tr.id)
+          |> order_by([tr], asc: tr.eclrs_create_date)
           |> filter_by_file_id(file_id)
           |> Repo.stream()
           |> Stream.chunk_every(500)
@@ -41,23 +41,6 @@ defmodule NYSETL.Engines.E2.TestResultProducer do
     ids
     |> Enum.map(&TestResultProcessor.new(%{"test_result_id" => &1}))
     |> Oban.insert_all()
-  end
-
-  defp base_query() do
-    from tr in ECLRS.TestResult,
-      select: tr.id,
-      left_join: tre in ECLRS.TestResultEvent,
-      on:
-        tr.id == tre.test_result_id and
-          tre.event_id in fragment(
-            """
-            select id from events e
-            where e.type = any (?)
-            """,
-            ^@event_filters
-          ),
-      where: is_nil(tre.event_id),
-      order_by: [asc: :eclrs_create_date]
   end
 
   defp filter_by_file_id(query, "all"), do: query

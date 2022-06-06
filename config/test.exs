@@ -92,7 +92,8 @@ config :nys_etl,
   http_client: NYSETL.HTTPoisonMock,
   oban_error_reporter_attempt_threshold: 0,
   start_viaduct_workers: false,
-  viaduct_commcare_user_ids: ["viaduct-test-commcare-user-id"]
+  viaduct_commcare_user_ids: ["viaduct-test-commcare-user-id"],
+  basic_auth: [dashboard_username: "test", dashboard_password: "test"]
 
 config :logger, backends: [:console]
 config :logger, level: :warn

@@ -1,0 +1,10 @@
+<div id="test_results">
+  <h1>Unprocessed test results</h1>
+
+  <%= cond do %>
+    <% @test_results_count -> %>
+      <span><%= @test_results_count %></span>
+    <% true -> %>
+      <button phx-click="count_test_results">Count</button>
+  <% end %>
+</div>

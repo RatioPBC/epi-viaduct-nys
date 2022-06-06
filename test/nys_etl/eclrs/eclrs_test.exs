@@ -403,6 +403,7 @@ defmodule NYSETL.ECLRSTest do
       v1_file = context.v1_file
 
       {:ok, test_result1} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+
       {:ok, about} =
         %{
           checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum"},
@@ -416,6 +417,7 @@ defmodule NYSETL.ECLRSTest do
         |> ECLRS.create_about()
 
       {:ok, test_result2} = context.test_result_attrs |> Map.merge(%{file_id: v1_file.id}) |> ECLRS.create_test_result()
+
       {:ok, _about} =
         %{
           checksums: %{v1: "v1_checksum", v2: "v2_checksum", v3: "v3_checksum_brand_new"},
@@ -431,6 +433,34 @@ defmodule NYSETL.ECLRSTest do
       about_id = about.id
       assert {:ok, %NYSETL.ECLRS.About{id: ^about_id}} = ECLRS.get_about_by_version(%{v1: "v1_checksum", v2: "v2_checksum", v3: "bar"})
     end
+  end
+
+  test "get_unprocessed_test_results" do
+    {:ok, _county} = ECLRS.find_or_create_county(42)
+    {:ok, file} = Factory.file_attrs() |> ECLRS.create_file()
+
+    {:ok, processed_tr_1} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    ECLRS.save_event(processed_tr_1, "processed")
+
+    {:ok, processed_tr_2} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    ECLRS.save_event(processed_tr_2, "processed")
+
+    {:ok, failed_tr_1} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    ECLRS.save_event(failed_tr_1, "processing_failed")
+
+    {:ok, failed_tr_2} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    ECLRS.save_event(failed_tr_2, "processing_failed")
+
+    {:ok, unprocessed_tr_1} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    {:ok, unprocessed_tr_2} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+    {:ok, unprocessed_tr_3} = Factory.test_result_attrs(county_id: 42, file_id: file.id) |> ECLRS.create_test_result()
+
+    test_results =
+      ECLRS.get_unprocessed_test_results()
+      |> order_by(:id)
+      |> Repo.all()
+
+    assert test_results == [unprocessed_tr_1, unprocessed_tr_2, unprocessed_tr_3]
   end
 
   describe "save_event" do

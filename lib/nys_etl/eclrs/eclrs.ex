@@ -5,6 +5,8 @@ defmodule NYSETL.ECLRS do
 
   import Ecto.Query
   alias NYSETL.ECLRS
+  alias NYSETL.ECLRS.TestResult
+  alias NYSETL.ECLRS.TestResultEvent
   alias NYSETL.Repo
 
   def change_about(%ECLRS.About{} = about, attrs) do
@@ -114,6 +116,23 @@ defmodule NYSETL.ECLRS do
       nil -> {:error, :not_found}
       about -> {:ok, about}
     end
+  end
+
+  def get_unprocessed_test_results do
+    event_filters = ["processed", "processing_failed"]
+
+    from tr in TestResult,
+      left_join: tre in TestResultEvent,
+      on:
+        tr.id == tre.test_result_id and
+          tre.event_id in fragment(
+            """
+            select id from events e
+            where e.type = any (?)
+            """,
+            ^event_filters
+          ),
+      where: is_nil(tre.event_id)
   end
 
   def save_event(%ECLRS.TestResult{} = test_result, event_name) when is_binary(event_name) do

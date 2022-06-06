@@ -50,6 +50,7 @@ defmodule NYSETLWeb.Router do
     pipe_through [:browser, :protected]
     live_dashboard("/dashboard", metrics: NYSETLWeb.Telemetry)
     oban_dashboard("/oban")
+    live "/reports", NYSETLWeb.ReportsLive, :index
   end
 
   def dashboard_basic_auth(conn, _opts) do
