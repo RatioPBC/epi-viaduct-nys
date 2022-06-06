@@ -3,7 +3,7 @@ defmodule NYSETL.Commcare do
   Context to encapsulate Ecto schemas around data prepared to be loaded into CommCare.
   """
 
-  import Ecto.Query, only: [from: 1, from: 2, where: 3, join: 5, order_by: 2]
+  import Ecto.Query, only: [from: 1, from: 2, where: 3, join: 5, order_by: 2, subquery: 1]
   alias NYSETL.Commcare
   alias NYSETL.Commcare.PersonMutex
   alias NYSETL.Repo
@@ -81,6 +81,30 @@ defmodule NYSETL.Commcare do
     index_case
     |> Repo.preload(lab_results: from(lr in Commcare.LabResult, order_by: [asc: lr.inserted_at, asc: lr.id]))
     |> Map.get(:lab_results)
+  end
+
+  def get_unprocessed_index_cases do
+    from index_case in subquery(
+           from index_case in Commcare.IndexCase,
+             left_join: ic_event in Commcare.IndexCaseEvent,
+             on: ic_event.index_case_id == index_case.id,
+             left_join: event in NYSETL.Event,
+             on: event.id == ic_event.event_id,
+             select_merge: %{
+               when_updated: fragment("MAX(?) FILTER (WHERE ? = 'index_case_updated')", event.id, event.type),
+               when_enqueued: fragment("MAX(?) FILTER (WHERE ? = 'send_to_commcare_enqueued')", event.id, event.type),
+               when_processed:
+                 fragment(
+                   "MAX(?) FILTER (WHERE ? IN ('send_to_commcare_succeeded', 'send_to_commcare_failed', 'send_to_commcare_discarded', 'send_to_commcare_rerouted'))",
+                   event.id,
+                   event.type
+                 )
+             },
+             group_by: index_case.id
+         ),
+         where:
+           is_nil(index_case.when_processed) or index_case.when_enqueued > index_case.when_processed or
+             index_case.when_updated > index_case.when_enqueued
   end
 
   def get_person(patient_key: patient_key) do

@@ -385,6 +385,58 @@ defmodule NYSETL.CommcareTest do
     end
   end
 
+  describe "get_unprocessed_index_cases" do
+    setup do
+      {:ok, _county} = ECLRS.find_or_create_county(71)
+
+      person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
+      {:ok, index_case} = %{data: %{}, person_id: person.id, county_id: 71} |> Commcare.create_index_case()
+      %{index_case: index_case}
+    end
+
+    test "include cases that have no events", %{index_case: index_case} do
+      index_case_id = index_case.id
+      assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "exclude cases that have been sent to commcare", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_succeeded")
+      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "exclude cases that have failed to send to commcare", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_failed")
+      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "exclude cases that were discarded from sending to commcare", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_discarded")
+      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "exclude cases that were rerouted in commcare", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_rerouted")
+      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "include cases that are enqueued after sending", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_succeeded")
+      Commcare.save_event(index_case, "send_to_commcare_enqueued")
+
+      index_case_id = index_case.id
+      assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+
+    test "include cases that are updated after enqueueing and sending", %{index_case: index_case} do
+      Commcare.save_event(index_case, "send_to_commcare_enqueued")
+      Commcare.save_event(index_case, "send_to_commcare_succeeded")
+      Commcare.save_event(index_case, "index_case_updated")
+
+      index_case_id = index_case.id
+      assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
+    end
+  end
+
   describe "get_person" do
     test "is {:ok, person} when a person can be found by patient_key" do
       %{data: %{}, patient_keys: ["123", "456"]} |> Commcare.Person.changeset() |> Repo.insert!()
