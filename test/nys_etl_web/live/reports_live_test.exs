@@ -7,7 +7,6 @@ defmodule NYSETLWeb.ReportsLiveTest do
 
   alias NYSETL.Commcare
   alias NYSETL.ECLRS
-  alias NYSETL.Engines.E4.CommcareCaseLoader
   alias NYSETL.Repo
 
   setup :start_supervised_oban
@@ -58,14 +57,14 @@ defmodule NYSETLWeb.ReportsLiveTest do
 
     person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
 
-    {:ok, %{case_id: processed_id} = processed_index_case} = %{data: %{}, person_id: person.id, county_id: 1111} |> Commcare.create_index_case()
+    {:ok, processed_index_case} = %{data: %{}, person_id: person.id, county_id: 1111} |> Commcare.create_index_case()
     Commcare.save_event(processed_index_case, "send_to_commcare_succeeded")
 
-    {:ok, %{case_id: enqueued_id} = enqueued_index_case} = %{data: %{}, person_id: person.id, county_id: 9999} |> Commcare.create_index_case()
+    {:ok, enqueued_index_case} = %{data: %{}, person_id: person.id, county_id: 9999} |> Commcare.create_index_case()
     Commcare.save_event(enqueued_index_case, "send_to_commcare_succeeded")
     Commcare.save_event(enqueued_index_case, "send_to_commcare_enqueued")
 
-    {:ok, %{case_id: unprocessed_id}} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
+    {:ok, _unprocessed_index_case} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
 
     page
     |> element("#index_cases button", "Count")
@@ -75,21 +74,6 @@ defmodule NYSETLWeb.ReportsLiveTest do
            |> element("#index_cases span")
            |> render()
            |> Floki.text() == "2"
-
-    page
-    |> element("#index_cases button", "Process")
-    |> render_click()
-
-    assert_enqueued(worker: CommcareCaseLoader, args: %{"case_id" => enqueued_id, "county_id" => "9999"})
-    assert_enqueued(worker: CommcareCaseLoader, args: %{"case_id" => unprocessed_id, "county_id" => "1234"})
-    refute_enqueued(worker: CommcareCaseLoader, args: %{"case_id" => processed_id, "county_id" => "1111"})
-
-    assert page |> render() |> Floki.find("#index_cases button") == []
-
-    assert page
-           |> element("#index_cases span")
-           |> render()
-           |> Floki.text() == "2 index cases enqueued"
   end
 
   defp put_admin_auth(conn) do

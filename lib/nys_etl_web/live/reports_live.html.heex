@@ -13,11 +13,8 @@
   <h1>Unprocessed index cases</h1>
 
   <%= cond do %>
-  <% @processing_index_cases -> %>
-    <span><%= @index_cases_count %> index cases enqueued</span>
   <% @index_cases_count -> %>
     <span><%= @index_cases_count %></span>
-    <button phx-click="process_index_cases">Process</button>
   <% true -> %>
     <button phx-click="count_index_cases">Count</button>
   <% end %>
