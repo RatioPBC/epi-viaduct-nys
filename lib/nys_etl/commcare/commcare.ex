@@ -91,20 +91,23 @@ defmodule NYSETL.Commcare do
              left_join: event in NYSETL.Event,
              on: event.id == ic_event.event_id,
              select_merge: %{
-               when_updated: fragment("MAX(?) FILTER (WHERE ? = 'index_case_updated')", event.id, event.type),
-               when_enqueued: fragment("MAX(?) FILTER (WHERE ? = 'send_to_commcare_enqueued')", event.id, event.type),
-               when_processed:
+               when_dirty:
                  fragment(
-                   "MAX(?) FILTER (WHERE ? IN ('send_to_commcare_succeeded', 'send_to_commcare_failed', 'send_to_commcare_discarded', 'send_to_commcare_rerouted'))",
+                   "MAX(?) FILTER (WHERE ? IN ('index_case_created', 'index_case_updated', 'lab_result_created', 'lab_result_updated', 'send_to_commcare_enqueued'))",
+                   event.id,
+                   event.type
+                 ),
+               when_sent:
+                 fragment(
+                   "MAX(?) FILTER (WHERE ? IN ('send_to_commcare_succeeded', 'send_to_commcare_discarded', 'send_to_commcare_rerouted'))",
                    event.id,
                    event.type
                  )
              },
              group_by: index_case.id
          ),
-         where:
-           is_nil(index_case.when_processed) or index_case.when_enqueued > index_case.when_processed or
-             index_case.when_updated > index_case.when_enqueued
+         where: not is_nil(index_case.when_dirty),
+         where: index_case.when_dirty > index_case.when_sent or is_nil(index_case.when_sent)
   end
 
   def get_person(patient_key: patient_key) do

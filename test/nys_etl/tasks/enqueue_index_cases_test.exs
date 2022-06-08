@@ -17,13 +17,16 @@ defmodule NYSETL.Tasks.EnqueueIndexCasesTest do
     person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
 
     {:ok, %{case_id: processed_id} = processed_index_case} = %{data: %{}, person_id: person.id, county_id: 1111} |> Commcare.create_index_case()
+    Commcare.save_event(processed_index_case, "index_case_created")
     Commcare.save_event(processed_index_case, "send_to_commcare_succeeded")
 
     {:ok, %{case_id: enqueued_id} = enqueued_index_case} = %{data: %{}, person_id: person.id, county_id: 9999} |> Commcare.create_index_case()
+    Commcare.save_event(enqueued_index_case, "index_case_created")
     Commcare.save_event(enqueued_index_case, "send_to_commcare_succeeded")
     Commcare.save_event(enqueued_index_case, "send_to_commcare_enqueued")
 
-    {:ok, %{case_id: unprocessed_id}} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
+    {:ok, %{case_id: unprocessed_id} = unprocessed_index_case} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
+    Commcare.save_event(unprocessed_index_case, "index_case_created")
 
     EnqueueIndexCases.not_sent_to_commcare()
 

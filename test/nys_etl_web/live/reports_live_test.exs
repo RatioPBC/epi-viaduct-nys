@@ -58,13 +58,16 @@ defmodule NYSETLWeb.ReportsLiveTest do
     person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
 
     {:ok, processed_index_case} = %{data: %{}, person_id: person.id, county_id: 1111} |> Commcare.create_index_case()
+    Commcare.save_event(processed_index_case, "index_case_created")
     Commcare.save_event(processed_index_case, "send_to_commcare_succeeded")
 
     {:ok, enqueued_index_case} = %{data: %{}, person_id: person.id, county_id: 9999} |> Commcare.create_index_case()
+    Commcare.save_event(enqueued_index_case, "index_case_created")
     Commcare.save_event(enqueued_index_case, "send_to_commcare_succeeded")
     Commcare.save_event(enqueued_index_case, "send_to_commcare_enqueued")
 
-    {:ok, _unprocessed_index_case} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
+    {:ok, unprocessed_index_case} = %{data: %{}, person_id: person.id, county_id: 1234} |> Commcare.create_index_case()
+    Commcare.save_event(unprocessed_index_case, "index_case_created")
 
     page
     |> element("#index_cases button", "Count")

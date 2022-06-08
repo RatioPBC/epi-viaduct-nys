@@ -386,54 +386,71 @@ defmodule NYSETL.CommcareTest do
   end
 
   describe "get_unprocessed_index_cases" do
-    setup do
+    @update_events ["index_case_updated", "index_case_created", "lab_result_created", "lab_result_updated", "send_to_commcare_enqueued"]
+    @send_events ["send_to_commcare_succeeded", "send_to_commcare_rerouted", "send_to_commcare_discarded"]
+    @commcare_events ["retrieved_from_commcare", "updated_from_commcare"]
+
+    def create_index_case_with_events(events) do
       {:ok, _county} = ECLRS.find_or_create_county(71)
 
       person = %{data: %{}, patient_keys: ["123"]} |> Commcare.Person.changeset() |> Repo.insert!()
       {:ok, index_case} = %{data: %{}, person_id: person.id, county_id: 71} |> Commcare.create_index_case()
-      %{index_case: index_case}
+
+      Enum.each(events, &Commcare.save_event(index_case, &1))
+
+      index_case
     end
 
-    test "include cases that have no events", %{index_case: index_case} do
+    def assert_unprocessed_index_case(index_case) do
       index_case_id = index_case.id
       assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
     end
 
-    test "exclude cases that have been sent to commcare", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_succeeded")
+    def assert_no_unprocessed_index_cases do
       assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
     end
 
-    test "exclude cases that have failed to send to commcare", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_failed")
-      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    for update_event <- @update_events do
+      @tag update_event: update_event
+      test "include cases with #{update_event} that are never sent", %{update_event: update_event} do
+        [update_event]
+        |> create_index_case_with_events()
+        |> assert_unprocessed_index_case()
+      end
     end
 
-    test "exclude cases that were discarded from sending to commcare", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_discarded")
-      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    for update_event <- @update_events, send_event <- @send_events do
+      @tag update_event: update_event, send_event: send_event
+      test "include cases with #{send_event} followed by #{update_event}", %{update_event: update_event, send_event: send_event} do
+        [send_event, update_event]
+        |> create_index_case_with_events()
+        |> assert_unprocessed_index_case()
+      end
     end
 
-    test "exclude cases that were rerouted in commcare", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_rerouted")
-      assert [] == Commcare.get_unprocessed_index_cases() |> Repo.all()
+    for update_event <- @update_events, send_event <- @send_events do
+      @tag update_event: update_event, send_event: send_event
+      test "exclude cases with #{update_event} followed by #{send_event}", %{update_event: update_event, send_event: send_event} do
+        create_index_case_with_events([update_event, send_event])
+        assert_no_unprocessed_index_cases()
+      end
     end
 
-    test "include cases that are enqueued after sending", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_succeeded")
-      Commcare.save_event(index_case, "send_to_commcare_enqueued")
-
-      index_case_id = index_case.id
-      assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
+    for update_event <- @update_events, commcare_event <- @commcare_events do
+      @tag update_event: update_event, commcare_event: commcare_event
+      test "include cases with #{commcare_event} followed by #{update_event}", %{update_event: update_event, commcare_event: commcare_event} do
+        [commcare_event, update_event]
+        |> create_index_case_with_events()
+        |> assert_unprocessed_index_case()
+      end
     end
 
-    test "include cases that are updated after enqueueing and sending", %{index_case: index_case} do
-      Commcare.save_event(index_case, "send_to_commcare_enqueued")
-      Commcare.save_event(index_case, "send_to_commcare_succeeded")
-      Commcare.save_event(index_case, "index_case_updated")
-
-      index_case_id = index_case.id
-      assert [%{id: ^index_case_id}] = Commcare.get_unprocessed_index_cases() |> Repo.all()
+    for commcare_event <- @commcare_events do
+      @tag commcare_event: commcare_event
+      test "exclude cases with #{commcare_event} and no update event", %{commcare_event: commcare_event} do
+        create_index_case_with_events([commcare_event])
+        assert_no_unprocessed_index_cases()
+      end
     end
   end
 
