@@ -110,6 +110,14 @@ defmodule NYSETL.Commcare do
          where: index_case.when_dirty > index_case.when_sent or is_nil(index_case.when_sent)
   end
 
+  def get_index_cases_with_invalid_all_activity_complete_date do
+    where(Commcare.IndexCase, [_ic], fragment("(data->>'all_activity_complete_date' = 'date(today())')"))
+  end
+
+  def get_index_cases_without_commcare_date_modified do
+    where(Commcare.IndexCase, [ic], is_nil(ic.commcare_date_modified))
+  end
+
   def get_person(patient_key: patient_key) do
     from(person in Commcare.Person)
     |> where([person], ^patient_key in person.patient_keys)

@@ -2,6 +2,7 @@ defmodule NYSETL.CommcareTest do
   use NYSETL.DataCase, async: true
 
   alias NYSETL.Commcare
+  alias NYSETL.Commcare.County
   alias NYSETL.ECLRS
   alias NYSETL.Test
   alias NYSETL.Test.MessageCollector
@@ -452,6 +453,71 @@ defmodule NYSETL.CommcareTest do
         assert_no_unprocessed_index_cases()
       end
     end
+  end
+
+  test "get_index_cases_with_invalid_all_activity_complete_date" do
+    {:ok, midsomer} = County.get(name: "midsomer")
+    {:ok, midsomer_county} = ECLRS.find_or_create_county(midsomer.fips)
+
+    {:ok, person1} = Commcare.create_person(%{data: %{}, patient_keys: ["1"], name_first: nil, name_last: nil})
+
+    {:ok, _} =
+      Commcare.create_index_case(%{
+        case_id: "invalid-date",
+        data: %{"all_activity_complete_date" => "date(today())"},
+        person_id: person1.id,
+        county_id: midsomer_county.id
+      })
+
+    {:ok, person2} = Commcare.create_person(%{data: %{}, patient_keys: ["2"], name_first: nil, name_last: nil})
+
+    {:ok, _} =
+      Commcare.create_index_case(%{
+        case_id: "ok-date",
+        data: %{"all_activity_complete_date" => "2022-05-04"},
+        person_id: person2.id,
+        county_id: midsomer_county.id
+      })
+
+    {:ok, person3} = Commcare.create_person(%{data: %{}, patient_keys: ["3"], name_first: nil, name_last: nil})
+
+    {:ok, _} =
+      Commcare.create_index_case(%{
+        case_id: "no-date",
+        data: %{"all_activity_complete_date" => ""},
+        person_id: person3.id,
+        county_id: midsomer_county.id
+      })
+
+    assert [%{case_id: "invalid-date"}] = Commcare.get_index_cases_with_invalid_all_activity_complete_date() |> Repo.all()
+  end
+
+  test "get_index_cases_without_commcare_date_modified" do
+    {:ok, midsomer} = County.get(name: "midsomer")
+    {:ok, midsomer_county} = ECLRS.find_or_create_county(midsomer.fips)
+
+    {:ok, person1} = Commcare.create_person(%{data: %{}, patient_keys: ["1"], name_first: nil, name_last: nil})
+
+    {:ok, _} =
+      Commcare.create_index_case(%{
+        case_id: "missing-date-modified",
+        person_id: person1.id,
+        county_id: midsomer_county.id,
+        data: %{}
+      })
+
+    {:ok, person2} = Commcare.create_person(%{data: %{}, patient_keys: ["2"], name_first: nil, name_last: nil})
+
+    {:ok, _} =
+      Commcare.create_index_case(%{
+        case_id: "ok-date-modified",
+        person_id: person2.id,
+        county_id: midsomer_county.id,
+        data: %{},
+        commcare_date_modified: DateTime.utc_now()
+      })
+
+    assert [%{case_id: "missing-date-modified"}] = Commcare.get_index_cases_without_commcare_date_modified() |> Repo.all()
   end
 
   describe "get_person" do
