@@ -572,8 +572,7 @@ defmodule NYSETL.Engines.E4.CaseTransferChainTest do
         )
 
       {:more_than_one, [%{case_id: case_1_id}, %{case_id: case_2_id}]} = CaseTransferChain.fetch_case(case_identifier)
-      assert ^case_1_id = case_1.case_id
-      assert ^case_2_id = case_2.case_id
+      assert MapSet.new([case_1.case_id, case_2.case_id]) == MapSet.new([case_1_id, case_2_id])
     end
   end
 
