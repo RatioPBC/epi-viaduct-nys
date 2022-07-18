@@ -20,20 +20,27 @@ defmodule NYSETL.Engines.E1.SQSTask do
     loop()
   end
 
+  def processable?(key), do: key |> String.downcase() |> String.ends_with?(".txt")
+
   def import_s3_file(key: key, bucket: bucket) do
     Logger.info("[#{__MODULE__}] received new key `#{key}`")
-    path = pick_file_location(key)
 
-    try do
-      bucket
-      |> ExAws.S3.download_file(key, path)
-      |> ExAws.request!()
+    if processable?(key) do
+      path = pick_file_location(key)
 
-      Logger.info("[#{__MODULE__}] downloaded new eclrs file #{key} to #{path}")
+      try do
+        bucket
+        |> ExAws.S3.download_file(key, path)
+        |> ExAws.request!()
 
-      E1.ECLRSFileExtractor.extract!(path)
-    after
-      ensure_deleted(path)
+        Logger.info("[#{__MODULE__}] downloaded new eclrs file #{key} to #{path}")
+
+        E1.ECLRSFileExtractor.extract!(path)
+      after
+        ensure_deleted(path)
+      end
+    else
+      Logger.error("[#{__MODULE__}] unable to process key `#{key}`")
     end
   end
 
